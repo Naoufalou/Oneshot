@@ -1,0 +1,48 @@
+address: Paris
+city: Paris
+country: France
+current_title: Creative Front-End Developer & UI Designer
+custom_qa:
+  diplome: Product Designer / BUT Info-Com & Arts Appliqués
+  disponibilite: Immédiate
+  permis: Oui
+  stack_preferee: React, Three.js, TypeScript, Tailwind, Figma
+  statut: Cadre / Freelance
+email: eliot.hantute@gmail.com
+first_name: Eliot
+github_url: https://github.com/eliothantute
+languages:
+  Anglais: Professionnel (C1)
+  Français: Natif
+last_name: Hantute
+linkedin_url: https://www.linkedin.com/in/eliot-hantute/
+notice_period_weeks: 0
+phone_country_code: '+33'
+phone_number: '775036875'
+portfolio_url: https://eliotlab.fr/
+postal_code: '75000'
+requires_sponsorship: false
+resume_path: data/resumes/CV_Eliot_Hantute-4.pdf
+salary_expectation_annual_eur: 55000
+skills:
+- React 19
+- Three.js
+- WebGL
+- TypeScript
+- Tailwind CSS
+- Figma
+- UI/UX Design
+- Next.js
+- Vite
+- GSAP
+- Motion
+- Shaders GLSL
+- Design Systems
+- PWA
+- Python
+- Playwright
+summary: Développeur front-end créatif & UI Designer spécialisé en React 19, TypeScript,
+  Three.js et WebGL.
+total_years_experience: 3
+willing_to_relocate: false
+work_authorization_eu: true

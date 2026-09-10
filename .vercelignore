@@ -1,0 +1,6 @@
+venv/
+data/browser_sessions/
+data/screenshots/
+.git/
+__pycache__/
+*.pyc

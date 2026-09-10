@@ -1,0 +1,38 @@
+keywords:
+  - "Développeur Python"
+  - "Full Stack Developer"
+  - "Python Developer"
+  - "Backend Developer Python"
+
+locations:
+  - "Paris, Île-de-France, France"
+  - "Remote"
+  - "France"
+
+remote_only: false
+
+contract_types:
+  - "CDI"
+  - "Freelance"
+
+# Score minimal de pertinence calculé par le LLM (0 à 100) pour décider de postuler
+min_match_score: 65
+
+# Limite de sécurité quotidienne pour éviter les blocages
+max_applications_per_day: 20
+
+# Cibler uniquement les offres avec formulaire simplifié (Easy Apply / Candidature simplifiée)
+easy_apply_only: true
+
+# Entreprises à ignorer
+blacklisted_companies:
+  - "EntrepriseExclue"
+
+# Mots-clés dans le titre ou la description à exclure d'office
+blacklisted_keywords:
+  - "Stage"
+  - "Alternance"
+  - "Stagiaire"
+  - "Apprentissage"
+  - "Senior 10+ ans"
+  - "Lead Architect 15 ans"

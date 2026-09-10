@@ -1,0 +1,13 @@
+venv/
+.env
+.env.*
+data/browser_sessions/
+data/screenshots/
+data/resumes/
+data/*.db
+data/platform_sessions.json
+__pycache__/
+*.pyc
+.vercel
+scratch/
+.DS_Store

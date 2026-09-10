@@ -1,0 +1,3834 @@
+// Global State
+let allJobs = [];
+let allResumes = [];
+let activeResumeFilename = "";
+let viewedResumeFilename = "";
+let userProfile = null;
+let currentPeekJob = null;
+
+let selectedPlatform = "";
+let selectedLoc = "";
+let searchQuery = "";
+let option1ClickEnabled = true;
+let filterOnly1Click = false; // Show all fresh offers by default!
+let selectedStatus = "";
+
+function formatRelativeTime(dateStr) {
+  if (!dateStr) return "Récent";
+  try {
+    const d = new Date(dateStr);
+    const now = new Date();
+    const diffSec = Math.max(0, Math.floor((now - d) / 1000));
+    if (diffSec < 60) return "À l'instant";
+    if (diffSec < 3600) return `Il y a ${Math.max(1, Math.floor(diffSec / 60))} min`;
+    if (diffSec < 86400) return `Il y a ${Math.floor(diffSec / 3600)}h`;
+    const days = Math.floor(diffSec / 86400);
+    if (days === 1) return "Hier";
+    if (days < 30) return `Il y a ${days} jours`;
+    return `Il y a ${Math.floor(days / 30)} mois`;
+  } catch (e) {
+    return "Récent";
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  init3DMotionBanner();
+  setupTabs();
+  setupFilters();
+  setupResumeManager();
+  setupSidePeek();
+  setupBatchApply();
+  setupSettings();
+  setupPlatformsManager();
+  setupPlatformCatalogAndSearch();
+  setupArovaExperience();
+
+  // Initial load
+  loadResumes();
+  loadJobs();
+  loadConfig();
+  loadPlatformsStatus();
+  loadCustomPlatforms();
+
+  // Periodic background refresh
+  setInterval(() => {
+    loadJobs(false);
+  }, 20000);
+});
+
+/* ==========================================================
+   IMMERSIVE WIDE 3D MOTION BANNER ENGINE (THREE.JS WEBGL)
+   Parametric Responsive Surface Waves + Dynamic Lighting & Reactivity
+   (Zero Text, Pure Visual Calm + Background Texture Support)
+========================================================== */
+function init3DMotionBanner() {
+  const canvas = document.getElementById("motion-3d-banner-canvas");
+  const container = document.getElementById("notion-banner-container");
+  if (!canvas || !container) return;
+
+  if (typeof THREE === "undefined") {
+    console.warn("Three.js not loaded, skipping 3D motion banner");
+    return;
+  }
+
+  let width = container.clientWidth || window.innerWidth;
+  let height = container.clientHeight || window.innerHeight;
+
+  // Renderer
+  const renderer = new THREE.WebGLRenderer({
+    canvas: canvas,
+    antialias: true,
+    alpha: true,
+    powerPreference: "high-performance"
+  });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setSize(width, height);
+  const initialIsCream = document.body.classList.contains("arova-gallery-theme");
+  renderer.setClearColor(initialIsCream ? 0xe8e6df : 0x05070d, 1);
+
+  // Scene & Camera (60 FOV, positioned at [0, 0, 100])
+  const scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(initialIsCream ? 0xe8e6df : 0x05070d, initialIsCream ? 0.0035 : 0.0045);
+
+  const camera = new THREE.PerspectiveCamera(58, width / height, 0.1, 1000);
+  camera.position.set(0, 10, 100);
+
+  // Particle Swarm (Dopa Architecture - Omnichannel convergence into CRM Core)
+  const count = 16000;
+  const speedMult = 1;
+  const speed = 0.4;
+  const chaos = 20.0;
+  const coreSize = 10.0;
+
+  const dummy = new THREE.Object3D();
+  const target = new THREE.Vector3();
+  const pColor = new THREE.Color();
+
+  // Initial random cloud positions
+  const positions = [];
+  for (let i = 0; i < count; i++) {
+    positions.push(new THREE.Vector3(
+      (Math.random() - 0.5) * 120,
+      (Math.random() - 0.5) * 120,
+      (Math.random() - 0.5) * 120
+    ));
+  }
+
+  // Geometry & Material
+  const geometry = new THREE.TetrahedronGeometry(0.28);
+  const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+
+  const instancedMesh = new THREE.InstancedMesh(geometry, material, count);
+  instancedMesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(count * 3), 3);
+  scene.add(instancedMesh);
+
+  // Luminous Core Sphere (Center CRM Hub)
+  const coreGeom = new THREE.IcosahedronGeometry(7, 2);
+  const coreMat = new THREE.MeshBasicMaterial({
+    color: 0x9333ea,
+    wireframe: true,
+    transparent: true,
+    opacity: 0.45
+  });
+  const coreMesh = new THREE.Mesh(coreGeom, coreMat);
+  scene.add(coreMesh);
+
+  // Mouse interaction state
+  const mouse = { x: 0, y: 0, targetX: 0, targetY: 0, active: false };
+
+  container.addEventListener("mousemove", (e) => {
+    const rect = container.getBoundingClientRect();
+    mouse.targetX = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.targetY = -(((e.clientY - rect.top) / rect.height) * 2 - 1);
+    mouse.active = true;
+  });
+
+  container.addEventListener("mouseleave", () => {
+    mouse.targetX = 0;
+    mouse.targetY = 0;
+    mouse.active = false;
+  });
+
+  // Touch support
+  container.addEventListener("touchmove", (e) => {
+    if (e.touches.length > 0) {
+      const rect = container.getBoundingClientRect();
+      mouse.targetX = ((e.touches[0].clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.targetY = -(((e.touches[0].clientY - rect.top) / rect.height) * 2 - 1);
+      mouse.active = true;
+    }
+  }, { passive: true });
+
+  container.addEventListener("touchend", () => {
+    mouse.targetX = 0;
+    mouse.targetY = 0;
+    mouse.active = false;
+  });
+
+  // Resize handler
+  function onResize() {
+    width = container.clientWidth || window.innerWidth;
+    height = container.clientHeight || window.innerHeight;
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+    renderer.setSize(width, height);
+  }
+
+  window.addEventListener("resize", onResize);
+  const ro = new ResizeObserver(onResize);
+  ro.observe(container);
+
+  window.__updateThreeTheme = function(isCream) {
+    if (isCream) {
+      renderer.setClearColor(0xe8e6df, 1);
+      scene.fog = new THREE.FogExp2(0xe8e6df, 0.0035);
+      material.color.setHex(0x18181b);
+    } else {
+      renderer.setClearColor(0x05070d, 1);
+      scene.fog = new THREE.FogExp2(0x05070d, 0.0045);
+      material.color.setHex(0xffffff);
+    }
+  };
+  if (initialIsCream) {
+    window.__updateThreeTheme(true);
+  }
+
+  // Animation Loop (OrbitControls autoRotate + Particle Swarm calculation)
+  const clock = new THREE.Clock();
+  const goldenRatio = (1.0 + Math.sqrt(5.0)) / 2.0;
+
+  function animate() {
+    requestAnimationFrame(animate);
+
+    const time = clock.getElapsedTime() * speedMult;
+
+    // Smooth mouse lerp
+    mouse.x += (mouse.targetX - mouse.x) * 0.05;
+    mouse.y += (mouse.targetY - mouse.y) * 0.05;
+
+    // Auto-rotating orbital camera around the central CRM core
+    const camAngle = time * 0.22 + mouse.x * 1.8;
+    const camRadius = 96;
+    camera.position.x = Math.sin(camAngle) * camRadius;
+    camera.position.z = Math.cos(camAngle) * camRadius;
+    camera.position.y = 10 + mouse.y * 30;
+    camera.lookAt(0, 0, 0);
+
+    // Rotate core mesh
+    coreMesh.rotation.y = time * 0.4;
+    coreMesh.rotation.x = time * 0.2;
+    const corePulseScale = 1.0 + Math.sin(time * 5.0) * 0.08;
+    coreMesh.scale.set(corePulseScale, corePulseScale, corePulseScale);
+
+    // Update 16,000 convergence particles
+    for (let i = 0; i < count; i++) {
+      // 1. Progression towards the core (0.0 = outer edge, 1.0 = core)
+      const norm = i / count;
+      const progress = (norm + time * speed * 0.2) % 1.0;
+      const easeProgress = Math.pow(progress, 1.5);
+
+      // 2. Spherical Fibonacci distribution
+      const theta = 2.0 * Math.PI * i / goldenRatio;
+      const phi = Math.acos(Math.max(-1.0, Math.min(1.0, 1.0 - 2.0 * norm)));
+
+      // 3. Radius from 150 down to coreSize
+      const currentRadius = coreSize + (150.0 * (1.0 - easeProgress));
+
+      // 4. Noise/Chaos (wobble high on outside, 0 at stable core)
+      const instability = Math.pow(1.0 - progress, 2.0);
+      const wobbleX = Math.sin(time * 2.0 + norm * 100.0) * chaos * instability;
+      const wobbleY = Math.cos(time * 1.5 + norm * 200.0) * chaos * instability;
+      const wobbleZ = Math.sin(time * 3.0 - norm * 300.0) * chaos * instability;
+
+      // 5. Target position
+      const sinPhi = Math.sin(phi);
+      const x = (currentRadius * sinPhi * Math.cos(theta)) + wobbleX;
+      const y = (currentRadius * sinPhi * Math.sin(theta)) + wobbleY;
+      const z = (currentRadius * Math.cos(phi)) + wobbleZ;
+
+      target.set(x, y, z);
+
+      // 6. Color mapping: Outer = Cool Data Blue (0.55), Core = High-Energy Purple/Neon (0.8)
+      const hue = 0.55 + (0.25 * progress);
+      const saturation = 0.8 + (0.2 * progress);
+      const corePulse = (progress > 0.95) ? Math.sin(time * 10.0) * 0.3 : 0.0;
+      const lightness = 0.2 + (0.6 * progress) + corePulse;
+
+      pColor.setHSL(hue, saturation, Math.max(0.0, Math.min(1.0, lightness)));
+
+      // Lerp particle towards target
+      positions[i].lerp(target, 0.1);
+      dummy.position.copy(positions[i]);
+      dummy.updateMatrix();
+      instancedMesh.setMatrixAt(i, dummy.matrix);
+      instancedMesh.setColorAt(i, pColor);
+    }
+
+    instancedMesh.instanceMatrix.needsUpdate = true;
+    if (instancedMesh.instanceColor) instancedMesh.instanceColor.needsUpdate = true;
+
+    renderer.render(scene, camera);
+  }
+
+  animate();
+
+  // Custom user banner image texture handler
+  const fileInput = document.getElementById("banner-file-input");
+  const btnUpload = document.getElementById("btn-upload-banner");
+  const btnReset = document.getElementById("btn-reset-banner");
+
+  function applyTextureToMesh(imgUrl) {
+    new THREE.TextureLoader().load(imgUrl, (tex) => {
+      tex.wrapS = THREE.ClampToEdgeWrapping;
+      tex.wrapT = THREE.ClampToEdgeWrapping;
+      material.map = tex;
+      material.color.setHex(0xffffff);
+      material.needsUpdate = true;
+    });
+  }
+
+  const savedCustom = localStorage.getItem("user_custom_banner");
+  if (savedCustom) {
+    applyTextureToMesh(savedCustom);
+  }
+
+  if (btnUpload && fileInput) {
+    btnUpload.addEventListener("click", (e) => {
+      e.stopPropagation();
+      fileInput.click();
+    });
+
+    fileInput.addEventListener("change", (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        const dataUrl = evt.target.result;
+        localStorage.setItem("user_custom_banner", dataUrl);
+        applyTextureToMesh(dataUrl);
+        showToast("✓ Fond 3D personnalisé appliqué !", "success");
+      };
+      reader.readAsDataURL(file);
+      fileInput.value = "";
+    });
+  }
+
+  if (btnReset) {
+    btnReset.addEventListener("click", (e) => {
+      e.stopPropagation();
+      localStorage.removeItem("user_custom_banner");
+      material.map = null;
+      material.color.setHex(0x090f1d);
+      material.needsUpdate = true;
+      showToast("Animation 3D par défaut rétablie", "info");
+    });
+  }
+}
+
+/* ==========================================================
+   TOAST NOTIFICATIONS
+========================================================== */
+function showToast(message, type = "info") {
+  const container = document.getElementById("toast-container");
+  const toast = document.createElement("div");
+  toast.className = "toast";
+
+  let icon = 'ℹ️';
+  if (type === "success") icon = '✅';
+  if (type === "error") icon = '⚠️';
+
+  toast.innerHTML = `<span style="font-size:15px;">${icon}</span> <span>${message}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 4000);
+}
+
+/* ==========================================================
+   TABS NAVIGATION
+========================================================== */
+function setupTabs() {
+  const viewButtons = document.querySelectorAll(".view-tab-btn[data-tab]");
+  viewButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const tabId = btn.getAttribute("data-tab");
+      switchViewTab(tabId);
+    });
+  });
+
+  const btnGotoViewer = document.getElementById("btn-goto-viewer");
+  if (btnGotoViewer) {
+    btnGotoViewer.addEventListener("click", () => switchViewTab("tab-cv"));
+  }
+
+  const btnModalGoto = document.getElementById("btn-modal-goto-viewer");
+  if (btnModalGoto) {
+    btnModalGoto.addEventListener("click", () => {
+      closeQuickSwitchModal();
+      switchViewTab("tab-cv");
+    });
+  }
+
+  const btnEditProfileJump = document.getElementById("btn-edit-profile-jump");
+  if (btnEditProfileJump) {
+    btnEditProfileJump.addEventListener("click", () => switchViewTab("tab-settings"));
+  }
+}
+
+function switchViewTab(tabId) {
+  if (tabId === "tab-table") {
+    if (typeof window.openCandidaturesSheet === "function") {
+      window.openCandidaturesSheet("");
+    }
+    return;
+  }
+  if (tabId === "tab-cv" || tabId === "tab-platforms" || tabId === "tab-settings") {
+    if (typeof window.openSecondarySheet === "function") {
+      window.openSecondarySheet(tabId);
+    }
+    return;
+  }
+
+  document.querySelectorAll(".view-tab-btn").forEach(b => b.classList.remove("active"));
+  document.querySelectorAll(".notion-view-page").forEach(p => p.classList.remove("active"));
+
+  const activeBtn = document.querySelector(`.view-tab-btn[data-tab='${tabId}']`);
+  const activePage = document.getElementById(tabId);
+
+  if (activeBtn) activeBtn.classList.add("active");
+  if (activePage) activePage.classList.add("active");
+}
+
+/* ==========================================================
+   RESUME MANAGER & VIEWER
+========================================================== */
+function setupResumeManager() {
+  const topbarPill = document.getElementById("header-cv-pill");
+  const triggerBtn = document.getElementById("btn-quick-switch-trigger");
+  const modal = document.getElementById("quick-switch-modal");
+  const btnClose = document.getElementById("btn-close-modal");
+
+  if (topbarPill) topbarPill.addEventListener("click", openQuickSwitchModal);
+  if (triggerBtn) triggerBtn.addEventListener("click", openQuickSwitchModal);
+  if (btnClose) btnClose.addEventListener("click", closeQuickSwitchModal);
+
+  if (modal) {
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) closeQuickSwitchModal();
+    });
+  }
+
+  // Dropzone
+  const dropzone = document.getElementById("cv-dropzone");
+  const fileInput = document.getElementById("cv-file-input");
+
+  if (dropzone && fileInput) {
+    dropzone.addEventListener("click", () => fileInput.click());
+
+    dropzone.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      dropzone.classList.add("dragover");
+    });
+
+    dropzone.addEventListener("dragleave", () => {
+      dropzone.classList.remove("dragover");
+    });
+
+    dropzone.addEventListener("drop", (e) => {
+      e.preventDefault();
+      dropzone.classList.remove("dragover");
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        handleUploadFile(e.dataTransfer.files[0]);
+      }
+    });
+
+    fileInput.addEventListener("change", (e) => {
+      if (e.target.files && e.target.files.length > 0) {
+        handleUploadFile(e.target.files[0]);
+      }
+    });
+  }
+
+  const btnModalUpload = document.getElementById("btn-modal-upload");
+  if (btnModalUpload && fileInput) {
+    btnModalUpload.addEventListener("click", () => {
+      closeQuickSwitchModal();
+      switchViewTab("tab-cv");
+      fileInput.click();
+    });
+  }
+
+  const btnSetViewedActive = document.getElementById("btn-set-viewed-active");
+  if (btnSetViewedActive) {
+    btnSetViewedActive.addEventListener("click", async () => {
+      if (!viewedResumeFilename) return;
+      await setActiveResume(viewedResumeFilename);
+    });
+  }
+}
+
+async function loadResumes() {
+  try {
+    const res = await fetch("/api/resumes");
+    const data = await res.json();
+
+    allResumes = data.resumes || [];
+    activeResumeFilename = data.active_filename || "";
+    userProfile = data.profile || {};
+
+    if (!viewedResumeFilename && activeResumeFilename) {
+      viewedResumeFilename = activeResumeFilename;
+    } else if (!viewedResumeFilename && allResumes.length > 0) {
+      viewedResumeFilename = allResumes[0].filename;
+    }
+
+    renderResumeElements();
+  } catch (e) {
+    console.error("Error loading resumes:", e);
+  }
+}
+
+function renderResumeElements() {
+  const topbarName = document.getElementById("topbar-active-cv-name");
+  const reminderName = document.getElementById("reminder-cv-name");
+  const viewerActiveName = document.getElementById("viewer-active-filename");
+  const countBadge = document.getElementById("resumes-count-badge");
+  const peekActiveCV = document.getElementById("peek-active-cv-name");
+  const settingsActiveCV = document.getElementById("settings-active-cv-label");
+
+  const displayName = activeResumeFilename || "Aucun CV actif";
+  if (topbarName) topbarName.innerText = displayName;
+  if (reminderName) reminderName.innerText = displayName;
+  if (viewerActiveName) viewerActiveName.innerText = displayName;
+  if (countBadge) countBadge.innerText = allResumes.length;
+  if (peekActiveCV) peekActiveCV.innerText = displayName;
+  if (settingsActiveCV) settingsActiveCV.innerText = displayName;
+
+  const listContainer = document.getElementById("resumes-list-container");
+  if (listContainer) {
+    if (allResumes.length === 0) {
+      listContainer.innerHTML = `
+        <div style="text-align:center; padding: 14px; color: var(--text-muted); font-size: 12px;">
+          Aucun document. Glissez un PDF ci-dessus.
+        </div>
+      `;
+    } else {
+      listContainer.innerHTML = allResumes.map(r => {
+        const isActive = (r.filename === activeResumeFilename);
+        const isViewed = (r.filename === viewedResumeFilename);
+        return `
+          <div class="cv-list-entry ${isActive ? 'is-active' : ''} ${isViewed ? 'is-viewed' : ''}">
+            <div style="display:flex; align-items:center; gap:8px; min-width:0; flex:1; cursor:pointer;" onclick="viewResume('${r.filename}')">
+              <i class="fa-regular fa-file-pdf" style="color:#ef4444; font-size:14px;"></i>
+              <div style="min-width:0;">
+                <div style="font-size:12.5px; font-weight:500; color:#fff; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${r.filename}">
+                  ${r.filename}
+                </div>
+                <div style="font-size:11px; color:var(--text-muted); display:flex; align-items:center; gap:6px;">
+                  <span>${r.size_kb} Ko</span>
+                  ${isActive ? '<span style="color:#34d399; font-weight:600;">• Actif</span>' : ''}
+                </div>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:4px;">
+              ${!isActive ? `
+                <button class="btn-xs-link" title="Définir comme CV actif" onclick="setActiveResume('${r.filename}')">
+                  Activer
+                </button>
+              ` : `
+                <span style="color:#34d399; font-size:13px; padding:0 4px;"><i class="fa-solid fa-circle-check"></i></span>
+              `}
+              <button class="table-icon-link" title="Supprimer ce CV" onclick="deleteResume('${r.filename}')">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+  }
+
+  renderDocumentViewer();
+  renderModalList();
+  renderProfileProperties();
+}
+
+function renderDocumentViewer() {
+  const titleElem = document.getElementById("viewer-display-title");
+  const activeBadge = document.getElementById("viewer-is-active-badge");
+  const btnSetActive = document.getElementById("btn-set-viewed-active");
+  const downloadLink = document.getElementById("btn-download-pdf");
+  const fullscreenLink = document.getElementById("btn-fullscreen-pdf");
+  const frame = document.getElementById("pdf-viewer-frame");
+  const placeholder = document.getElementById("viewer-empty-state");
+
+  if (!viewedResumeFilename) {
+    if (titleElem) titleElem.innerText = "Aucun document sélectionné";
+    if (activeBadge) activeBadge.style.display = "none";
+    if (btnSetActive) btnSetActive.style.display = "none";
+    if (frame) frame.style.display = "none";
+    if (placeholder) placeholder.style.display = "flex";
+    return;
+  }
+
+  if (titleElem) titleElem.innerText = viewedResumeFilename;
+
+  const isActive = (viewedResumeFilename === activeResumeFilename);
+  if (activeBadge) activeBadge.style.display = isActive ? "inline-flex" : "none";
+  if (btnSetActive) btnSetActive.style.display = isActive ? "none" : "inline-flex";
+
+  const previewUrl = `/api/resumes/preview/${encodeURIComponent(viewedResumeFilename)}`;
+  const downloadUrl = `/api/resumes/download/${encodeURIComponent(viewedResumeFilename)}`;
+
+  if (downloadLink) downloadLink.href = downloadUrl;
+  if (fullscreenLink) fullscreenLink.href = previewUrl;
+
+  if (frame) {
+    frame.style.display = "block";
+    if (frame.src !== window.location.origin + previewUrl) {
+      frame.src = previewUrl;
+    }
+  }
+  if (placeholder) placeholder.style.display = "none";
+}
+
+function renderProfileProperties() {
+  const container = document.getElementById("profile-summary-content");
+  if (!container || !userProfile) return;
+
+  const skillsList = (userProfile.skills || []).slice(0, 5).join(", ");
+
+  container.innerHTML = `
+    <div class="prop-row-clean">
+      <span class="prop-name-clean">Candidat</span>
+      <span class="prop-val-clean">${userProfile.first_name || ""} ${userProfile.last_name || ""}</span>
+    </div>
+    <div class="prop-row-clean">
+      <span class="prop-name-clean">Poste visé</span>
+      <span class="prop-val-clean">${userProfile.current_title || "Développeur Full Stack"}</span>
+    </div>
+    <div class="prop-row-clean">
+      <span class="prop-name-clean">Email</span>
+      <span class="prop-val-clean">${userProfile.email || "-"}</span>
+    </div>
+    <div class="prop-row-clean">
+      <span class="prop-name-clean">Téléphone</span>
+      <span class="prop-val-clean">${userProfile.phone_number ? '+33 ' + userProfile.phone_number : "01 88 33 97 16"}</span>
+    </div>
+    <div class="prop-row-clean">
+      <span class="prop-name-clean">Compétences</span>
+      <span class="prop-val-clean">${skillsList}</span>
+    </div>
+    <div class="prop-row-clean">
+      <span class="prop-name-clean">Prétentions</span>
+      <span class="prop-val-clean">${userProfile.salary_expectation_annual_eur ? userProfile.salary_expectation_annual_eur + ' €/an' : "50 000 €/an"}</span>
+    </div>
+  `;
+}
+
+function viewResume(filename) {
+  viewedResumeFilename = filename;
+  renderResumeElements();
+}
+
+async function setActiveResume(filename) {
+  try {
+    const res = await fetch("/api/resumes/set-active", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ filename }),
+    });
+
+    if (!res.ok) throw new Error("Erreur de mise à jour");
+
+    activeResumeFilename = filename;
+    viewedResumeFilename = filename;
+    showToast(`CV Actif mis à jour : ${filename}`, "success");
+    closeQuickSwitchModal();
+    await loadResumes();
+  } catch (e) {
+    showToast("Erreur : " + e.message, "error");
+  }
+}
+
+async function deleteResume(filename) {
+  if (!confirm(`Supprimer définitivement le CV "${filename}" ?`)) return;
+
+  try {
+    const res = await fetch(`/api/resumes/${encodeURIComponent(filename)}`, {
+      method: "DELETE",
+    });
+    if (!res.ok) throw new Error("Erreur de suppression");
+
+    showToast(`CV "${filename}" supprimé`, "info");
+    if (viewedResumeFilename === filename) viewedResumeFilename = "";
+    await loadResumes();
+  } catch (e) {
+    showToast("Erreur : " + e.message, "error");
+  }
+}
+
+async function handleUploadFile(file) {
+  if (!file) return;
+  if (!file.name.toLowerCase().endsWith(".pdf")) {
+    showToast("Veuillez sélectionner un fichier PDF (.pdf)", "error");
+    return;
+  }
+
+  const setActive = document.getElementById("upload-set-active")?.checked ?? true;
+  const formData = new FormData();
+  formData.append("file", file);
+
+  showToast(`Importation de "${file.name}"...`);
+
+  try {
+    const res = await fetch(`/api/resumes/upload?set_active=${setActive}`, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!res.ok) throw new Error("Échec de l'import");
+
+    const data = await res.json();
+    showToast(data.message || "CV importé avec succès !", "success");
+    viewedResumeFilename = data.filename;
+    await loadResumes();
+  } catch (e) {
+    showToast("Erreur : " + e.message, "error");
+  }
+}
+
+function openQuickSwitchModal() {
+  const modal = document.getElementById("quick-switch-modal");
+  if (modal) {
+    renderModalList();
+    modal.style.display = "flex";
+  }
+}
+
+function closeQuickSwitchModal() {
+  const modal = document.getElementById("quick-switch-modal");
+  if (modal) modal.style.display = "none";
+}
+
+function renderModalList() {
+  const container = document.getElementById("modal-resumes-list");
+  if (!container) return;
+
+  if (allResumes.length === 0) {
+    container.innerHTML = `
+      <div style="text-align:center; padding: 18px; color: var(--text-muted);">
+        Aucun document disponible.
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = allResumes.map(r => {
+    const isActive = (r.filename === activeResumeFilename);
+    return `
+      <div class="modal-cv-entry ${isActive ? 'is-active' : ''}" onclick="setActiveResume('${r.filename}')">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <i class="fa-regular fa-file-pdf" style="color:#ef4444; font-size:16px;"></i>
+          <div>
+            <div style="font-weight:600; font-size:13px; color:#fff;">${r.filename}</div>
+            <div style="font-size:11px; color:var(--text-muted);">
+              ${r.size_kb} Ko ${isActive ? '• <span style="color:#34d399; font-weight:600;">Actif pour postuler</span>' : ''}
+            </div>
+          </div>
+        </div>
+        <div>
+          ${isActive ? `
+            <span style="color:#34d399; font-size:16px;"><i class="fa-solid fa-circle-check"></i></span>
+          ` : `
+            <button class="btn-xs-link">Choisir</button>
+          `}
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+/* ==========================================================
+   SIDE-PEEK DRAWER (1-CLICK APPLY IN DETAIL)
+========================================================== */
+function setupSidePeek() {
+  const sidePeek = document.getElementById("notion-side-peek");
+  const btnClose = document.getElementById("btn-close-side-peek");
+  const btnApplyNow = document.getElementById("btn-peek-apply-now");
+  const btnChangeCv = document.getElementById("btn-peek-change-cv");
+
+  if (btnClose) {
+    btnClose.addEventListener("click", () => {
+      if (sidePeek) sidePeek.style.display = "none";
+    });
+  }
+
+  if (btnChangeCv) {
+    btnChangeCv.addEventListener("click", openQuickSwitchModal);
+  }
+
+  if (btnApplyNow) {
+    btnApplyNow.addEventListener("click", async () => {
+      if (!currentPeekJob) return;
+      await handleApply(currentPeekJob.id, btnApplyNow);
+      // update sidepeek status
+      const peekStatus = document.getElementById("peek-status-pill");
+      if (peekStatus) {
+        peekStatus.className = "notion-status-pill applied";
+        peekStatus.innerHTML = `<span class="status-dot"></span> Postulé`;
+      }
+    });
+  }
+}
+
+function openSidePeek(job) {
+  currentPeekJob = job;
+  const sidePeek = document.getElementById("notion-side-peek");
+  if (!sidePeek) return;
+
+  const titleElem = document.getElementById("peek-job-title");
+  const compElem = document.getElementById("peek-company");
+  const locElem = document.getElementById("peek-location");
+  const platElem = document.getElementById("peek-platform");
+  const scoreElem = document.getElementById("peek-score");
+  const reasonElem = document.getElementById("peek-match-reason");
+  const linkElem = document.getElementById("peek-external-link");
+  const cvElem = document.getElementById("peek-active-cv-name");
+  const statusElem = document.getElementById("peek-status-pill");
+  const btnApply = document.getElementById("btn-peek-apply-now");
+  const auditBox = document.getElementById("peek-audit-box");
+  const auditTitle = document.getElementById("peek-audit-title");
+  const auditDetail = document.getElementById("peek-audit-detail");
+
+  if (titleElem) titleElem.innerText = job.job_title;
+  if (compElem) compElem.innerText = job.company;
+  if (locElem) locElem.innerText = job.location || "Paris";
+  if (platElem) platElem.innerText = (job.platform || "").toUpperCase();
+  if (scoreElem) scoreElem.innerText = `${job.match_score || 75}%`;
+  if (reasonElem) reasonElem.innerText = job.match_reason || "Adéquation confirmée avec votre profil candidat.";
+  if (linkElem) linkElem.href = job.job_url;
+  const postedElem = document.getElementById("peek-posted-time");
+  if (postedElem) {
+    const rel = job.posted_relative || (job.created_at ? formatRelativeTime(job.created_at) : "Récent");
+    postedElem.innerText = rel;
+  }
+
+  // Status Pill
+  if (statusElem) {
+    if (job.status === "applied") {
+      statusElem.className = "notion-status-pill applied";
+      statusElem.innerHTML = `<span class="status-dot"></span> Postulé`;
+    } else if (job.status === "applying") {
+      statusElem.className = "notion-status-pill contacted";
+      statusElem.innerHTML = `<span class="status-dot"></span> En cours...`;
+    } else if (job.status === "skipped") {
+      statusElem.className = "notion-status-pill skipped";
+      statusElem.innerHTML = `<span class="status-dot"></span> Redirection`;
+    } else if (job.status === "failed") {
+      statusElem.className = "notion-status-pill failed";
+      statusElem.innerHTML = `<span class="status-dot"></span> Échec d'envoi`;
+    } else if (job.status === "requires_review") {
+      statusElem.className = "notion-status-pill requires-review";
+      statusElem.innerHTML = `<span class="status-dot"></span> À vérifier`;
+    } else {
+      statusElem.className = "notion-status-pill to-contact";
+      statusElem.innerHTML = `<span class="status-dot"></span> À contacter`;
+    }
+  }
+
+  // Preuve & Audit Box
+  if (auditBox && auditDetail) {
+    auditBox.style.display = "block";
+    if (job.status === "applied") {
+      auditBox.className = "peek-audit-box success";
+      auditTitle.innerHTML = `<i class="fa-solid fa-circle-check"></i> Candidature transmise avec succès`;
+      const dt = job.applied_at ? new Date(job.applied_at).toLocaleString('fr-FR') : "Confirmée";
+      auditDetail.innerHTML = `Votre dossier a été validé et envoyé à <strong>${escapeHtml(job.company)}</strong> via ${job.platform}.<br><span style="opacity:0.8; font-size:11.5px;">Horodatage : ${dt}</span>`;
+    } else if (job.status === "skipped") {
+      auditBox.className = "peek-audit-box warning";
+      auditTitle.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Candidature externe requise (Non 1-Clic direct)`;
+      auditDetail.innerHTML = `Cette offre ne supporte pas l'envoi automatique direct (<em>${escapeHtml(job.error_message || 'Redirection vers portail employeur')}</em>). Cliquez sur "Postuler sur le site externe" ci-dessous pour remplir leur formulaire officiel.`;
+    } else if (job.status === "failed") {
+      auditBox.className = "peek-audit-box error";
+      auditTitle.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> Échec lors de la transmission Playwright`;
+      auditDetail.innerHTML = `Raison : <strong>${escapeHtml(job.error_message || 'Erreur inconnue')}</strong>.<br><span style="opacity:0.85; font-size:11.5px;">Astuce : Vérifiez votre connexion sur <em>${job.platform}</em> dans l'onglet <strong>🔑 Connexions Plateformes</strong>.</span>`;
+    } else if (job.status === "applying") {
+      auditBox.className = "peek-audit-box info";
+      auditTitle.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Traitement Playwright en arrière-plan...`;
+      auditDetail.innerHTML = `Le robot invisible navigue et remplit la candidature en tâche de fond.`;
+    } else {
+      auditBox.style.display = "none";
+    }
+  }
+
+  // Action Button
+  if (btnApply) {
+    if (job.status === "applied") {
+      btnApply.innerHTML = '<i class="fa-solid fa-check"></i> Déjà postulé avec succès';
+      btnApply.style.background = "rgba(16, 185, 129, 0.35)";
+      btnApply.style.color = "#34d399";
+      btnApply.disabled = true;
+    } else if (job.status === "applying") {
+      btnApply.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> En cours de traitement...';
+      btnApply.style.background = "rgba(59, 130, 246, 0.25)";
+      btnApply.style.color = "#93c5fd";
+      btnApply.disabled = true;
+    } else if (job.status === "skipped") {
+      btnApply.innerHTML = '<i class="fa-solid fa-arrow-up-right-from-square"></i> Postuler sur le site externe';
+      btnApply.style.background = "#334155";
+      btnApply.style.color = "#f8fafc";
+      btnApply.disabled = false;
+      btnApply.onclick = () => window.open(job.job_url, '_blank');
+    } else if (job.status === "failed") {
+      btnApply.innerHTML = '<i class="fa-solid fa-rotate-right"></i> Réessayer en 1 Clic';
+      btnApply.style.background = "#ef4444";
+      btnApply.style.color = "#ffffff";
+      btnApply.disabled = false;
+      btnApply.onclick = async () => { await handleApply(job.id, btnApply); };
+    } else {
+      btnApply.innerHTML = '<i class="fa-solid fa-bolt"></i> POSTULER EN 1 CLIC MAINTENANT';
+      btnApply.style.background = "#10b981";
+      btnApply.style.color = "#ffffff";
+      btnApply.disabled = false;
+      btnApply.onclick = async () => { await handleApply(job.id, btnApply); };
+    }
+  }
+
+  sidePeek.style.display = "flex";
+}
+
+/* ==========================================================
+   BATCH 1-CLICK APPLY
+========================================================== */
+function setupBatchApply() {
+  const btnHeaderBatch = document.getElementById("btn-header-batch-apply");
+  const btnStripBatch = document.getElementById("btn-strip-apply-all");
+
+  const runBatch = async () => {
+    const unappliedJobs = allJobs.filter(j => j.status !== "applied" && j.status !== "skipped");
+    if (unappliedJobs.length === 0) {
+      showToast("Toutes les offres affichées ont déjà été postulées !", "info");
+      return;
+    }
+
+    const jobIds = unappliedJobs.slice(0, 10).map(j => j.id);
+    const resumeName = activeResumeFilename || "votre CV actif";
+
+    if (!confirm(`⚡ Lancer la postulation automatique (mode humain indétectable) pour ${jobIds.length} offre(s) avec ${resumeName} ?`)) {
+      return;
+    }
+
+    showToast(`⚡ Postulation automatique (mode humain indétectable) lancée pour ${jobIds.length} offre(s)...`, "info");
+
+    try {
+      const res = await fetch("/api/jobs/apply-batch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ job_ids: jobIds })
+      });
+      const data = await res.json();
+      showToast(data.message || "Candidatures en cours de traitement !", "success");
+
+      // Mark rows visually
+      jobIds.forEach(id => {
+        const row = document.getElementById(`job-row-${id}`);
+        if (row) {
+          const cell = row.cells[3];
+          if (cell) {
+            cell.innerHTML = `
+              <span class="notion-status-pill contacted">
+                <span class="status-dot"></span> En cours...
+              </span>
+            `;
+          }
+        }
+      });
+
+      setTimeout(() => {
+        loadJobs();
+      }, 4000);
+    } catch (e) {
+      showToast("Erreur : " + e.message, "error");
+    }
+  };
+
+  if (btnHeaderBatch) btnHeaderBatch.addEventListener("click", runBatch);
+  if (btnStripBatch) btnStripBatch.addEventListener("click", runBatch);
+}
+
+function updateBatchCounts() {
+  const unappliedTotal = allJobs.filter(j => j.status !== "applied" && j.status !== "skipped").length;
+  const appliedTotal = allJobs.filter(j => j.status === "applied").length;
+
+  // By platform unapplied counts
+  const ftUnapplied = allJobs.filter(j => (j.platform || "").toLowerCase() === "francetravail" && j.status !== "applied" && j.status !== "skipped").length;
+  const liUnapplied = allJobs.filter(j => (j.platform || "").toLowerCase() === "linkedin" && j.status !== "applied" && j.status !== "skipped").length;
+  const indUnapplied = allJobs.filter(j => (j.platform || "").toLowerCase() === "indeed" && j.status !== "applied" && j.status !== "skipped").length;
+
+  const headerCount = document.getElementById("header-batch-count");
+  const stripCount = document.getElementById("strip-batch-count");
+  const drawerCount = document.getElementById("drawer-count-all-unapplied");
+  const footCount = document.getElementById("arova-foot-unapplied-count");
+  const footBtn = document.getElementById("btn-arova-foot-apply-all");
+  const dockAppliedCount = document.getElementById("dock-count-applied");
+  const drawerAppliedCount = document.getElementById("drawer-count-applied-badge");
+  const tabCountApplied = document.getElementById("arova-tab-count-applied");
+
+  // Pills inside batch modal
+  const pillAll = document.getElementById("batch-pill-count-all");
+  const pillFt = document.getElementById("batch-pill-count-ft");
+  const pillLi = document.getElementById("batch-pill-count-li");
+  const pillInd = document.getElementById("batch-pill-count-ind");
+
+  if (headerCount) headerCount.innerText = unappliedTotal;
+  if (stripCount) stripCount.innerText = unappliedTotal;
+  if (drawerCount) drawerCount.innerText = unappliedTotal;
+  if (dockAppliedCount) dockAppliedCount.innerText = appliedTotal;
+  if (drawerAppliedCount) drawerAppliedCount.innerText = appliedTotal;
+
+  if (pillAll) pillAll.innerText = unappliedTotal;
+  if (pillFt) pillFt.innerText = ftUnapplied;
+  if (pillLi) pillLi.innerText = liUnapplied;
+  if (pillInd) pillInd.innerText = indUnapplied;
+
+  // For the active platform in the card
+  let activeUnapplied = unappliedTotal;
+  let activeApplied = appliedTotal;
+  if (selectedPlatform) {
+    activeUnapplied = allJobs.filter(j => (j.platform || "").toLowerCase() === selectedPlatform.toLowerCase() && j.status !== "applied" && j.status !== "skipped").length;
+    activeApplied = allJobs.filter(j => (j.platform || "").toLowerCase() === selectedPlatform.toLowerCase() && j.status === "applied").length;
+  }
+
+  if (footCount) footCount.innerText = activeUnapplied;
+  if (tabCountApplied) tabCountApplied.innerText = activeApplied;
+
+  if (footBtn) {
+    const meta = getPlatformMeta(selectedPlatform);
+    if (selectedPlatform && meta) {
+      footBtn.innerHTML = `<i class="fa-solid fa-bolt"></i> Tout postuler sur ${meta.name} (<span id="arova-foot-unapplied-count">${activeUnapplied}</span>)`;
+    } else {
+      footBtn.innerHTML = `<i class="fa-solid fa-bolt"></i> Tout postuler (<span id="arova-foot-unapplied-count">${unappliedTotal}</span>)`;
+    }
+  }
+}
+
+/* ==========================================================
+   DATABASE TABLE (CANDIDATURES AGENCE PARIS)
+========================================================== */
+function setupFilters() {
+  const searchInput = document.getElementById("search-query");
+  const clearBtn = document.getElementById("btn-clear-search");
+
+  if (searchInput) {
+    searchInput.addEventListener("input", (e) => {
+      searchQuery = e.target.value.toLowerCase().trim();
+      if (clearBtn) clearBtn.style.display = searchQuery ? "block" : "none";
+      renderJobsTable();
+    });
+  }
+
+  if (clearBtn && searchInput) {
+    clearBtn.addEventListener("click", () => {
+      searchInput.value = "";
+      searchQuery = "";
+      clearBtn.style.display = "none";
+      renderJobsTable();
+    });
+  }
+
+  // Header 1-Click Apply Toggle Switch
+  const headerToggle = document.getElementById("header-toggle-1click");
+  const settingsToggle = document.getElementById("settings-toggle-easy-apply");
+  if (headerToggle) {
+    headerToggle.addEventListener("change", async (e) => {
+      const isChecked = e.target.checked;
+      option1ClickEnabled = isChecked;
+      if (settingsToggle) settingsToggle.checked = isChecked;
+      update1ClickUI(isChecked);
+      await saveOption1Click(isChecked);
+    });
+  }
+
+  if (settingsToggle) {
+    settingsToggle.addEventListener("change", async (e) => {
+      const isChecked = e.target.checked;
+      option1ClickEnabled = isChecked;
+      if (headerToggle) headerToggle.checked = isChecked;
+      update1ClickUI(isChecked);
+      await saveOption1Click(isChecked);
+    });
+  }
+
+  // 1-Click Option Filter Chips (Mode 1 Clic vs Toutes)
+  const chip1Click = document.getElementById("filter-chip-1click");
+  const chipAll = document.getElementById("filter-chip-all-jobs");
+
+  if (chip1Click) {
+    chip1Click.addEventListener("click", () => {
+      filterOnly1Click = true;
+      chip1Click.classList.add("active");
+      if (chipAll) chipAll.classList.remove("active");
+      renderJobsTable();
+      showToast("Filtre activé : Uniquement les offres 'Postuler en 1 Clic'", "info");
+    });
+  }
+
+  if (chipAll) {
+    chipAll.addEventListener("click", () => {
+      filterOnly1Click = false;
+      chipAll.classList.add("active");
+      if (chip1Click) chip1Click.classList.remove("active");
+      renderJobsTable();
+      showToast("Affichage de toutes les offres d'emploi", "info");
+    });
+  }
+
+  // Platform chips
+  document.querySelectorAll("[data-platform]").forEach(chip => {
+    chip.addEventListener("click", () => {
+      document.querySelectorAll("[data-platform]").forEach(p => p.classList.remove("active"));
+      chip.classList.add("active");
+      selectedPlatform = chip.getAttribute("data-platform");
+      renderJobsTable();
+    });
+  });
+
+  // Location Picker Dropdown Logic (Choix et personnalisation du lieu)
+  const btnLocationPicker = document.getElementById("btn-location-picker");
+  const locationPopover = document.getElementById("location-dropdown-popover");
+  const btnCloseLocPopover = document.getElementById("btn-close-location-popover");
+  const inputCustomLoc = document.getElementById("input-custom-location");
+  const btnApplyCustomLoc = document.getElementById("btn-apply-custom-loc");
+  const labelSelectedLoc = document.getElementById("current-selected-location-label");
+  const locationPills = document.querySelectorAll(".location-option-pill");
+
+  function closeLocationPopover() {
+    if (locationPopover) locationPopover.style.display = "none";
+  }
+
+  function openLocationPopover() {
+    if (locationPopover) {
+      locationPopover.style.display = "flex";
+      if (inputCustomLoc) {
+        setTimeout(() => inputCustomLoc.focus(), 80);
+      }
+    }
+  }
+
+  if (btnLocationPicker && locationPopover) {
+    btnLocationPicker.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isVisible = locationPopover.style.display === "flex" || locationPopover.style.display === "block";
+      if (isVisible) {
+        closeLocationPopover();
+      } else {
+        openLocationPopover();
+      }
+    });
+
+    if (btnCloseLocPopover) {
+      btnCloseLocPopover.addEventListener("click", (e) => {
+        e.stopPropagation();
+        closeLocationPopover();
+      });
+    }
+
+    // Close when clicking outside
+    document.addEventListener("click", (e) => {
+      const pickerContainer = document.getElementById("location-picker-container");
+      if (pickerContainer && !pickerContainer.contains(e.target)) {
+        closeLocationPopover();
+      }
+    });
+
+    // Option pills
+    locationPills.forEach(pill => {
+      pill.addEventListener("click", (e) => {
+        e.stopPropagation();
+        locationPills.forEach(p => p.classList.remove("active"));
+        pill.classList.add("active");
+        selectedLoc = pill.getAttribute("data-loc-value") || "";
+        const labelText = pill.innerText.trim();
+        if (labelSelectedLoc) labelSelectedLoc.innerText = labelText;
+        if (inputCustomLoc) inputCustomLoc.value = "";
+        localStorage.setItem("user_selected_job_location", selectedLoc);
+        localStorage.setItem("user_selected_job_location_label", labelText);
+        closeLocationPopover();
+        renderJobsTable();
+        showToast(`📍 Lieu sélectionné : ${labelText}`, "info");
+      });
+    });
+
+    // Custom Location apply
+    const applyCustomLocation = () => {
+      if (!inputCustomLoc) return;
+      const customVal = inputCustomLoc.value.trim();
+      if (!customVal) {
+        // Reset to default
+        selectedLoc = "";
+        locationPills.forEach(p => p.classList.toggle("active", p.getAttribute("data-loc-value") === ""));
+        if (labelSelectedLoc) labelSelectedLoc.innerText = "Tout Paris & IDF";
+      } else {
+        selectedLoc = customVal.toLowerCase();
+        locationPills.forEach(p => p.classList.remove("active"));
+        if (labelSelectedLoc) labelSelectedLoc.innerText = `📍 ${customVal}`;
+      }
+      localStorage.setItem("user_selected_job_location", selectedLoc);
+      localStorage.setItem("user_selected_job_location_label", labelSelectedLoc ? labelSelectedLoc.innerText : selectedLoc);
+      closeLocationPopover();
+      renderJobsTable();
+      showToast(`📍 Candidatures filtrées sur : ${customVal || "Toutes"}`, "success");
+    };
+
+    if (btnApplyCustomLoc) {
+      btnApplyCustomLoc.addEventListener("click", (e) => {
+        e.stopPropagation();
+        applyCustomLocation();
+      });
+    }
+
+    if (inputCustomLoc) {
+      inputCustomLoc.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          applyCustomLocation();
+        } else if (e.key === "Escape") {
+          closeLocationPopover();
+        }
+      });
+    }
+
+    // Restore saved location preference
+    const savedLoc = localStorage.getItem("user_selected_job_location");
+    const savedLabel = localStorage.getItem("user_selected_job_location_label");
+    if (savedLoc !== null) {
+      selectedLoc = savedLoc;
+      if (savedLabel && labelSelectedLoc) {
+        labelSelectedLoc.innerText = savedLabel;
+      }
+      let foundPill = false;
+      locationPills.forEach(p => {
+        if (p.getAttribute("data-loc-value") === savedLoc) {
+          p.classList.add("active");
+          foundPill = true;
+        } else {
+          p.classList.remove("active");
+        }
+      });
+      if (!foundPill && savedLoc && inputCustomLoc) {
+        inputCustomLoc.value = savedLoc;
+      }
+    }
+  }
+
+  // Legacy location chips if present
+  document.querySelectorAll("[data-loc]").forEach(chip => {
+    chip.addEventListener("click", () => {
+      document.querySelectorAll("[data-loc]").forEach(p => p.classList.remove("active"));
+      chip.classList.add("active");
+      selectedLoc = chip.getAttribute("data-loc");
+      renderJobsTable();
+    });
+  });
+
+  // Status chips (Tous, Postulés, Redirection, Échecs)
+  document.querySelectorAll("[data-status-filter]").forEach(chip => {
+    chip.addEventListener("click", () => {
+      document.querySelectorAll("[data-status-filter]").forEach(p => p.classList.remove("active"));
+      chip.classList.add("active");
+      selectedStatus = chip.getAttribute("data-status-filter") || "";
+      renderJobsTable();
+    });
+  });
+
+
+  // Refresh
+  const btnRefresh = document.getElementById("btn-refresh");
+  if (btnRefresh) {
+    btnRefresh.addEventListener("click", () => {
+      loadJobs();
+      loadResumes();
+      showToast("Données synchronisées");
+    });
+  }
+
+  // Scan temps réel multi-plateformes
+  const btnScan = document.getElementById("btn-scan-now");
+  if (btnScan) {
+    btnScan.addEventListener("click", async () => {
+      btnScan.disabled = true;
+      btnScan.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Scan temps réel...';
+
+      try {
+        showToast("⚡ Récupération des offres en direct (France Travail, LinkedIn, Indeed)...", "info");
+        const res = await fetch("/api/jobs/sync-realtime", { method: "POST" });
+        const data = await res.json();
+        await loadJobs();
+        showToast(`✓ ${data.new_count || 0} offres en direct synchronisées avec horodatage exact !`, "success");
+      } catch (e) {
+        showToast("Erreur lors du scan : " + e.message, "error");
+      } finally {
+        btnScan.disabled = false;
+        btnScan.innerHTML = '<i class="fa-solid fa-bolt"></i> Scanner en Direct';
+      }
+    });
+  }
+
+  // Bouton Purger immédiatement les offres fermées / expirées
+  const btnClean = document.getElementById("btn-clean-inactive");
+  if (btnClean) {
+    btnClean.addEventListener("click", async () => {
+      btnClean.disabled = true;
+      btnClean.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Vérification...';
+
+      try {
+        showToast("🧹 Audit en direct : test de validité des annonces sur Indeed, LinkedIn & France Travail...", "info");
+        const res = await fetch("/api/jobs/clean-inactive", { method: "POST" });
+        const data = await res.json();
+
+        if (data.deleted_count > 0) {
+          showToast(`🧹 ${data.deleted_count} offre(s) fermée(s) ou expirée(s) supprimée(s) automatiquement !`, "success");
+        } else {
+          showToast("✓ Parfait : toutes les offres affichées sont actuellement actives et ouvertes !", "success");
+        }
+        loadJobs();
+      } catch (e) {
+        showToast("Erreur lors de la vérification : " + e.message, "error");
+      } finally {
+        btnClean.disabled = false;
+        btnClean.innerHTML = '<i class="fa-solid fa-broom"></i> Purger expirées';
+      }
+    });
+  }
+}
+
+function update1ClickUI(enabled) {
+  const badge = document.getElementById("header-toggle-badge");
+  const stripStatus = document.getElementById("strip-option-status");
+
+  if (badge) {
+    badge.className = `toggle-option-badge ${enabled ? "active" : "inactive"}`;
+    badge.innerText = enabled ? "ACTIVE" : "DESACTIVE";
+  }
+
+  if (stripStatus) {
+    stripStatus.className = `badge-emerald ${enabled ? "" : "inactive"}`;
+    stripStatus.innerHTML = enabled 
+      ? `<i class="fa-solid fa-check"></i> ACTIVÉE` 
+      : `<i class="fa-solid fa-power-off"></i> DÉSACTIVÉE`;
+  }
+}
+
+async function saveOption1Click(enabled) {
+  try {
+    const res = await fetch("/api/config/toggle-easy-apply", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ enabled })
+    });
+    const data = await res.json();
+    showToast(data.message || `Option 1 Clic ${enabled ? 'activée' : 'désactivée'}`, "success");
+  } catch (e) {
+    showToast("Erreur d'enregistrement : " + e.message, "error");
+  }
+}
+
+async function loadJobs(showLoading = true) {
+  try {
+    const sortParam = (typeof arovaSortMode !== "undefined") ? arovaSortMode : "relevance";
+    const res = await fetch(`/api/applications?limit=300&sort_by=${sortParam}`);
+    allJobs = await res.json();
+    renderJobsTable();
+    updateBatchCounts();
+    if (typeof renderArovaCardRows === "function") {
+      renderArovaCardRows();
+    }
+  } catch (e) {
+    console.error("Error loading jobs:", e);
+  }
+}
+
+function renderJobsTable() {
+  const tbody = document.getElementById("notion-table-body");
+  const countText = document.getElementById("jobs-count-text");
+  const tabCount = document.getElementById("tab-jobs-count");
+  const badge1ClickCount = document.getElementById("count-1click-jobs");
+
+  if (!tbody) return;
+
+  // Total 1-Click compatible jobs count & total count
+  const count1Click = allJobs.filter(j => j.is_easy_apply !== 0 && j.is_easy_apply !== false).length;
+  if (badge1ClickCount) badge1ClickCount.innerText = count1Click;
+  const badgeTotalJobs = document.getElementById("count-total-jobs-badge");
+  if (badgeTotalJobs) badgeTotalJobs.innerText = allJobs.length;
+
+  // Live counts on Dock CTAs and Top Brand
+  // Dynamic counts on Dock CTAs and Top Brand
+  const countAll = allJobs.length;
+  const elDockAll = document.getElementById("dock-count-all");
+  if (elDockAll) elDockAll.innerText = countAll;
+
+  // Update counts on all dock CTA buttons dynamically
+  document.querySelectorAll(".arova-cta-btn[data-dock-platform]").forEach(btn => {
+    const platId = btn.getAttribute("data-dock-platform");
+    const badge = btn.querySelector(".arova-cta-badge");
+    if (!badge) return;
+    if (!platId) {
+      badge.innerText = allJobs.length;
+    } else {
+      const c = allJobs.filter(j => (j.platform || "").toLowerCase() === platId.toLowerCase()).length;
+      badge.innerText = c;
+    }
+  });
+
+  const elTopBadge = document.getElementById("arova-top-jobs-badge");
+  if (elTopBadge) elTopBadge.innerText = `${countAll} offres`;
+
+  if (typeof renderArovaCardRows === "function") {
+    renderArovaCardRows();
+  }
+
+  const filtered = allJobs.filter(job => {
+    // 1-Click only filter
+    if (filterOnly1Click && (job.is_easy_apply === 0 || job.is_easy_apply === false)) {
+      return false;
+    }
+
+    if (selectedPlatform && job.platform.toLowerCase() !== selectedPlatform.toLowerCase()) {
+      return false;
+    }
+
+    const loc = (job.location || "").toLowerCase();
+    if (selectedLoc) {
+      const locTarget = selectedLoc.toLowerCase().trim();
+      if (locTarget === "intra") {
+        if (!loc.includes("75") && !loc.includes("paris")) return false;
+      } else if (locTarget === "idf") {
+        const idfKeywords = ["paris", "75", "île-de-france", "ile-de-france", "idf", "92", "93", "94", "78", "91", "95", "77"];
+        if (!idfKeywords.some(k => loc.includes(k))) return false;
+      } else if (locTarget === "remote") {
+        const remoteKeywords = ["remote", "télétravail", "teletravail", "hybride", "france entière", "full remote"];
+        if (!remoteKeywords.some(k => loc.includes(k))) return false;
+      } else if (locTarget === "france") {
+        // France entière : match all
+      } else {
+        // Custom location string (e.g. Lyon, Bordeaux, 75001, Nantes...)
+        if (!loc.includes(locTarget)) return false;
+      }
+    }
+
+    if (searchQuery) {
+      const matchText = `${job.job_title} ${job.company} ${job.location || ""} ${job.match_reason || ""}`.toLowerCase();
+      if (!matchText.includes(searchQuery)) return false;
+    }
+
+    if (selectedStatus) {
+      if (job.status !== selectedStatus) return false;
+    }
+
+    return true;
+  });
+
+  if (tabCount) tabCount.innerText = filtered.length;
+  const elSheetCount = document.getElementById("sheet-current-count");
+  if (elSheetCount) elSheetCount.innerText = `${filtered.length} offres`;
+  if (countText) {
+    const modeLabel = filterOnly1Click ? " • Filtre 1 Clic actif" : " • Affichage de toutes les offres";
+    countText.innerText = `Nombre d'offres : ${filtered.length}${modeLabel}`;
+  }
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="9" style="text-align:center; padding: 40px 12px; color: var(--text-muted);">
+          Aucune offre ne correspond à cette recherche. Cliquez sur "Toutes" ou lancez "Scanner en Direct".
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(renderTableRow).join("");
+
+  // Bind direct apply buttons
+  tbody.querySelectorAll(".btn-apply-action").forEach(btn => {
+    btn.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      const id = btn.getAttribute("data-id");
+      await handleApply(id, btn);
+    });
+  });
+
+  // Bind ignore buttons
+  tbody.querySelectorAll(".btn-ignore-row").forEach(btn => {
+    btn.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      const id = btn.getAttribute("data-id");
+      await handleIgnore(id);
+    });
+  });
+
+  // Bind row click to open side-peek
+  tbody.querySelectorAll("tr").forEach(row => {
+    row.addEventListener("click", (e) => {
+      if (e.target.closest("button") || e.target.closest("a")) return;
+      const jobId = row.getAttribute("data-id");
+      const job = allJobs.find(j => String(j.id) === String(jobId));
+      if (job) openSidePeek(job);
+    });
+  });
+
+  updateBatchCounts();
+}
+
+function renderTableRow(job) {
+  const companyClean = escapeHtml(job.company || "Studio Paris");
+  const loc = escapeHtml(job.location || "Paris (75)");
+
+  let statusHtml = '';
+  let actionBtnHtml = '';
+
+  const resumeHint = activeResumeFilename ? `avec ${activeResumeFilename}` : 'sans CV';
+  const is1Click = (job.is_easy_apply !== 0 && job.is_easy_apply !== false);
+
+  if (job.status === "applied") {
+    const appliedDate = job.applied_at ? `Postulé le ${new Date(job.applied_at).toLocaleDateString('fr-FR', {hour:'2-digit', minute:'2-digit'})}` : 'Postulé';
+    statusHtml = `
+      <span class="notion-status-pill applied" title="${appliedDate}">
+        <span class="status-dot"></span> Postulé
+      </span>
+    `;
+    actionBtnHtml = `
+      <button class="btn-apply-action applied" disabled title="Candidature réellement transmise avec succès">
+        <i class="fa-solid fa-check"></i> Postulé
+      </button>
+    `;
+  } else if (job.status === "applying") {
+    statusHtml = `
+      <span class="notion-status-pill contacted">
+        <span class="status-dot"></span> En cours
+      </span>
+    `;
+    actionBtnHtml = `
+      <button class="btn-apply-action applying" disabled>
+        <i class="fa-solid fa-spinner fa-spin"></i> En cours
+      </button>
+    `;
+  } else if (job.status === "skipped") {
+    const reason = job.error_message || "Candidature externe requise";
+    statusHtml = `
+      <span class="notion-status-pill skipped" title="${escapeHtml(reason)}">
+        <span class="status-dot"></span> Externe
+      </span>
+    `;
+    actionBtnHtml = `
+      <a href="${job.job_url}" target="_blank" class="btn-apply-action external" title="${escapeHtml(reason)} : Cliquez pour ouvrir le site externe">
+        <i class="fa-solid fa-arrow-up-right-from-square"></i> Site
+      </a>
+    `;
+  } else if (job.status === "failed") {
+    const errorMsg = job.error_message || "Échec de postulation";
+    statusHtml = `
+      <span class="notion-status-pill failed" title="${escapeHtml(errorMsg)}">
+        <span class="status-dot"></span> Échec
+      </span>
+    `;
+    actionBtnHtml = `
+      <button class="btn-apply-action failed" data-id="${job.id}" title="Échec : ${escapeHtml(errorMsg)}. Cliquez pour réessayer">
+        <i class="fa-solid fa-rotate-right"></i> Réessayer
+      </button>
+    `;
+  } else if (job.status === "requires_review") {
+    statusHtml = `
+      <span class="notion-status-pill requires-review" title="Formulaire nécessitant une révision">
+        <span class="status-dot"></span> À vérifier
+      </span>
+    `;
+    actionBtnHtml = `
+      <a href="${job.job_url}" target="_blank" class="btn-apply-action review">
+        <i class="fa-solid fa-eye"></i> Vérifier
+      </a>
+    `;
+  } else {
+    // Default / detected
+    statusHtml = `
+      <span class="notion-status-pill to-contact">
+        <span class="status-dot"></span> À contacter
+      </span>
+    `;
+    actionBtnHtml = `
+      <button class="btn-apply-action primary" data-id="${job.id}" title="Postuler immédiatement en 1 Clic (${resumeHint})">
+        <i class="fa-solid fa-bolt"></i> Postuler
+      </button>
+    `;
+  }
+
+  const score = job.match_score || 75;
+  const scoreBadge = score >= 80 
+    ? `<span class="table-score-badge high">${score}%</span>` 
+    : `<span class="table-score-badge normal">${score}%</span>`;
+
+  const easyApplyTag = is1Click 
+    ? `<span class="badge-table-1click" title="Option Postuler en 1 Clic disponible">1 Clic</span>` 
+    : '';
+
+  // Real-time publication badge
+  const relativeText = job.posted_relative || (job.created_at ? formatRelativeTime(job.created_at) : "Récent");
+  const relLower = relativeText.toLowerCase();
+  const isFresh = relLower.includes("aujourd") || 
+                  relLower.includes("min") || 
+                  relLower.includes("instant") || 
+                  relLower.includes("h") ||
+                  relLower.includes("direct");
+  const isYesterday = relLower.includes("hier");
+
+  const pubHtml = (isFresh && !isYesterday) ? `
+    <span class="badge-live-fresh" title="Offre temps réel • ${escapeHtml(job.posted_at || relativeText)}">
+      <span class="live-pulse-dot"></span> ${escapeHtml(relativeText)}
+    </span>
+  ` : `
+    <span class="badge-live-standard" title="Horodatage : ${escapeHtml(job.posted_at || relativeText)}">
+      <i class="fa-regular fa-clock" style="font-size:11px; margin-right:4px;"></i> ${escapeHtml(relativeText)}
+    </span>
+  `;
+
+  return `
+    <tr id="job-row-${job.id}" data-id="${job.id}" style="cursor:pointer;" title="Cliquez pour ouvrir la fiche détaillée ou le bouton d'action">
+      <td>
+        <div class="studio-row-cell">
+          <i class="fa-regular fa-file-lines" style="color:var(--text-muted); font-size:13px;"></i>
+          <span title="${escapeHtml(job.job_title)}">${escapeHtml(job.job_title)}</span>
+          ${easyApplyTag}
+        </div>
+      </td>
+      <td class="row-dim-text">
+        <span title="${companyClean}">${companyClean}</span>
+      </td>
+      <td class="row-dim-text">
+        <span title="${loc}">${loc}</span>
+      </td>
+      <td>
+        ${pubHtml}
+      </td>
+      <td>
+        ${statusHtml}
+      </td>
+      <td>
+        ${scoreBadge}
+      </td>
+      <td>
+        ${actionBtnHtml}
+      </td>
+      <td class="row-dim-text" style="max-width:180px; overflow:hidden; text-overflow:ellipsis;" title="${escapeHtml(job.match_reason || '')}">
+        ${escapeHtml(job.match_reason || "Adéquation profil")}
+      </td>
+      <td>
+        <a href="${job.job_url}" target="_blank" class="table-icon-link" title="Ouvrir l'offre originale">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i>
+        </a>
+        <button class="table-icon-link btn-ignore-row" data-id="${job.id}" title="Archiver la ligne">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </td>
+    </tr>
+  `;
+}
+
+async function handleApply(jobId, buttonElem) {
+  buttonElem.disabled = true;
+  buttonElem.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Traitement Playwright...';
+  buttonElem.style.background = "rgba(59, 130, 246, 0.25)";
+  buttonElem.style.color = "#93c5fd";
+
+  const targetJob = allJobs.find(j => String(j.id) === String(jobId));
+  const jobTitle = targetJob ? targetJob.job_title : "l'offre";
+
+  // Update table row visual status immediately to "En cours..."
+  const row = document.getElementById(`job-row-${jobId}`);
+  if (row && row.cells[3]) {
+    row.cells[3].innerHTML = `
+      <span class="notion-status-pill contacted">
+        <span class="status-dot"></span> En cours...
+      </span>
+    `;
+  }
+
+  showToast(`⚡ Postulation automatique (mode humain indétectable) lancée pour ${jobTitle}...`, "info");
+
+  try {
+    const res = await fetch(`/api/jobs/${jobId}/apply`, { method: "POST" });
+    if (!res.ok) throw new Error("Erreur serveur lors du déclenchement");
+    
+    // Real-time polling until background Playwright finishes (no fake timeout!)
+    let attempts = 0;
+    const maxAttempts = 25; // up to ~30-35s
+    const pollInterval = setInterval(async () => {
+      attempts++;
+      try {
+        const sRes = await fetch(`/api/jobs/${jobId}/status`);
+        if (!sRes.ok) return;
+        const jobStatus = await sRes.json();
+
+        if (jobStatus.status !== "applying" || attempts >= maxAttempts) {
+          clearInterval(pollInterval);
+
+          // Update memory state
+          if (targetJob) {
+            targetJob.status = jobStatus.status;
+            targetJob.applied_at = jobStatus.applied_at;
+            targetJob.error_message = jobStatus.error_message;
+          }
+
+          if (jobStatus.status === "applied") {
+            const comp = jobStatus.company || "l'employeur";
+            showToast(`✓ Candidature réellement transmise avec succès à ${comp} !`, "success");
+          } else if (jobStatus.status === "skipped") {
+            showToast(`ℹ️ Non éligible au 1 Clic : ${jobStatus.error_message || 'Redirection externe requise'}`, "warning");
+          } else if (jobStatus.status === "failed") {
+            showToast(`❌ Échec : ${jobStatus.error_message || 'Erreur lors de la postulation'}`, "error");
+          } else if (attempts >= maxAttempts) {
+            showToast(`⏳ Le processus continue en tâche de fond. Rafraîchissez dans quelques instants.`, "info");
+          }
+
+          renderJobsTable();
+          if (currentPeekJob && String(currentPeekJob.id) === String(jobId)) {
+            openSidePeek(targetJob || jobStatus);
+          }
+        }
+      } catch (pollErr) {
+        console.warn("Polling error:", pollErr);
+      }
+    }, 1300);
+
+  } catch (e) {
+    showToast("Erreur lors de l'initialisation : " + e.message, "error");
+    buttonElem.disabled = false;
+    buttonElem.innerHTML = '<i class="fa-solid fa-bolt"></i> Postuler (1 Clic)';
+  }
+}
+
+
+async function handleIgnore(jobId) {
+  try {
+    await fetch(`/api/jobs/${jobId}/ignore`, { method: "POST" });
+    showToast("Ligne archivée");
+    const row = document.getElementById(`job-row-${jobId}`);
+    if (row) {
+      row.style.opacity = "0.2";
+      setTimeout(() => {
+        row.remove();
+        updateBatchCounts();
+      }, 200);
+    }
+  } catch (e) {
+    showToast("Erreur : " + e.message, "error");
+  }
+}
+
+/* ==========================================================
+   CONFIG & SETTINGS
+========================================================== */
+function setupSettings() {
+  const formCriteria = document.getElementById("form-criteria");
+  if (formCriteria) {
+    formCriteria.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const keywords = document.getElementById("input-keywords").value.split(",").map(k => k.trim()).filter(Boolean);
+      const locations = document.getElementById("input-locations").value.split(",").map(l => l.trim()).filter(Boolean);
+      const minScore = parseInt(document.getElementById("input-min-score").value) || 60;
+      const maxDaily = parseInt(document.getElementById("input-max-daily").value) || 25;
+
+      try {
+        const res = await fetch("/api/config/criteria", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            keywords,
+            locations,
+            min_match_score: minScore,
+            max_applications_per_day: maxDaily,
+          }),
+        });
+        if (!res.ok) throw new Error("Erreur de sauvegarde");
+        showToast("Paramètres de recherche enregistrés !", "success");
+      } catch (err) {
+        showToast("Erreur : " + err.message, "error");
+      }
+    });
+  }
+
+  const formNotif = document.getElementById("form-notifications");
+  if (formNotif) {
+    formNotif.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const enableTg = document.getElementById("notif-telegram-enable").checked;
+      const tokenTg = document.getElementById("input-telegram-token").value.trim();
+      const chatIdTg = document.getElementById("input-telegram-chatid").value.trim();
+      const enableDisc = document.getElementById("notif-discord-enable").checked;
+      const webhookDisc = document.getElementById("input-discord-webhook").value.trim();
+
+      try {
+        const res = await fetch("/api/config/notifications", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            enable_telegram: enableTg,
+            telegram_bot_token: tokenTg || null,
+            telegram_chat_id: chatIdTg || null,
+            enable_discord: enableDisc,
+            discord_webhook_url: webhookDisc || null,
+            enable_in_app: true,
+          }),
+        });
+        if (!res.ok) throw new Error("Erreur de sauvegarde");
+        showToast("Alertes enregistrées !", "success");
+      } catch (err) {
+        showToast("Erreur : " + err.message, "error");
+      }
+    });
+  }
+
+  const btnTestNotif = document.getElementById("btn-test-notif");
+  if (btnTestNotif) {
+    btnTestNotif.addEventListener("click", async () => {
+      try {
+        btnTestNotif.disabled = true;
+        const res = await fetch("/api/notifications/test", { method: "POST" });
+        const data = await res.json();
+        showToast(data.message || "Notification de test transmise !", "success");
+      } catch (err) {
+        showToast("Erreur : " + err.message, "error");
+      } finally {
+        btnTestNotif.disabled = false;
+      }
+    });
+  }
+
+  const btnSettingsChangeCV = document.getElementById("btn-settings-change-cv");
+  if (btnSettingsChangeCV) {
+    btnSettingsChangeCV.addEventListener("click", openQuickSwitchModal);
+  }
+}
+
+async function loadConfig() {
+  try {
+    const res = await fetch("/api/config");
+    const data = await res.json();
+
+    if (data.criteria) {
+      const kw = document.getElementById("input-keywords");
+      const loc = document.getElementById("input-locations");
+      const minS = document.getElementById("input-min-score");
+      const maxD = document.getElementById("input-max-daily");
+      const easyApplyCheck = document.getElementById("settings-toggle-easy-apply");
+      const headerToggle = document.getElementById("header-toggle-1click");
+
+      if (kw) kw.value = (data.criteria.keywords || []).join(", ");
+      if (loc) loc.value = (data.criteria.locations || []).join(", ");
+      if (minS) minS.value = data.criteria.min_match_score || 65;
+      if (maxD) maxD.value = data.criteria.max_applications_per_day || 25;
+
+      const isEasy = (data.criteria.easy_apply_only !== false);
+      option1ClickEnabled = isEasy;
+      if (easyApplyCheck) easyApplyCheck.checked = isEasy;
+      if (headerToggle) headerToggle.checked = isEasy;
+      update1ClickUI(isEasy);
+    }
+
+    if (data.notifications) {
+      const tgEn = document.getElementById("notif-telegram-enable");
+      const tgTok = document.getElementById("input-telegram-token");
+      const tgChat = document.getElementById("input-telegram-chatid");
+      const discEn = document.getElementById("notif-discord-enable");
+      const discWeb = document.getElementById("input-discord-webhook");
+
+      if (tgEn) tgEn.checked = !!data.notifications.enable_telegram;
+      if (tgTok) tgTok.value = data.notifications.telegram_bot_token || "";
+      if (tgChat) tgChat.value = data.notifications.telegram_chat_id || "";
+      if (discEn) discEn.checked = !!data.notifications.enable_discord;
+      if (discWeb) discWeb.value = data.notifications.discord_webhook_url || "";
+    }
+  } catch (e) {
+    console.error("Error loading config:", e);
+  }
+}
+
+
+function escapeHtml(str) {
+  if (!str) return "";
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+/* ==========================================================
+   PLATFORMS & SESSIONS MANAGER
+========================================================== */
+function bindPlatformActionButtons(scope = document) {
+  // Open Chromium login window buttons
+  scope.querySelectorAll(".btn-open-browser-win").forEach(btn => {
+    if (btn._hasOpenListener) return;
+    btn._hasOpenListener = true;
+
+    btn.addEventListener("click", async () => {
+      const plat = btn.getAttribute("data-plat");
+      const targetUrl = btn.getAttribute("data-target-url");
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Ouverture du navigateur...';
+
+      try {
+        const bodyPayload = targetUrl ? { target_url: targetUrl } : {};
+        const res = await fetch(`/api/platforms/${plat}/login-window`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(bodyPayload)
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Échec de l'ouverture");
+        showToast(data.message || `Fenêtre Chromium ouverte pour ${plat.toUpperCase()}`, "info");
+        btn.innerHTML = '<i class="fa-solid fa-window-restore"></i> Navigateur ouvert (Actif)';
+      } catch (e) {
+        showToast("Erreur d'ouverture : " + e.message, "error");
+        btn.innerHTML = '<i class="fa-solid fa-window-restore"></i> Ouvrir Chromium';
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  });
+
+  // Verify session buttons
+  scope.querySelectorAll(".btn-verify-session-plat").forEach(btn => {
+    if (btn._hasVerifyListener) return;
+    btn._hasVerifyListener = true;
+
+    btn.addEventListener("click", async () => {
+      const plat = btn.getAttribute("data-plat");
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Vérification...';
+
+      try {
+        const res = await fetch(`/api/platforms/${plat}/verify-session`, { method: "POST" });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Erreur de validation");
+
+        if (data.logged_in) {
+          showToast(`✓ Session ${plat.toUpperCase()} enregistrée avec succès !`, "success");
+          loadPinnedPlatforms();
+          if (!pinnedPlatforms.includes(plat)) {
+            pinnedPlatforms.push(plat);
+            savePinnedPlatforms();
+          }
+        } else {
+          showToast(data.message || "Connexion non détectée. Veuillez vous connecter dans Chromium avant de valider.", "warning");
+        }
+        await loadPlatformsStatus();
+        if (typeof renderDynamicDockPlatforms === "function") {
+          renderDynamicDockPlatforms();
+        }
+      } catch (e) {
+        showToast("Erreur de vérification : " + e.message, "error");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> Valider ma connexion';
+        const openBtn = document.querySelector(`.btn-open-browser-win[data-plat="${plat}"]`);
+        if (openBtn) openBtn.innerHTML = '<i class="fa-solid fa-window-restore"></i> Ouvrir Chromium';
+      }
+    });
+  });
+
+  // Close single platform browser button
+  scope.querySelectorAll(".btn-close-browser-win").forEach(btn => {
+    if (btn._hasCloseListener) return;
+    btn._hasCloseListener = true;
+
+    btn.addEventListener("click", async () => {
+      const plat = btn.getAttribute("data-plat");
+      try {
+        const res = await fetch(`/api/platforms/${plat}/close-browser`, { method: "POST" });
+        const data = await res.json();
+        showToast(data.message || `Fenêtre ${plat.toUpperCase()} fermée`, "info");
+        const openBtn = document.querySelector(`.btn-open-browser-win[data-plat="${plat}"]`);
+        if (openBtn) openBtn.innerHTML = '<i class="fa-solid fa-window-restore"></i> Ouvrir Chromium';
+      } catch (e) {
+        showToast("Erreur : " + e.message, "error");
+      }
+    });
+  });
+
+  // Disconnect platform button
+  scope.querySelectorAll(".btn-disconnect-plat").forEach(btn => {
+    if (btn._hasDisconnectListener) return;
+    btn._hasDisconnectListener = true;
+
+    btn.addEventListener("click", async () => {
+      const plat = btn.getAttribute("data-plat");
+      if (!confirm(`Voulez-vous déconnecter votre session ${plat.toUpperCase()} ?`)) return;
+      try {
+        const res = await fetch(`/api/platforms/${plat}/disconnect`, { method: "POST" });
+        const data = await res.json();
+        showToast(data.message || `Session ${plat.toUpperCase()} déconnectée`, "info");
+        await loadPlatformsStatus();
+      } catch (e) {
+        showToast("Erreur de déconnexion : " + e.message, "error");
+      }
+    });
+  });
+}
+
+function setupPlatformsManager() {
+  bindPlatformActionButtons(document);
+
+  // Emergency Kill All Browsers button
+  const btnKillAll = document.getElementById("btn-kill-all-browsers");
+  if (btnKillAll) {
+    btnKillAll.addEventListener("click", async () => {
+      try {
+        btnKillAll.disabled = true;
+        btnKillAll.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Fermeture en cours...';
+        await fetch("/api/platforms/kill-all-browsers", { method: "POST" });
+        showToast("✓ Toutes les fenêtres de navigateur ont été fermées !", "success");
+        document.querySelectorAll(".btn-open-browser-win").forEach(btn => {
+          btn.innerHTML = '<i class="fa-solid fa-window-restore"></i> Ouvrir Chromium';
+        });
+      } catch (e) {
+        showToast("Erreur : " + e.message, "error");
+      } finally {
+        btnKillAll.disabled = false;
+        btnKillAll.innerHTML = '<i class="fa-solid fa-power-off"></i> Fermer tous les navigateurs';
+      }
+    });
+  }
+
+  // LinkedIn li_at cookie injection
+  const btnSubmitLiAt = document.getElementById("btn-submit-li-at");
+  const inputLiAt = document.getElementById("input-li-at-cookie");
+
+  if (btnSubmitLiAt && inputLiAt) {
+    btnSubmitLiAt.addEventListener("click", async () => {
+      const cookieVal = inputLiAt.value.trim();
+      if (!cookieVal) {
+        showToast("Veuillez coller votre cookie li_at", "error");
+        return;
+      }
+
+      btnSubmitLiAt.disabled = true;
+      btnSubmitLiAt.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Test du cookie...';
+
+      try {
+        const res = await fetch("/api/platforms/linkedin/set-cookie", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ li_at: cookieVal })
+        });
+        const data = await res.json();
+
+        if (data.logged_in) {
+          showToast("✓ Cookie li_at validé ! Connecté à LinkedIn.", "success");
+          inputLiAt.value = "";
+        } else {
+          showToast(data.message || "Cookie invalide ou refusé par LinkedIn.", "error");
+        }
+        await loadPlatformsStatus();
+      } catch (e) {
+        showToast("Erreur : " + e.message, "error");
+      } finally {
+        btnSubmitLiAt.disabled = false;
+        btnSubmitLiAt.innerHTML = '<i class="fa-solid fa-bolt"></i> Injecter';
+      }
+    });
+  }
+
+  // Header platforms pill shortcut
+  const btnHeaderPlatforms = document.getElementById("btn-header-platforms");
+  if (btnHeaderPlatforms) {
+    btnHeaderPlatforms.addEventListener("click", () => {
+      switchViewTab("tab-platforms");
+    });
+  }
+}
+
+let lastPlatformsStatus = {};
+
+async function loadPlatformsStatus() {
+  try {
+    const res = await fetch("/api/platforms/status");
+    const data = await res.json();
+    window.lastPlatformsStatus = data;
+    lastPlatformsStatus = data;
+
+    let countConnected = 0;
+
+    Object.entries(data).forEach(([platId, info]) => {
+      const isLogged = info ? Boolean(info.logged_in) : false;
+      if (isLogged) countConnected++;
+
+      const badge = document.getElementById(`badge-${platId}`);
+      if (badge) {
+        badge.className = `platform-status-badge ${isLogged ? "connected" : "disconnected"}`;
+        badge.innerHTML = `
+          <span class="dot"></span>
+          <span class="txt">${isLogged ? "Connecté" : (info.isBuiltinCatalog || info.is_custom ? "Disponible" : "Déconnecté")}</span>
+        `;
+      }
+
+      // Toggle disconnect buttons visibility
+      document.querySelectorAll(`.btn-disconnect-plat[data-plat="${platId}"]`).forEach(btn => {
+        btn.style.display = isLogged ? "inline-flex" : "none";
+      });
+    });
+
+    const topbarCount = document.getElementById("topbar-platforms-count");
+    const tabBadge = document.getElementById("tab-platforms-badge");
+
+    if (topbarCount) topbarCount.innerText = `${countConnected} connectée(s)`;
+    if (tabBadge) {
+      tabBadge.innerText = `${countConnected}`;
+      if (countConnected > 0) {
+        tabBadge.style.background = "rgba(16, 185, 129, 0.25)";
+        tabBadge.style.color = "#34d399";
+      } else {
+        tabBadge.style.background = "rgba(255, 255, 255, 0.08)";
+        tabBadge.style.color = "#999999";
+      }
+    }
+
+    const countConnectedEl = document.getElementById("count-platforms-connected");
+    if (countConnectedEl) countConnectedEl.innerText = countConnected;
+
+    // Mini status dots in Drawer
+    const dotFT = document.getElementById("drawer-dot-ft");
+    if (dotFT) dotFT.className = `mini-status-dot ${data.francetravail?.logged_in ? "" : "disconnected"}`;
+    const dotLI = document.getElementById("drawer-dot-li");
+    if (dotLI) dotLI.className = `mini-status-dot ${data.linkedin?.logged_in ? "" : "disconnected"}`;
+    const dotInd = document.getElementById("drawer-dot-ind");
+    if (dotInd) dotInd.className = `mini-status-dot ${data.indeed?.logged_in ? "" : "disconnected"}`;
+
+    // Sync dock platform buttons whenever status updates
+    renderDynamicDockPlatforms();
+  } catch (e) {
+    console.error("Error loading platforms status:", e);
+  }
+}
+
+/* ==========================================================
+   PLATFORMS CATALOG, SEARCH & CUSTOM ADD MANAGEMENT
+========================================================== */
+const POPULAR_PLATFORMS_CATALOG = [
+  {
+    id: "wttj",
+    name: "Welcome to the Jungle",
+    shortName: "WTTJ",
+    category: "Tech & Startups",
+    role: "Offres Tech, Design & Culture d'entreprise",
+    url: "https://www.welcometothejungle.com",
+    login_url: "https://www.welcometothejungle.com/fr/signin",
+    search_url: "https://www.welcometothejungle.com/fr/jobs?query=Paris",
+    icon: "fa-solid fa-tree",
+    color: "#eab308",
+    isBuiltinCatalog: true
+  },
+  {
+    id: "apec",
+    name: "Apec",
+    shortName: "Apec",
+    category: "Cadres & Dirigeants",
+    role: "Offres cadres, ingénieurs et managers Paris & IDF",
+    url: "https://www.apec.fr",
+    login_url: "https://www.apec.fr/mon-espace/connexion.html",
+    search_url: "https://www.apec.fr/candidat/recherche-emploi.html",
+    icon: "fa-solid fa-user-tie",
+    color: "#0284c7",
+    isBuiltinCatalog: true
+  },
+  {
+    id: "hellowork",
+    name: "HelloWork",
+    shortName: "HelloWork",
+    category: "Généraliste",
+    role: "Portail d'emploi leader en France (ex-RegionsJob)",
+    url: "https://www.hellowork.com",
+    login_url: "https://www.hellowork.com/fr-fr/mon-compte/connexion.html",
+    search_url: "https://www.hellowork.com/fr-fr/emploi.html",
+    icon: "fa-solid fa-handshake",
+    color: "#ef4444",
+    isBuiltinCatalog: true
+  },
+  {
+    id: "glassdoor",
+    name: "Glassdoor",
+    shortName: "Glassdoor",
+    category: "Avis & Salaires",
+    role: "Offres d'emploi avec transparence des salaires",
+    url: "https://www.glassdoor.fr",
+    login_url: "https://www.glassdoor.fr/profile/login_input.htm",
+    search_url: "https://www.glassdoor.fr/Emploi/paris-emplois-SRCH_IL.0,5_IC2881970.htm",
+    icon: "fa-solid fa-door-open",
+    color: "#10b981",
+    isBuiltinCatalog: true
+  },
+  {
+    id: "lesjeunestalents",
+    name: "Les Jeunes Talents",
+    shortName: "Jeunes Talents",
+    category: "Stages & Juniors",
+    role: "Premiers emplois, alternances & diplômés",
+    url: "https://www.lesjeunestalents.fr",
+    login_url: "https://www.lesjeunestalents.fr/login",
+    search_url: "https://www.lesjeunestalents.fr/offres",
+    icon: "fa-solid fa-graduation-cap",
+    color: "#ec4899",
+    isBuiltinCatalog: true
+  }
+];
+
+let pinnedPlatforms = [];
+
+function loadPinnedPlatforms() {
+  try {
+    const saved = localStorage.getItem("arova_dock_pinned_platforms");
+    pinnedPlatforms = saved ? JSON.parse(saved) : [];
+    if (Array.isArray(pinnedPlatforms)) {
+      pinnedPlatforms = pinnedPlatforms.filter(id => id !== "monster" && id !== "meteojob");
+      localStorage.setItem("arova_dock_pinned_platforms", JSON.stringify(pinnedPlatforms));
+    } else {
+      pinnedPlatforms = [];
+    }
+  } catch (e) {
+    pinnedPlatforms = [];
+  }
+}
+
+function savePinnedPlatforms() {
+  try {
+    localStorage.setItem("arova_dock_pinned_platforms", JSON.stringify(pinnedPlatforms));
+  } catch (e) {}
+}
+
+const VIBRANT_PALETTE = [
+  "#a855f7", "#ec4899", "#06b6d4", "#f97316",
+  "#6366f1", "#14b8a6", "#e11d48", "#8b5cf6", "#3b82f6"
+];
+
+function getCustomPlatformColor(platId) {
+  let hash = 0;
+  const str = String(platId || "custom");
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const index = Math.abs(hash) % VIBRANT_PALETTE.length;
+  return VIBRANT_PALETTE[index];
+}
+
+function getPlatformMeta(platformKey) {
+  const key = (platformKey || "").toLowerCase();
+  if (!key) {
+    return {
+      id: "",
+      name: "Toutes les candidatures",
+      shortName: "Toutes",
+      color: "#0f1015",
+      textColor: "#ffffff",
+      themeClass: "arova-theme-black",
+      icon: "fa-solid fa-layer-group"
+    };
+  }
+  if (key === "francetravail" || key === "france travail") {
+    return {
+      id: "francetravail",
+      name: "France Travail",
+      shortName: "France Travail",
+      color: "#dc2626",
+      textColor: "#ffffff",
+      themeClass: "arova-theme-red",
+      icon: "fa-solid fa-building-columns"
+    };
+  }
+  if (key === "linkedin") {
+    return {
+      id: "linkedin",
+      name: "LinkedIn",
+      shortName: "LinkedIn",
+      color: "#0284c7",
+      textColor: "#ffffff",
+      themeClass: "arova-theme-blue",
+      icon: "fa-brands fa-linkedin-in"
+    };
+  }
+  if (key === "indeed") {
+    return {
+      id: "indeed",
+      name: "Indeed",
+      shortName: "Indeed",
+      color: "#16a34a",
+      textColor: "#ffffff",
+      themeClass: "arova-theme-green",
+      icon: "fa-solid fa-briefcase"
+    };
+  }
+
+  // Check popular catalog
+  const cat = POPULAR_PLATFORMS_CATALOG.find(p => p.id === key);
+  if (cat) {
+    return {
+      id: cat.id,
+      name: cat.name,
+      shortName: cat.shortName || cat.name,
+      color: cat.color || "#8b5cf6",
+      textColor: "#ffffff",
+      themeClass: "arova-theme-colored",
+      icon: cat.icon || "fa-solid fa-globe"
+    };
+  }
+
+  // Check custom platforms
+  const cust = customPlatformsList.find(p => p.id === key || `custom_${p.id}` === key);
+  if (cust) {
+    return {
+      id: cust.id,
+      name: cust.name,
+      shortName: cust.name,
+      color: cust.color || getCustomPlatformColor(cust.id),
+      textColor: "#ffffff",
+      themeClass: "arova-theme-colored",
+      icon: cust.icon || "fa-solid fa-globe"
+    };
+  }
+
+  // Generic fallback
+  return {
+    id: key,
+    name: platformKey.charAt(0).toUpperCase() + platformKey.slice(1),
+    shortName: platformKey.charAt(0).toUpperCase() + platformKey.slice(1),
+    color: getCustomPlatformColor(key),
+    textColor: "#ffffff",
+    themeClass: "arova-theme-colored",
+    icon: "fa-solid fa-globe"
+  };
+}
+
+function renderDynamicDockPlatforms() {
+  const ctasContainer = document.getElementById("arova-dock-ctas");
+  const sheetTabsContainer = document.getElementById("sheet-platform-switch");
+  const dockPill = document.querySelector(".arova-dock-pill");
+  if (!ctasContainer) return;
+
+  if (dockPill) {
+    dockPill.style.display = "inline-flex";
+    dockPill.style.alignItems = "center";
+    dockPill.style.gap = "7px";
+    dockPill.style.flexWrap = "nowrap";
+    dockPill.style.whiteSpace = "nowrap";
+    dockPill.style.overflowX = "auto";
+    dockPill.style.overflowY = "hidden";
+    if (!dockPill._wheelBound) {
+      dockPill._wheelBound = true;
+      dockPill.addEventListener("wheel", (e) => {
+        if (e.deltaY !== 0) {
+          e.preventDefault();
+          dockPill.scrollLeft += e.deltaY;
+        }
+      }, { passive: false });
+    }
+  }
+
+  ctasContainer.style.display = "inline-flex";
+  ctasContainer.style.alignItems = "center";
+  ctasContainer.style.gap = "7px";
+  ctasContainer.style.flexWrap = "nowrap";
+  ctasContainer.style.whiteSpace = "nowrap";
+  ctasContainer.style.flexShrink = "0";
+
+  loadPinnedPlatforms();
+
+  // 1. Built-in base platforms
+  const platformsToDisplay = [
+    { id: "", name: "Toutes les candidatures", shortName: "Toutes", color: "#0f1015", textColor: "#ffffff", isBlack: true },
+    { id: "francetravail", name: "France Travail", shortName: "France Travail", color: "#dc2626", textColor: "#ffffff" },
+    { id: "linkedin", name: "LinkedIn", shortName: "LinkedIn", color: "#0284c7", textColor: "#ffffff" },
+    { id: "indeed", name: "Indeed", shortName: "Indeed", color: "#16a34a", textColor: "#ffffff" }
+  ];
+
+  // 2. Add all custom platforms created by user (always included on dock)
+  customPlatformsList.forEach(cp => {
+    if (!platformsToDisplay.some(p => p.id.toLowerCase() === cp.id.toLowerCase())) {
+      platformsToDisplay.push({
+        id: cp.id,
+        name: cp.name,
+        shortName: cp.name,
+        color: cp.color || getCustomPlatformColor(cp.id),
+        textColor: "#ffffff",
+        isCustom: true
+      });
+    }
+  });
+
+  // 3. Add any catalog platform that is connected (logged_in) or pinned
+  POPULAR_PLATFORMS_CATALOG.forEach(cat => {
+    const isConnected = Boolean(window.lastPlatformsStatus && window.lastPlatformsStatus[cat.id]?.logged_in);
+    const isPinned = pinnedPlatforms.includes(cat.id);
+    if ((isConnected || isPinned) && !platformsToDisplay.some(p => p.id.toLowerCase() === cat.id.toLowerCase())) {
+      platformsToDisplay.push({
+        id: cat.id,
+        name: cat.name,
+        shortName: cat.shortName || cat.name,
+        color: cat.color || "#8b5cf6",
+        textColor: "#ffffff",
+        isCatalog: true
+      });
+    }
+  });
+
+  // Render CTA buttons in Dock
+  ctasContainer.innerHTML = "";
+  platformsToDisplay.forEach(plat => {
+    const btn = document.createElement("button");
+    btn.className = `arova-cta-btn ${plat.isBlack ? 'arova-cta-black' : ''}`;
+    btn.id = `btn-dock-${plat.id || 'all'}`;
+    btn.setAttribute("data-dock-platform", plat.id);
+    btn.setAttribute("title", `Candidatures • ${plat.name}`);
+    btn.style.flexShrink = "0";
+    btn.style.whiteSpace = "nowrap";
+    if (!plat.isBlack) {
+      btn.style.background = plat.color;
+      btn.style.color = plat.textColor || "#ffffff";
+    }
+
+    const count = plat.id === ""
+      ? allJobs.length
+      : allJobs.filter(j => (j.platform || "").toLowerCase() === plat.id.toLowerCase()).length;
+
+    btn.innerHTML = `
+      <span>${escapeHtml(plat.shortName || plat.name)}</span>
+      <span class="arova-cta-badge" id="dock-count-${plat.id || 'all'}">${count}</span>
+    `;
+
+    btn.addEventListener("click", () => {
+      const floatingCard = document.getElementById("arova-floating-card");
+      if (floatingCard && floatingCard.classList.contains("open") && selectedPlatform === plat.id && arovaStatusFilter === "") {
+        closeArovaCard();
+      } else {
+        openArovaCard(plat.id, "");
+      }
+    });
+
+    ctasContainer.appendChild(btn);
+  });
+
+  // Dedicated "Postulées" CTA button on Dock
+  const appliedCount = allJobs.filter(j => j.status === "applied").length;
+  const appliedBtn = document.createElement("button");
+  appliedBtn.className = "arova-cta-btn arova-cta-emerald";
+  appliedBtn.id = "btn-dock-applied";
+  appliedBtn.setAttribute("title", "Consulter les candidatures déjà envoyées avec succès");
+  appliedBtn.style.flexShrink = "0";
+  appliedBtn.style.whiteSpace = "nowrap";
+  appliedBtn.innerHTML = `
+    <i class="fa-solid fa-circle-check" style="font-size:11px; margin-right:2px;"></i>
+    <span>Postulées</span>
+    <span class="arova-cta-badge" id="dock-count-applied">${appliedCount}</span>
+  `;
+  appliedBtn.addEventListener("click", () => {
+    const floatingCard = document.getElementById("arova-floating-card");
+    if (floatingCard && floatingCard.classList.contains("open") && arovaStatusFilter === "applied") {
+      closeArovaCard();
+    } else {
+      openArovaCard("", "applied");
+    }
+  });
+  ctasContainer.appendChild(appliedBtn);
+
+  // Also sync Sheet platform switcher tabs
+  if (sheetTabsContainer) {
+    sheetTabsContainer.innerHTML = "";
+    platformsToDisplay.forEach(plat => {
+      const tabBtn = document.createElement("button");
+      tabBtn.className = `sheet-plat-btn ${selectedPlatform === plat.id ? 'active' : ''}`;
+      tabBtn.setAttribute("data-sheet-platform", plat.id);
+      tabBtn.id = `sheet-tab-${plat.id || 'all'}`;
+      tabBtn.innerText = plat.shortName || plat.name;
+
+      tabBtn.addEventListener("click", () => {
+        openCandidaturesSheet(plat.id);
+      });
+
+      sheetTabsContainer.appendChild(tabBtn);
+    });
+  }
+}
+
+let customPlatformsList = [];
+let activePlatformFilter = "all";
+let platformSearchTerm = "";
+
+function setupPlatformCatalogAndSearch() {
+  const searchInput = document.getElementById("input-search-platforms");
+  const clearBtn = document.getElementById("btn-clear-platforms-search");
+
+  if (searchInput) {
+    searchInput.addEventListener("input", (e) => {
+      platformSearchTerm = e.target.value.trim().toLowerCase();
+      if (clearBtn) {
+        clearBtn.style.display = platformSearchTerm ? "block" : "none";
+      }
+      filterPlatformCards();
+    });
+  }
+
+  if (clearBtn && searchInput) {
+    clearBtn.addEventListener("click", () => {
+      searchInput.value = "";
+      platformSearchTerm = "";
+      clearBtn.style.display = "none";
+      searchInput.focus();
+      filterPlatformCards();
+    });
+  }
+
+  // Filter chips (all, connected, builtin, popular, custom)
+  document.querySelectorAll(".platforms-filter-chips .notion-chip[data-platform-filter]").forEach(chip => {
+    chip.addEventListener("click", () => {
+      document.querySelectorAll(".platforms-filter-chips .notion-chip").forEach(c => c.classList.remove("active"));
+      chip.classList.add("active");
+      activePlatformFilter = chip.getAttribute("data-platform-filter") || "all";
+      filterPlatformCards();
+    });
+  });
+
+  // Modal open/close handlers
+  const modalAdd = document.getElementById("modal-add-platform");
+  const btnOpenModal = document.getElementById("btn-open-add-platform-modal");
+  const btnCloseModal = document.getElementById("btn-close-add-platform");
+  const btnCancelModal = document.getElementById("btn-cancel-add-platform");
+  const btnEmptyAdd = document.getElementById("btn-empty-add-platform");
+
+  function openAddModal(prefillName = "") {
+    if (!modalAdd) return;
+    modalAdd.style.display = "flex";
+    const nameInput = document.getElementById("custom-platform-name");
+    if (nameInput) {
+      if (prefillName) nameInput.value = prefillName;
+      nameInput.focus();
+    }
+  }
+
+  function closeAddModal() {
+    if (!modalAdd) return;
+    modalAdd.style.display = "none";
+    const form = document.getElementById("form-add-custom-platform");
+    if (form) form.reset();
+  }
+
+  if (btnOpenModal) {
+    btnOpenModal.addEventListener("click", () => openAddModal());
+  }
+  if (btnEmptyAdd) {
+    btnEmptyAdd.addEventListener("click", () => {
+      openAddModal(platformSearchTerm);
+    });
+  }
+  if (btnCloseModal) {
+    btnCloseModal.addEventListener("click", closeAddModal);
+  }
+  if (btnCancelModal) {
+    btnCancelModal.addEventListener("click", closeAddModal);
+  }
+
+  // Close modal when clicking on backdrop
+  if (modalAdd) {
+    modalAdd.addEventListener("click", (e) => {
+      if (e.target === modalAdd) closeAddModal();
+    });
+  }
+
+  // Submit custom platform
+  const formAdd = document.getElementById("form-add-custom-platform");
+  if (formAdd) {
+    formAdd.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const submitBtn = document.getElementById("btn-save-custom-platform");
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enregistrement...';
+      }
+
+      const name = document.getElementById("custom-platform-name").value.trim();
+      const url = document.getElementById("custom-platform-url").value.trim();
+      const category = document.getElementById("custom-platform-category").value;
+      const loginUrl = document.getElementById("custom-platform-login-url").value.trim();
+      const searchUrl = document.getElementById("custom-platform-search-url").value.trim();
+      const notes = document.getElementById("custom-platform-notes").value.trim();
+
+      try {
+        const res = await fetch("/api/platforms/custom", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: name,
+            url: url,
+            category: category,
+            login_url: loginUrl,
+            search_url: searchUrl,
+            notes: notes
+          })
+        });
+
+        const data = await res.json();
+        if (res.ok && data.platform) {
+          showToast(`✓ Plateforme "${name}" ajoutée avec succès !`, "success");
+          closeAddModal();
+          await loadCustomPlatforms();
+        } else {
+          showToast(data.message || "Erreur lors de l'enregistrement", "error");
+        }
+      } catch (err) {
+        showToast("Erreur réseau : " + err.message, "error");
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Enregistrer la plateforme';
+        }
+      }
+    });
+  }
+
+  // Render initial catalog
+  renderPlatformsCatalog();
+}
+
+async function loadCustomPlatforms() {
+  try {
+    const res = await fetch("/api/platforms/custom");
+    if (res.ok) {
+      const data = await res.json();
+      customPlatformsList = Array.isArray(data) ? data : [];
+    } else {
+      customPlatformsList = [];
+    }
+  } catch (e) {
+    console.warn("Could not load custom platforms:", e);
+    customPlatformsList = [];
+  }
+
+  const countCustomEl = document.getElementById("count-platforms-custom");
+  if (countCustomEl) {
+    countCustomEl.innerText = customPlatformsList.length;
+  }
+
+  renderPlatformsCatalog();
+  renderDynamicDockPlatforms();
+}
+
+function renderPlatformsCatalog() {
+  const container = document.getElementById("platforms-extra-grid");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  // Combine popular catalog + custom platforms
+  const allExtra = [
+    ...POPULAR_PLATFORMS_CATALOG.map(p => ({ ...p, isCustom: false })),
+    ...customPlatformsList.map(p => ({
+      ...p,
+      isCustom: true,
+      icon: "fa-solid fa-globe",
+      color: "#a855f7"
+    }))
+  ];
+
+  allExtra.forEach(plat => {
+    const card = document.createElement("div");
+    card.className = "notion-card platform-box platform-catalog-card";
+    card.id = `card-plat-${plat.id}`;
+    card.setAttribute("data-platform-id", plat.id);
+    card.setAttribute("data-platform-name", plat.name.toLowerCase());
+    card.setAttribute("data-platform-category", plat.category ? plat.category.toLowerCase() : "");
+    card.setAttribute("data-is-custom", plat.isCustom ? "true" : "false");
+    card.setAttribute("data-is-popular", plat.isBuiltinCatalog ? "true" : "false");
+
+    const badgeHtml = plat.isCustom
+      ? '<span class="platform-tag-badge custom">Personnalisée</span>'
+      : '<span class="platform-tag-badge">Jobboard</span>';
+
+    const loginUrl = plat.login_url || plat.url;
+    const searchUrl = plat.search_url || plat.url;
+    const isConnected = Boolean(window.lastPlatformsStatus && window.lastPlatformsStatus[plat.id]?.logged_in);
+    loadPinnedPlatforms();
+    const isPinned = pinnedPlatforms.includes(plat.id) || isConnected || plat.isCustom;
+
+    card.innerHTML = `
+      <div class="plat-box-head">
+        <div class="plat-info">
+          <div class="plat-icon-circle" style="background:${plat.color}; color:#ffffff;">
+            <i class="${plat.icon || 'fa-solid fa-globe'}"></i>
+          </div>
+          <div>
+            <div style="display:flex; align-items:center; gap:4px;">
+              <h3 class="plat-name">${escapeHtml(plat.name)}</h3>
+              ${badgeHtml}
+            </div>
+            <div class="plat-role">${escapeHtml(plat.role || plat.category || "Plateforme d'offres")}</div>
+          </div>
+        </div>
+        <span class="platform-status-badge disconnected" id="badge-${plat.id}">
+          <span class="dot"></span> <span class="txt">Disponible</span>
+        </span>
+      </div>
+
+      <div class="plat-box-content">
+        <div class="platform-links-row">
+          <a href="${plat.url}" target="_blank" class="platform-link-item">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> Visiter le site
+          </a>
+          ${plat.search_url ? `
+          <a href="${plat.search_url}" target="_blank" class="platform-link-item">
+            <i class="fa-solid fa-magnifying-glass"></i> Voir les offres
+          </a>` : ''}
+        </div>
+
+        <div class="method-card">
+          <div class="method-card-head">
+            <span class="method-num"><i class="fa-solid fa-window-restore"></i></span>
+            <strong>Navigation & Connexion directe</strong>
+          </div>
+          <p class="method-desc-text">
+            Ouvre Chromium directement sur ${escapeHtml(plat.name)} pour vous connecter, consulter les offres et synchroniser vos candidatures.
+          </p>
+          <div class="method-actions-row">
+            <button class="btn-notion primary btn-open-browser-win" data-plat="${plat.id}" data-target-url="${loginUrl}">
+              <i class="fa-solid fa-window-restore"></i> Ouvrir Chromium
+            </button>
+            <button class="btn-notion btn-verify-session-plat" data-plat="${plat.id}">
+              <i class="fa-solid fa-check"></i> Valider ma connexion
+            </button>
+            <button class="btn-notion btn-close-browser-win" data-plat="${plat.id}" title="Fermer le navigateur">
+              <i class="fa-solid fa-xmark"></i> Fermer
+            </button>
+            <button class="btn-notion btn-toggle-dock-pin ${isPinned ? 'pinned' : ''}" data-plat="${plat.id}" title="${isPinned ? 'Présente sur le dock (cliquer pour retirer)' : 'Épingler cette plateforme sur le dock'}">
+              <i class="fa-solid ${isPinned ? 'fa-thumbtack' : 'fa-plus'}"></i> ${isPinned ? 'Sur le dock' : 'Ajouter au dock'}
+            </button>
+            <button class="btn-notion btn-disconnect-plat" data-plat="${plat.id}" title="Déconnecter cette session" style="display: none;">
+              <i class="fa-solid fa-arrow-right-from-bracket"></i> Déconnecter
+            </button>
+            ${plat.isCustom ? `
+            <button class="btn-notion btn-delete-custom-plat" data-delete-id="${plat.id}" title="Supprimer cette plateforme">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+
+    container.appendChild(card);
+  });
+
+  // Bind all action buttons inside container
+  bindPlatformActionButtons(container);
+
+  // Bind toggle pin buttons
+  container.querySelectorAll(".btn-toggle-dock-pin").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const platId = btn.getAttribute("data-plat");
+      loadPinnedPlatforms();
+      if (pinnedPlatforms.includes(platId)) {
+        pinnedPlatforms = pinnedPlatforms.filter(id => id !== platId);
+        showToast("Plateforme retirée du dock", "info");
+      } else {
+        pinnedPlatforms.push(platId);
+        showToast("✓ Plateforme épinglée sur le dock !", "success");
+      }
+      savePinnedPlatforms();
+      renderPlatformsCatalog();
+      renderDynamicDockPlatforms();
+    });
+  });
+
+  // Sync statuses for all newly rendered cards
+  loadPlatformsStatus();
+
+  // Bind delete custom platform buttons
+  container.querySelectorAll(".btn-delete-custom-plat").forEach(btn => {
+    btn.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      const deleteId = btn.getAttribute("data-delete-id");
+      if (!confirm("Voulez-vous vraiment supprimer cette plateforme personnalisée ?")) return;
+
+      try {
+        const res = await fetch(`/api/platforms/custom/${deleteId}`, { method: "DELETE" });
+        const data = await res.json();
+        showToast(data.message || "Plateforme supprimée", "info");
+        await loadCustomPlatforms();
+      } catch (err) {
+        showToast("Erreur : " + err.message, "error");
+      }
+    });
+  });
+
+  filterPlatformCards();
+}
+
+function filterPlatformCards() {
+  const query = platformSearchTerm;
+  const filter = activePlatformFilter;
+
+  const builtinCards = [
+    { el: document.getElementById("card-plat-linkedin"), name: "linkedin", cat: "linkedin", isBuiltin: true, id: "linkedin" },
+    { el: document.getElementById("card-plat-indeed"), name: "indeed", cat: "indeed", isBuiltin: true, id: "indeed" },
+    { el: document.getElementById("card-plat-francetravail"), name: "france travail francetravail pole emploi", cat: "francetravail", isBuiltin: true, id: "francetravail" }
+  ];
+
+  let visibleCount = 0;
+
+  // Filter builtin cards
+  builtinCards.forEach(item => {
+    if (!item.el) return;
+    let matchQuery = true;
+    if (query) {
+      matchQuery = item.name.includes(query);
+    }
+
+    let matchFilter = true;
+    if (filter === "popular") matchFilter = false;
+    if (filter === "custom") matchFilter = false;
+    if (filter === "connected") {
+      const badge = item.el.querySelector(".platform-status-badge");
+      matchFilter = badge && badge.classList.contains("connected");
+    }
+
+    if (matchQuery && matchFilter) {
+      item.el.style.display = "";
+      visibleCount++;
+    } else {
+      item.el.style.display = "none";
+    }
+  });
+
+  // Filter extra cards (popular & custom)
+  const extraCards = document.querySelectorAll(".platform-catalog-card");
+  extraCards.forEach(card => {
+    const name = card.getAttribute("data-platform-name") || "";
+    const cat = card.getAttribute("data-platform-category") || "";
+    const isCustom = card.getAttribute("data-is-custom") === "true";
+    const isPopular = card.getAttribute("data-is-popular") === "true";
+
+    let matchQuery = true;
+    if (query) {
+      matchQuery = name.includes(query) || cat.includes(query);
+    }
+
+    let matchFilter = true;
+    if (filter === "builtin") matchFilter = false;
+    if (filter === "custom") matchFilter = isCustom;
+    if (filter === "popular") matchFilter = isPopular;
+    if (filter === "connected") {
+      const badge = card.querySelector(".platform-status-badge");
+      matchFilter = badge && badge.classList.contains("connected");
+    }
+
+    if (matchQuery && matchFilter) {
+      card.style.display = "";
+      visibleCount++;
+    } else {
+      card.style.display = "none";
+    }
+  });
+
+  // Empty state
+  const emptyState = document.getElementById("platforms-empty-state");
+  if (emptyState) {
+    emptyState.style.display = visibleCount === 0 ? "block" : "none";
+  }
+}
+
+/* ==========================================================
+   AROVA INTERACTIVE EXPERIENCE ENGINE
+   Floating Editorial Card, Colored Themes (Black for Toutes, Red for FT,
+   Blue for LinkedIn, Green for Indeed), Drawer & Theme Switch
+========================================================== */
+let arovaCardLimit = 8;
+let arovaCardSearch = "";
+let arovaSortMode = "relevance"; // 'relevance' or 'date'
+let arovaStatusFilter = ""; // '' (all), 'unapplied', 'applied'
+
+function renderArovaCardRows() {
+  const rowsContainer = document.getElementById("arova-card-rows");
+  const countBadge = document.getElementById("arova-card-count");
+  const nameBadge = document.getElementById("arova-card-name");
+  const loadMoreBtn = document.getElementById("btn-arova-load-more");
+  const tabCountApplied = document.getElementById("arova-tab-count-applied");
+  if (!rowsContainer) return;
+
+  const meta = getPlatformMeta(selectedPlatform);
+  if (nameBadge) {
+    if (arovaStatusFilter === "applied") {
+      nameBadge.innerText = (meta ? meta.name + " • " : "") + "Candidatures Postulées";
+    } else if (arovaStatusFilter === "unapplied") {
+      nameBadge.innerText = (meta ? meta.name + " • " : "") + "Offres À Postuler";
+    } else {
+      nameBadge.innerText = meta ? meta.name : (selectedPlatform || "Toutes les candidatures");
+    }
+  }
+
+  // Count applied jobs for the current platform
+  const appliedForScope = allJobs.filter(j => (!selectedPlatform || (j.platform || "").toLowerCase() === selectedPlatform.toLowerCase()) && j.status === "applied").length;
+  if (tabCountApplied) tabCountApplied.innerText = appliedForScope;
+
+  // Filter jobs based on selectedPlatform, arovaStatusFilter, and arovaCardSearch
+  const filtered = allJobs.filter(job => {
+    if (selectedPlatform && (job.platform || "").toLowerCase() !== selectedPlatform.toLowerCase()) {
+      return false;
+    }
+    if (arovaStatusFilter === "applied" && job.status !== "applied") {
+      return false;
+    }
+    if (arovaStatusFilter === "unapplied" && job.status === "applied") {
+      return false;
+    }
+    if (arovaCardSearch) {
+      const matchText = `${job.job_title} ${job.company} ${job.location || ""}`.toLowerCase();
+      if (!matchText.includes(arovaCardSearch)) return false;
+    }
+    return true;
+  });
+
+  // Sort according to arovaSortMode
+  const sorted = [...filtered].sort((a, b) => {
+    if (arovaSortMode === "relevance") {
+      const scoreDiff = (b.match_score || 0) - (a.match_score || 0);
+      if (scoreDiff !== 0) return scoreDiff;
+      const dateA = new Date(a.posted_at || a.created_at || 0).getTime();
+      const dateB = new Date(b.posted_at || b.created_at || 0).getTime();
+      return dateB - dateA;
+    } else {
+      const dateA = new Date(a.posted_at || a.created_at || 0).getTime();
+      const dateB = new Date(b.posted_at || b.created_at || 0).getTime();
+      return dateB - dateA;
+    }
+  });
+
+  if (countBadge) {
+    countBadge.innerText = `- ${sorted.length}`;
+  }
+
+  const visibleJobs = sorted.slice(0, arovaCardLimit);
+
+  if (visibleJobs.length === 0) {
+    const emptyMsg = arovaStatusFilter === "applied" 
+      ? "Aucune candidature n'a encore été envoyée pour cette sélection."
+      : "Aucune offre trouvée pour cette sélection.";
+    rowsContainer.innerHTML = `
+      <div style="text-align:center; padding: 36px 12px; font-size:14px; font-weight:600; opacity:0.75;">
+        ${emptyMsg}
+      </div>
+    `;
+    if (loadMoreBtn) loadMoreBtn.style.display = "none";
+    return;
+  }
+
+  rowsContainer.innerHTML = visibleJobs.map(job => {
+    const isApplied = job.status === "applied";
+    let timeLabel = formatRelativeTime(job.posted_at || job.created_at);
+    if (isApplied && job.applied_at) {
+      timeLabel = `<span style="color:#34d399; font-weight:600;"><i class="fa-solid fa-check"></i> Envoyée ${formatRelativeTime(job.applied_at)}</span>`;
+    }
+
+    const locClean = (job.location || "France").replace(/,/g, "").trim();
+    const isEasy = (job.is_easy_apply !== 0 && job.is_easy_apply !== false);
+    
+    // Match score pill
+    const score = job.match_score || 60;
+    let pillClass = "normal";
+    if (score >= 95) pillClass = "exceptional";
+    else if (score >= 85) pillClass = "high";
+    else if (score >= 70) pillClass = "medium";
+    const scorePill = `<span class="arova-match-pill ${pillClass}">${score}% MATCH</span>`;
+    const appliedPill = isApplied ? `<span class="arova-badge-applied"><i class="fa-solid fa-circle-check"></i> Postulée</span>` : "";
+
+    // Extract skill tags from match_reason if available
+    let skillChipsHtml = "";
+    if (job.match_reason && job.match_reason.includes("(") && job.match_reason.includes(")")) {
+      const inside = job.match_reason.split("(")[1].split(")")[0];
+      const tags = inside.split(",").map(t => t.trim()).filter(Boolean);
+      skillChipsHtml = tags.slice(0, 3).map(t => `<span class="arova-skill-chip">${escapeHtml(t)}</span>`).join("");
+    }
+
+    const scopeParts = [
+      job.company,
+      locClean,
+      isEasy ? "1 CLIC" : "DIRECT"
+    ].filter(Boolean);
+
+    return `
+      <div class="arova-row-item ${isApplied ? 'row-is-applied' : ''}" data-job-id="${job.id}" title="${escapeHtml(job.match_reason || 'Cliquer pour voir le détail et postuler')}">
+        <div class="arova-row-left">
+          <div class="arova-row-jobtitle">${escapeHtml(job.job_title)}</div>
+          <div class="arova-row-scope">
+            ${scorePill}
+            ${appliedPill}
+            <span>${escapeHtml(scopeParts.join(" • ").toUpperCase())}</span>
+            ${skillChipsHtml}
+          </div>
+        </div>
+        <div class="arova-row-right">
+          <span class="arova-row-year">${timeLabel}</span>
+          <span class="arova-row-arrow">→</span>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  // Clicking an item opens the side peek drawer with 1-Click apply!
+  rowsContainer.querySelectorAll(".arova-row-item").forEach(item => {
+    item.addEventListener("click", () => {
+      const jId = parseInt(item.getAttribute("data-job-id"), 10);
+      const targetJob = allJobs.find(j => j.id === jId);
+      if (targetJob) {
+        openSidePeek(targetJob);
+      }
+    });
+  });
+
+  if (loadMoreBtn) {
+    if (sorted.length > arovaCardLimit) {
+      loadMoreBtn.style.display = "block";
+      loadMoreBtn.innerText = `Load more ••• (${sorted.length - arovaCardLimit} de plus)`;
+    } else {
+      loadMoreBtn.style.display = "none";
+    }
+  }
+}
+
+function setupArovaExperience() {
+  const floatingCard = document.getElementById("arova-floating-card");
+  const cardWidget = document.getElementById("arova-card-widget");
+  const btnCloseCard = document.getElementById("btn-close-arova-card");
+  const btnToggleSearch = document.getElementById("btn-toggle-arova-search");
+  const searchRow = document.getElementById("arova-card-search-row");
+  const searchInput = document.getElementById("arova-card-search-input");
+  const btnClearSearch = document.getElementById("btn-clear-arova-search");
+  const btnToggleTable = document.getElementById("btn-toggle-table-mode");
+  const loadMoreBtn = document.getElementById("btn-arova-load-more");
+
+  const sheetOverlay = document.getElementById("candidatures-sheet-overlay");
+  const btnCloseSheet = document.getElementById("btn-close-candidatures-sheet");
+  const sheetPlatformDot = document.getElementById("sheet-platform-dot");
+  const sheetPlatformTitle = document.getElementById("sheet-platform-title");
+
+  const drawerBackdrop = document.getElementById("studio-drawer-backdrop");
+  const drawerEl = document.getElementById("studio-menu-drawer");
+  const btnCloseDrawer = document.getElementById("btn-close-menu-drawer");
+  const btnTopMenu = document.getElementById("btn-top-menu");
+  const btnDockMenu = document.getElementById("btn-dock-menu");
+
+  const secondaryOverlay = document.getElementById("secondary-sheet-overlay");
+  const btnCloseSecondary = document.getElementById("btn-close-secondary-sheet");
+  const secondaryTitle = document.getElementById("secondary-sheet-title");
+
+  // Helper: Open Arova Editorial Card with distinct platform color theme & optional status filter
+  window.openArovaCard = function(platformKey, statusFilter) {
+    selectedPlatform = platformKey !== undefined ? platformKey : "";
+    arovaStatusFilter = statusFilter !== undefined ? statusFilter : "";
+    arovaCardLimit = 8; // Reset display count on platform switch
+    arovaCardSearch = "";
+    if (searchInput) searchInput.value = "";
+    if (searchRow) searchRow.style.display = "none";
+
+    // Sync status filter tabs in card header
+    document.querySelectorAll(".arova-status-tab-btn").forEach(b => {
+      b.classList.toggle("active", (b.getAttribute("data-arova-status") || "") === arovaStatusFilter);
+    });
+
+    const meta = getPlatformMeta(selectedPlatform);
+
+    if (cardWidget) {
+      // Remove all previous theme classes
+      cardWidget.classList.remove("arova-theme-black", "arova-theme-red", "arova-theme-blue", "arova-theme-green", "arova-theme-colored", "arova-theme-emerald");
+
+      if (arovaStatusFilter === "applied" && !selectedPlatform) {
+        cardWidget.classList.add("arova-theme-emerald");
+        cardWidget.style.backgroundColor = "";
+        cardWidget.style.color = "";
+        cardWidget.style.borderColor = "";
+      } else if (meta.themeClass && meta.themeClass !== "arova-theme-colored") {
+        cardWidget.classList.add(meta.themeClass);
+        cardWidget.style.backgroundColor = "";
+        cardWidget.style.color = "";
+        cardWidget.style.borderColor = "";
+      } else {
+        cardWidget.classList.add("arova-theme-colored");
+        cardWidget.style.backgroundColor = meta.color;
+        cardWidget.style.color = meta.textColor || "#ffffff";
+        cardWidget.style.borderColor = "rgba(255, 255, 255, 0.25)";
+      }
+    }
+
+    renderArovaCardRows();
+    updateBatchCounts();
+
+    // Close full table sheet and menu if open
+    if (sheetOverlay) sheetOverlay.classList.remove("open");
+    closeStudioDrawer();
+
+    if (floatingCard) {
+      floatingCard.classList.add("open");
+    }
+  };
+
+  // Inline card status filter tabs
+  document.querySelectorAll(".arova-status-tab-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".arova-status-tab-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      arovaStatusFilter = btn.getAttribute("data-arova-status") || "";
+      arovaCardLimit = 8;
+      renderArovaCardRows();
+    });
+  });
+
+  // Bottom dock Applied CTA
+  const btnDockApplied = document.getElementById("btn-dock-applied");
+  if (btnDockApplied) {
+    btnDockApplied.addEventListener("click", () => {
+      openArovaCard("", "applied");
+    });
+  }
+
+  // Drawer View Applied Button
+  const btnDrawerViewApplied = document.getElementById("btn-drawer-view-applied");
+  if (btnDrawerViewApplied) {
+    btnDrawerViewApplied.addEventListener("click", () => {
+      openArovaCard("", "applied");
+    });
+  }
+
+  window.closeArovaCard = function() {
+    if (floatingCard) floatingCard.classList.remove("open");
+  };
+
+  // Helper: Open full table sheet
+  window.openCandidaturesSheet = function(platformKey) {
+    selectedPlatform = platformKey !== undefined ? platformKey : "";
+    const meta = getPlatformMeta(selectedPlatform);
+
+    if (sheetPlatformDot) sheetPlatformDot.style.background = meta.color;
+    if (sheetPlatformTitle) sheetPlatformTitle.innerText = selectedPlatform === "" ? "Toutes les candidatures" : `Candidatures • ${meta.name}`;
+
+    // Update sheet tabs
+    document.querySelectorAll(".sheet-plat-btn").forEach(b => {
+      const p = b.getAttribute("data-sheet-platform");
+      b.classList.toggle("active", p === selectedPlatform);
+    });
+
+    // Sync segmented platform buttons inside toolbar
+    document.querySelectorAll(".segmented-item[data-platform]").forEach(btn => {
+      if (btn.getAttribute("data-platform") === selectedPlatform) {
+        btn.classList.add("active");
+      } else {
+        btn.classList.remove("active");
+      }
+    });
+
+    closeArovaCard();
+    closeStudioDrawer();
+
+    if (sheetOverlay) sheetOverlay.classList.add("open");
+    renderJobsTable();
+  };
+
+  window.closeCandidaturesSheet = function() {
+    if (sheetOverlay) sheetOverlay.classList.remove("open");
+  };
+
+  // Render dynamic dock platform buttons & sheet tabs
+  renderDynamicDockPlatforms();
+
+  // Card Controls
+  if (btnCloseCard) btnCloseCard.addEventListener("click", closeArovaCard);
+
+  if (btnToggleSearch && searchRow && searchInput) {
+    btnToggleSearch.addEventListener("click", () => {
+      const isVisible = searchRow.style.display !== "none";
+      searchRow.style.display = isVisible ? "none" : "flex";
+      if (!isVisible) searchInput.focus();
+    });
+  }
+
+  if (searchInput) {
+    searchInput.addEventListener("input", (e) => {
+      arovaCardSearch = e.target.value.toLowerCase().trim();
+      renderArovaCardRows();
+    });
+  }
+
+  if (btnClearSearch && searchInput) {
+    btnClearSearch.addEventListener("click", () => {
+      searchInput.value = "";
+      arovaCardSearch = "";
+      renderArovaCardRows();
+    });
+  }
+
+  // Toggle Table Mode button inside Card Header -> opens full table sheet
+  if (btnToggleTable) {
+    btnToggleTable.addEventListener("click", () => {
+      openCandidaturesSheet(selectedPlatform);
+    });
+  }
+
+  // Load more button inside card
+  if (loadMoreBtn) {
+    loadMoreBtn.addEventListener("click", () => {
+      arovaCardLimit += 8;
+      renderArovaCardRows();
+    });
+  }
+
+  // Sheet Header Tabs switch
+  document.querySelectorAll(".sheet-plat-btn[data-sheet-platform]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const plat = btn.getAttribute("data-sheet-platform") || "";
+      openCandidaturesSheet(plat);
+    });
+  });
+
+  // Close sheet events
+  if (btnCloseSheet) btnCloseSheet.addEventListener("click", closeCandidaturesSheet);
+  if (sheetOverlay) {
+    sheetOverlay.addEventListener("click", (e) => {
+      if (e.target === sheetOverlay) closeCandidaturesSheet();
+    });
+  }
+
+  // Helper: Open / Close Studio Menu Drawer
+  window.openStudioDrawer = function() {
+    closeArovaCard();
+    closeCandidaturesSheet();
+    if (drawerBackdrop) drawerBackdrop.classList.add("open");
+    if (drawerEl) drawerEl.classList.add("open");
+  };
+
+  window.closeStudioDrawer = function() {
+    if (drawerBackdrop) drawerBackdrop.classList.remove("open");
+    if (drawerEl) drawerEl.classList.remove("open");
+  };
+
+  if (btnTopMenu) btnTopMenu.addEventListener("click", openStudioDrawer);
+  if (btnDockMenu) btnDockMenu.addEventListener("click", openStudioDrawer);
+  if (btnCloseDrawer) btnCloseDrawer.addEventListener("click", closeStudioDrawer);
+  if (drawerBackdrop) drawerBackdrop.addEventListener("click", closeStudioDrawer);
+
+  // Helper: Secondary Sheet (CV Viewer, Plateformes, Critères)
+  window.openSecondarySheet = function(tabId) {
+    closeStudioDrawer();
+    closeCandidaturesSheet();
+    closeArovaCard();
+
+    document.querySelectorAll(".notion-view-page").forEach(p => p.classList.remove("active"));
+    const targetPage = document.getElementById(tabId);
+    if (targetPage) targetPage.classList.add("active");
+
+    const titles = {
+      "tab-cv": '<i class="fa-solid fa-file-pdf" style="color:#ef4444;"></i> <span>Visualisateur & Bibliothèque de CV</span>',
+      "tab-platforms": '<i class="fa-solid fa-key" style="color:#38bdf8;"></i> <span>Connexions & Sessions des Plateformes</span>',
+      "tab-settings": '<i class="fa-solid fa-sliders" style="color:#a855f7;"></i> <span>Paramètres de Recherche & Veille</span>'
+    };
+
+    if (secondaryTitle && titles[tabId]) {
+      secondaryTitle.innerHTML = titles[tabId];
+    }
+
+    if (secondaryOverlay) secondaryOverlay.classList.add("open");
+  };
+
+  window.closeSecondarySheet = function() {
+    if (secondaryOverlay) secondaryOverlay.classList.remove("open");
+  };
+
+  if (btnCloseSecondary) btnCloseSecondary.addEventListener("click", closeSecondarySheet);
+  if (secondaryOverlay) {
+    secondaryOverlay.addEventListener("click", (e) => {
+      if (e.target === secondaryOverlay) closeSecondarySheet();
+    });
+  }
+
+  // Drawer Action Triggers
+  const btnDrawerCV = document.getElementById("btn-drawer-open-cv");
+  if (btnDrawerCV) btnDrawerCV.addEventListener("click", () => openSecondarySheet("tab-cv"));
+
+  const btnDrawerPlat = document.getElementById("btn-drawer-open-platforms");
+  if (btnDrawerPlat) btnDrawerPlat.addEventListener("click", () => openSecondarySheet("tab-platforms"));
+
+  const btnDrawerCrit = document.getElementById("btn-drawer-open-criteria");
+  if (btnDrawerCrit) btnDrawerCrit.addEventListener("click", () => openSecondarySheet("tab-settings"));
+
+  // Drawer & Dock Scan Action
+  const btnDockScan = document.getElementById("btn-dock-scan");
+  if (btnDockScan) {
+    btnDockScan.addEventListener("click", async () => {
+      btnDockScan.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Scan...</span>';
+      btnDockScan.disabled = true;
+      try {
+        const res = await fetch("/api/jobs/sync-realtime", { method: "POST" });
+        const data = await res.json();
+        showToast(`🎉 Scan terminé : ${data.new_jobs_detected || 0} nouvelles offres trouvées en direct !`, "success");
+        await loadJobs();
+      } catch (err) {
+        showToast("Erreur lors du scan : " + err.message, "error");
+      } finally {
+        btnDockScan.innerHTML = '<i class="fa-solid fa-bolt"></i> <span>Scanner</span>';
+        btnDockScan.disabled = false;
+      }
+    });
+  }
+
+  // Drawer banner triggers
+  const btnDrawerUpload = document.getElementById("btn-drawer-upload-banner");
+  const fileInputBanner = document.getElementById("banner-file-input");
+  if (btnDrawerUpload && fileInputBanner) {
+    btnDrawerUpload.addEventListener("click", () => fileInputBanner.click());
+  }
+
+  const btnDrawerReset = document.getElementById("btn-drawer-reset-banner");
+  const btnResetBanner = document.getElementById("btn-reset-banner");
+  if (btnDrawerReset && btnResetBanner) {
+    btnDrawerReset.addEventListener("click", () => btnResetBanner.click());
+  }
+
+  // Brand click in top bar returns home (closes all sheets/drawers)
+  const brandHome = document.getElementById("btn-brand-home");
+  if (brandHome) {
+    brandHome.addEventListener("click", () => {
+      closeArovaCard();
+      closeCandidaturesSheet();
+      closeStudioDrawer();
+      closeSecondarySheet();
+    });
+  }
+
+  // Keyboard shortcut: Escape closes all open modals / sheets
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      const modalAdd = document.getElementById("modal-add-platform");
+      if (modalAdd && modalAdd.style.display !== "none") {
+        modalAdd.style.display = "none";
+      }
+      closeArovaCard();
+      closeCandidaturesSheet();
+      closeStudioDrawer();
+      closeSecondarySheet();
+    }
+  });
+
+  // Visual Theme Toggle (Dark Studio vs Arova Cream Gallery)
+  const themeToggle = document.getElementById("btn-arova-theme-toggle");
+  const savedTheme = localStorage.getItem("arova_theme");
+  if (savedTheme === "cream") {
+    document.body.classList.add("arova-gallery-theme");
+  }
+
+  if (themeToggle) {
+    themeToggle.addEventListener("click", () => {
+      document.body.classList.toggle("arova-gallery-theme");
+      const isCream = document.body.classList.contains("arova-gallery-theme");
+      localStorage.setItem("arova_theme", isCream ? "cream" : "dark");
+      if (typeof window.__updateThreeTheme === "function") {
+        window.__updateThreeTheme(isCream);
+      }
+      showToast(isCream ? "🎨 Thème Arova Gallery (Crème) activé" : "🌙 Thème Dark Studio activé", "info");
+    });
+  }
+
+  // Setup Profile & IA Matching Engine
+  setupProfileAndMatchingExperience();
+  setupBatchApplyExperience();
+}
+
+/* ==========================================================
+   PROFILE SHOWCASE & IA MATCHING INTERACTION ENGINE
+========================================================== */
+function setupProfileAndMatchingExperience() {
+  const btnSortRel = document.getElementById("btn-arova-sort-relevance");
+  const btnSortDate = document.getElementById("btn-arova-sort-date");
+
+  function updateSortButtons() {
+    if (btnSortRel) btnSortRel.classList.toggle("active", arovaSortMode === "relevance");
+    if (btnSortDate) btnSortDate.classList.toggle("active", arovaSortMode === "date");
+  }
+
+  if (btnSortRel) {
+    btnSortRel.addEventListener("click", () => {
+      arovaSortMode = "relevance";
+      updateSortButtons();
+      renderArovaCardRows();
+      renderJobsTable();
+      showToast("🎯 Tri par pertinence profil (Score %)", "info");
+    });
+  }
+
+  if (btnSortDate) {
+    btnSortDate.addEventListener("click", () => {
+      arovaSortMode = "date";
+      updateSortButtons();
+      renderArovaCardRows();
+      renderJobsTable();
+      showToast("⏱️ Tri par date la plus récente", "info");
+    });
+  }
+
+  // Profile Drawer elements
+  const profileModal = document.getElementById("profile-analyze-modal");
+  const btnOpenAnalyze = document.getElementById("btn-open-analyze-profile-modal");
+  const btnCloseAnalyze = document.getElementById("btn-close-profile-modal");
+  const btnCancelAnalyze = document.getElementById("btn-cancel-profile-modal");
+  const formAnalyze = document.getElementById("form-profile-analyzer");
+  const btnRescore = document.getElementById("btn-drawer-rescore-jobs");
+
+  async function loadProfileShowcase() {
+    try {
+      const res = await fetch("/api/profile/current");
+      if (!res.ok) return;
+      const data = await res.json();
+      const p = data.profile || {};
+
+      const elName = document.getElementById("drawer-profile-fullname");
+      const elTitle = document.getElementById("drawer-profile-title");
+      const elInitials = document.getElementById("drawer-profile-initials");
+      const elLinkPort = document.getElementById("drawer-link-portfolio");
+      const elLinkLi = document.getElementById("drawer-link-linkedin");
+      const elLinkGh = document.getElementById("drawer-link-github");
+      const elTags = document.getElementById("drawer-profile-skills-tags");
+
+      if (elName) elName.innerText = `${p.first_name || ""} ${p.last_name || ""}`.trim() || "Eliot Hantute";
+      if (elTitle) elTitle.innerText = p.current_title || "Creative Front-End Developer & UI Designer";
+      if (elInitials) {
+        const i1 = (p.first_name || "E")[0];
+        const i2 = (p.last_name || "H")[0];
+        elInitials.innerText = `${i1}${i2}`.toUpperCase();
+      }
+
+      if (elLinkPort && p.portfolio_url) {
+        elLinkPort.href = p.portfolio_url;
+        elLinkPort.innerHTML = `<i class="fa-solid fa-globe"></i> ${p.portfolio_url.replace(/^https?:\/\//, "").replace(/\/$/, "")}`;
+      }
+      if (elLinkLi && p.linkedin_url) {
+        elLinkLi.href = p.linkedin_url;
+      }
+      if (elLinkGh && p.github_url) {
+        elLinkGh.href = p.github_url;
+      }
+
+      if (elTags && Array.isArray(p.skills)) {
+        const highlights = ["Three.js", "WebGL", "React 19", "React", "TypeScript", "Tailwind CSS", "Figma", "UI/UX Design", "Next.js", "GSAP"];
+        elTags.innerHTML = p.skills.slice(0, 12).map(sk => {
+          const isHigh = highlights.some(h => sk.toLowerCase().includes(h.toLowerCase()));
+          return `<span class="skill-tag ${isHigh ? 'highlight' : ''}">${escapeHtml(sk)}</span>`;
+        }).join("");
+      }
+    } catch (err) {
+      console.warn("Could not load profile showcase:", err);
+    }
+  }
+
+  // Open modal
+  if (btnOpenAnalyze) {
+    btnOpenAnalyze.addEventListener("click", () => {
+      if (profileModal) {
+        profileModal.style.display = "flex";
+        const prog = document.getElementById("analyze-progress-box");
+        if (prog) prog.style.display = "none";
+      }
+    });
+  }
+
+  function closeProfileModal() {
+    if (profileModal) profileModal.style.display = "none";
+  }
+
+  if (btnCloseAnalyze) btnCloseAnalyze.addEventListener("click", closeProfileModal);
+  if (btnCancelAnalyze) btnCancelAnalyze.addEventListener("click", closeProfileModal);
+  if (profileModal) {
+    profileModal.addEventListener("click", (e) => {
+      if (e.target === profileModal) closeProfileModal();
+    });
+  }
+
+  // Form submit: analyze profile
+  if (formAnalyze) {
+    formAnalyze.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const portfolioUrl = document.getElementById("input-profile-portfolio")?.value || "";
+      const linkedinUrl = document.getElementById("input-profile-linkedin")?.value || "";
+      const resumeSelect = document.getElementById("select-profile-resume")?.value || "";
+      const notes = document.getElementById("input-profile-notes")?.value || "";
+
+      const progBox = document.getElementById("analyze-progress-box");
+      const submitBtn = document.getElementById("btn-run-profile-analysis");
+      const step1 = document.getElementById("prog-step-1");
+      const step2 = document.getElementById("prog-step-2");
+      const step3 = document.getElementById("prog-step-3");
+      const step4 = document.getElementById("prog-step-4");
+
+      if (progBox) progBox.style.display = "flex";
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Analyse en cours...';
+      }
+
+      function setStep(stepEl, state) {
+        if (!stepEl) return;
+        stepEl.classList.remove("active", "done");
+        if (state === "active") {
+          stepEl.classList.add("active");
+          const ico = stepEl.querySelector("i");
+          if (ico) ico.className = "fa-solid fa-circle-notch fa-spin";
+        } else if (state === "done") {
+          stepEl.classList.add("done");
+          const ico = stepEl.querySelector("i");
+          if (ico) ico.className = "fa-solid fa-circle-check";
+        }
+      }
+
+      setStep(step1, "active");
+
+      try {
+        setTimeout(() => { setStep(step1, "done"); setStep(step2, "active"); }, 500);
+        setTimeout(() => { setStep(step2, "done"); setStep(step3, "active"); }, 1200);
+
+        const res = await fetch("/api/profile/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            portfolio_url: portfolioUrl,
+            linkedin_url: linkedinUrl,
+            resume_filename: resumeSelect,
+            additional_notes: notes,
+          })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Erreur lors de l'analyse");
+
+        setStep(step3, "done");
+        setStep(step4, "active");
+        setTimeout(() => setStep(step4, "done"), 400);
+
+        setTimeout(async () => {
+          showToast(`⚡ Profil analysé avec succès ! ${data.rescore_stats?.high_matches || 0} offres recommandées.`, "success");
+          closeProfileModal();
+          await loadProfileShowcase();
+          await loadJobs();
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fa-solid fa-bolt"></i> Lancer l\'analyse & calibrer les offres';
+          }
+        }, 800);
+
+      } catch (err) {
+        showToast("Erreur analyse de profil : " + err.message, "error");
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="fa-solid fa-bolt"></i> Lancer l\'analyse & calibrer les offres';
+        }
+      }
+    });
+  }
+
+  // Rescore button in drawer
+  if (btnRescore) {
+    btnRescore.addEventListener("click", async () => {
+      btnRescore.disabled = true;
+      btnRescore.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Recalcul...';
+      try {
+        const res = await fetch("/api/jobs/rescore", { method: "POST" });
+        const data = await res.json();
+        showToast(data.message || "Recalcul de pertinence terminé !", "success");
+        await loadJobs();
+      } catch (err) {
+        showToast("Erreur recalcul : " + err.message, "error");
+      } finally {
+        btnRescore.disabled = false;
+        btnRescore.innerHTML = '<i class="fa-solid fa-crosshairs"></i> Recalculer la pertinence';
+      }
+    });
+  }
+
+  // Initial load
+  loadProfileShowcase();
+}
+
+/* ==========================================================
+   BATCH APPLY TO ALL JOBS EXPERIENCE
+========================================================== */
+function setupBatchApplyExperience() {
+  const modal = document.getElementById("modal-batch-apply");
+  const btnClose = document.getElementById("btn-close-batch-modal");
+  const btnCancel = document.getElementById("btn-cancel-batch");
+  const btnStart = document.getElementById("btn-start-batch-action");
+  const btnStop = document.getElementById("btn-stop-batch-action");
+
+  const btnArovaHead = document.getElementById("btn-arova-head-apply-all");
+  const btnArovaFoot = document.getElementById("btn-arova-foot-apply-all");
+  const btnDrawerMaster = document.getElementById("btn-drawer-apply-all-master");
+
+  let batchPollInterval = null;
+  let currentBatchPlatform = "";
+
+  function closeModal() {
+    if (modal) modal.style.display = "none";
+  }
+
+  if (btnClose) btnClose.addEventListener("click", closeModal);
+  if (btnCancel) btnCancel.addEventListener("click", closeModal);
+  if (modal) {
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) closeModal();
+    });
+  }
+
+  async function refreshBatchModalStats(plat) {
+    currentBatchPlatform = (plat !== undefined && plat !== null) ? plat : "";
+    try {
+      const url = currentBatchPlatform ? `/api/jobs/unapplied-stats?platform=${encodeURIComponent(currentBatchPlatform)}` : "/api/jobs/unapplied-stats";
+      const res = await fetch(url);
+      const stats = await res.json();
+
+      const elTotal = document.getElementById("batch-stat-total");
+      const elHigh = document.getElementById("batch-stat-high");
+      const elPlat = document.getElementById("batch-stat-platform");
+      const elScopeAll = document.getElementById("batch-scope-count-all");
+      const elScopeHigh = document.getElementById("batch-scope-count-high");
+
+      const meta = getPlatformMeta(currentBatchPlatform);
+      const platLabel = currentBatchPlatform ? (meta ? meta.name : currentBatchPlatform) : "Tout le catalogue";
+
+      if (elTotal) elTotal.innerText = stats.total_unapplied || 0;
+      if (elHigh) elHigh.innerText = stats.high_match_unapplied || 0;
+      if (elPlat) elPlat.innerText = platLabel;
+      if (elScopeAll) elScopeAll.innerText = stats.total_unapplied || 0;
+      if (elScopeHigh) elScopeHigh.innerText = stats.high_match_unapplied || 0;
+
+      // Update active pill button
+      document.querySelectorAll(".batch-plat-pill").forEach(p => {
+        p.classList.toggle("active", (p.getAttribute("data-batch-plat") || "") === currentBatchPlatform);
+      });
+
+      // Update start button text with specific platform name
+      if (btnStart) {
+        btnStart.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Lancer les candidatures ${currentBatchPlatform ? (meta ? meta.name : currentBatchPlatform) : 'groupées'} (${stats.total_unapplied || 0})`;
+      }
+
+      // Update pill badge counts from breakdown if available
+      if (stats.breakdown) {
+        const pAll = document.getElementById("batch-pill-count-all");
+        const pFt = document.getElementById("batch-pill-count-ft");
+        const pLi = document.getElementById("batch-pill-count-li");
+        const pInd = document.getElementById("batch-pill-count-ind");
+        if (pAll && stats.breakdown.all) pAll.innerText = stats.breakdown.all.unapplied || 0;
+        if (pFt && stats.breakdown.francetravail) pFt.innerText = stats.breakdown.francetravail.unapplied || 0;
+        if (pLi && stats.breakdown.linkedin) pLi.innerText = stats.breakdown.linkedin.unapplied || 0;
+        if (pInd && stats.breakdown.indeed) pInd.innerText = stats.breakdown.indeed.unapplied || 0;
+      }
+    } catch (e) {
+      console.warn("Error refreshing batch modal stats:", e);
+    }
+  }
+
+  // Wire platform selector pills in batch modal
+  document.querySelectorAll(".batch-plat-pill").forEach(pill => {
+    pill.addEventListener("click", () => {
+      const targetPlat = pill.getAttribute("data-batch-plat") || "";
+      refreshBatchModalStats(targetPlat);
+    });
+  });
+
+  window.openBatchApplyModal = async function(platformScope) {
+    const plat = (platformScope !== undefined && platformScope !== null) ? platformScope : (selectedPlatform || "");
+    await refreshBatchModalStats(plat);
+
+    const elResumeName = document.getElementById("batch-modal-resume-name");
+    if (elResumeName && activeResumeFilename) {
+      elResumeName.innerText = activeResumeFilename;
+    }
+
+    await checkCurrentBatchStatus();
+    if (modal) modal.style.display = "flex";
+  };
+
+  if (btnArovaHead) {
+    btnArovaHead.addEventListener("click", (e) => {
+      e.stopPropagation();
+      openBatchApplyModal(selectedPlatform);
+    });
+  }
+
+  if (btnArovaFoot) {
+    btnArovaFoot.addEventListener("click", (e) => {
+      e.stopPropagation();
+      openBatchApplyModal(selectedPlatform);
+    });
+  }
+
+  if (btnDrawerMaster) {
+    btnDrawerMaster.addEventListener("click", () => {
+      closeStudioDrawer();
+      openBatchApplyModal("");
+    });
+  }
+
+  async function checkCurrentBatchStatus() {
+    try {
+      const res = await fetch("/api/jobs/batch-status");
+      const status = await res.json();
+      updateBatchUIState(status);
+
+      if (status.is_running && !batchPollInterval) {
+        batchPollInterval = setInterval(pollBatchStatus, 1500);
+      }
+    } catch (e) {
+      console.warn("Could not check batch status:", e);
+    }
+  }
+
+  function updateBatchUIState(status) {
+    const liveSection = document.getElementById("batch-live-progress");
+    const bar = document.getElementById("batch-progress-bar");
+    const title = document.getElementById("batch-progress-title");
+    const pct = document.getElementById("batch-progress-pct");
+    const currJob = document.getElementById("batch-progress-curr-job");
+    const statSuccess = document.getElementById("batch-stat-success");
+    const statSkipped = document.getElementById("batch-stat-skipped");
+    const statFailed = document.getElementById("batch-stat-failed");
+    const statRemaining = document.getElementById("batch-stat-remaining");
+    const statTip = document.getElementById("batch-stat-tip");
+    const statTipText = document.getElementById("batch-stat-tip-text");
+
+    if (status.is_running) {
+      if (liveSection) liveSection.style.display = "flex";
+      if (btnStart) btnStart.style.display = "none";
+      if (btnStop) btnStop.style.display = "inline-flex";
+
+      const p = status.percent || 0;
+      if (bar) bar.style.width = `${p}%`;
+      if (pct) pct.innerText = `${p}%`;
+      if (title) title.innerText = status.current_task || "Candidature en cours...";
+      if (currJob) {
+        currJob.innerText = status.current_job_title ? `${status.current_job_title} chez ${status.current_company} (${(status.current_platform || '').toUpperCase()})` : "En attente...";
+      }
+
+      if (statSuccess) statSuccess.innerText = status.success_count || 0;
+      if (statSkipped) statSkipped.innerText = status.skipped_count || 0;
+      if (statFailed) statFailed.innerText = status.failed_count || 0;
+      const remaining = Math.max(0, (status.total || 0) - (status.current_index || 0));
+      if (statRemaining) statRemaining.innerText = remaining;
+
+      if (statTip && statTipText) {
+        const reason = status.last_reason || "";
+        if (reason.includes("Session") || reason.includes("Authwall")) {
+          statTip.style.display = "block";
+          statTipText.innerHTML = "<strong>Session LinkedIn requise :</strong> Connectez-vous dans le tiroir <em>Menu &gt; Plateformes &amp; Sessions</em> ou collez votre cookie <code>li_at</code> pour débloquer l'envoi direct.";
+        } else if (reason.includes("externe")) {
+          statTip.style.display = "block";
+          statTipText.innerHTML = "<strong>Redirection externe détectée :</strong> Cette offre redirige vers le portail RH de l'entreprise (non éligible au 1 Clic direct).";
+        } else if (reason) {
+          statTip.style.display = "block";
+          statTipText.innerText = `Note : ${reason}`;
+        }
+      }
+    } else {
+      if (btnStart) {
+        btnStart.style.display = "inline-flex";
+        btnStart.disabled = false;
+        const meta = getPlatformMeta(currentBatchPlatform);
+        const name = currentBatchPlatform ? (meta ? meta.name : currentBatchPlatform) : 'groupées';
+        btnStart.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Lancer les candidatures ${name}`;
+      }
+      if (btnStop) btnStop.style.display = "none";
+
+      if (status.total > 0 && status.current_index >= status.total) {
+        if (title) title.innerText = status.current_task || "Session terminée avec succès !";
+        if (bar) bar.style.width = "100%";
+        if (pct) pct.innerText = "100%";
+      } else if (!status.is_running && status.total === 0) {
+        if (liveSection) liveSection.style.display = "none";
+      }
+    }
+  }
+
+  async function pollBatchStatus() {
+    try {
+      const res = await fetch("/api/jobs/batch-status");
+      const status = await res.json();
+      updateBatchUIState(status);
+
+      if (!status.is_running) {
+        if (batchPollInterval) {
+          clearInterval(batchPollInterval);
+          batchPollInterval = null;
+        }
+        showToast(`🎉 Session terminée : ${status.success_count || 0} offre(s) postulée(s) avec succès !`, "success");
+        await loadJobs();
+      }
+    } catch (e) {
+      console.warn("Poll batch status failed:", e);
+    }
+  }
+
+  // Start Batch Apply Action
+  if (btnStart) {
+    btnStart.addEventListener("click", async () => {
+      const scopeRadio = document.querySelector("input[name='batch-scope']:checked");
+      const scopeVal = scopeRadio ? scopeRadio.value : "all";
+      const isHighOnly = scopeVal === "high";
+
+      btnStart.disabled = true;
+      btnStart.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Initialisation...';
+
+      try {
+        const payload = {
+          platform: currentBatchPlatform || null,
+          min_score: isHighOnly ? 80 : null,
+        };
+
+        const res = await fetch("/api/jobs/apply-all", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Erreur au lancement");
+
+        showToast(data.message || "Postulations automatiques 1 Clic lancées !", "success");
+
+        // Start polling
+        await checkCurrentBatchStatus();
+        if (!batchPollInterval) {
+          batchPollInterval = setInterval(pollBatchStatus, 1200);
+        }
+
+      } catch (err) {
+        showToast("Erreur lancement candidatures : " + err.message, "error");
+        btnStart.disabled = false;
+        btnStart.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Lancer les candidatures groupées';
+      }
+    });
+  }
+
+  // Stop Batch Apply Action
+  if (btnStop) {
+    btnStop.addEventListener("click", async () => {
+      btnStop.disabled = true;
+      btnStop.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Arrêt...';
+      try {
+        const res = await fetch("/api/jobs/stop-batch", { method: "POST" });
+        const data = await res.json();
+        showToast("Arrêt des candidatures demandé.", "info");
+      } catch (err) {
+        showToast("Erreur arrêt : " + err.message, "error");
+      } finally {
+        btnStop.disabled = false;
+        btnStop.innerHTML = '<i class="fa-solid fa-hand"></i> Interrompre';
+      }
+    });
+  }
+}
+
+

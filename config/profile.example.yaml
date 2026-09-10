@@ -1,0 +1,53 @@
+first_name: "Jean"
+last_name: "Dupont"
+email: "jean.dupont@example.com"
+phone_country_code: "+33"
+phone_number: "612345678"
+city: "Paris"
+country: "France"
+postal_code: "75001"
+address: "10 Rue de la Paix"
+
+current_title: "Développeur Full Stack Python / React"
+total_years_experience: 4
+linkedin_url: "https://www.linkedin.com/in/jeandupont"
+github_url: "https://github.com/jeandupont"
+portfolio_url: "https://jeandupont.dev"
+
+summary: >
+  Développeur Full Stack avec 4 ans d'expérience dans la conception d'applications web scalables,
+  d'APIs REST / GraphQL, et l'intégration de modèles d'IA. Spécialisé en Python, FastAPI, React et TypeScript.
+
+skills:
+  - "Python"
+  - "FastAPI"
+  - "Django"
+  - "JavaScript"
+  - "TypeScript"
+  - "React"
+  - "Node.js"
+  - "PostgreSQL"
+  - "Docker"
+  - "Git"
+  - "CI/CD"
+  - "AWS"
+
+languages:
+  Français: "Natif"
+  Anglais: "Professionnel (C1)"
+
+# Réponses types pour les questionnaires automatiques
+work_authorization_eu: true
+requires_sponsorship: false
+salary_expectation_annual_eur: 50000
+notice_period_weeks: 4
+willing_to_relocate: false
+
+custom_qa:
+  permis: "Oui, Permis B"
+  statut: "Cadre"
+  diplome: "Master Informatique (Bac+5)"
+  experience_management: "1 an en encadrement technique d'alternants"
+  mobilite: "Télétravail ou hybride Île-de-France"
+
+resume_path: null

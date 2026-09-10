@@ -1,0 +1,24 @@
+blacklisted_companies: []
+blacklisted_keywords:
+- Stage
+- Alternance
+- Senior 12+ ans
+contract_types:
+- CDI
+- Freelance
+easy_apply_only: true
+keywords:
+- Creative Developer
+- Développeur Front-End React
+- Three.js WebGL
+- UI Designer
+- Design Engineer
+- Développeur React TypeScript
+locations:
+- Paris, France
+- Remote
+- Île-de-France
+max_applications_per_day: 25
+min_alert_score: 80
+min_match_score: 60
+remote_only: false

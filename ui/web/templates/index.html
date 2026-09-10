@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Candidatures Agence Paris • Arova Edition</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css?v=2.7">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body class="notion-dark-clean">
+
+  <!-- ==========================================================
+       AROVA MINIMALIST TOP BAR (ZERO CLUTTER)
+  ========================================================== -->
+  <header class="arova-top-bar">
+    <div class="arova-top-brand" id="btn-brand-home" title="Studio Candidatures">
+      <span class="arova-top-brand-dot"></span>
+      <span class="arova-top-brand-title">Candidatures</span>
+      <span class="arova-top-brand-badge" id="arova-top-jobs-badge">Chargement...</span>
+    </div>
+
+    <div class="arova-top-actions">
+      <!-- Hidden compatibility hooks for existing JS -->
+      <span id="tab-jobs-count" style="display:none;">0</span>
+      <span id="tab-cv-status-dot" style="display:none;"></span>
+      <span id="tab-platforms-badge" style="display:none;">0/3</span>
+      <span id="topbar-platforms-count" style="display:none;">0/3</span>
+      <span id="header-batch-count" style="display:none;">0</span>
+      <button id="btn-header-platforms" style="display:none;"></button>
+      <button id="btn-header-batch-apply" style="display:none;"></button>
+      <input type="file" id="banner-file-input" accept="image/*" style="display:none;">
+      <button id="btn-upload-banner" style="display:none;"></button>
+      <button id="btn-reset-banner" style="display:none;"></button>
+
+      <!-- Theme Switch (Dark Studio / Arova Gallery Cream) -->
+      <button class="arova-theme-toggle-btn" id="btn-arova-theme-toggle" title="Basculer le thème visuel">
+        <i class="fa-solid fa-circle-half-stroke"></i>
+      </button>
+
+      <!-- Menu Button (Reveals full navigation & controls) -->
+      <button class="arova-top-menu-btn" id="btn-top-menu" title="Ouvrir le menu complet">
+        <i class="fa-solid fa-bars"></i>
+        <span>Menu</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ==========================================================
+       AROVA FULLSCREEN 3D PLAYGROUND & STAGE
+  ========================================================== -->
+  <div class="arova-stage-wrapper" id="notion-banner-container">
+    <!-- Center 3D Interactive WebGL Swarm Sculpture -->
+    <canvas id="motion-3d-banner-canvas" class="arova-3d-canvas"></canvas>
+    <canvas id="pixelate-banger-canvas" class="pixelate-banger-canvas" style="display:none;"></canvas>
+
+    <!-- Subtle Center Joyful Hint -->
+    <div class="arova-hero-center-hint">
+      <span class="arova-hero-tagline">✨ Explorez les offres d'emploi en direct • Cliquez sur une plateforme ci-dessous</span>
+    </div>
+
+    <!-- ==========================================================
+         AROVA FLOATING EDITORIAL CARD (MATCHING FRAMER SCREENSHOT)
+         Dynamic platform color theme: Noir for Toutes, Rouge for FT, Bleu for LinkedIn, Vert for Indeed
+    ========================================================== -->
+    <div class="arova-card-container" id="arova-floating-card">
+      <div class="arova-card-widget arova-theme-black" id="arova-card-widget">
+        <!-- Card Header -->
+        <div class="arova-card-head">
+          <h2 class="arova-card-title">
+            <span id="arova-card-name">Toutes les candidatures</span>
+            <span class="arova-card-count" id="arova-card-count">- 0</span>
+          </h2>
+          <div class="arova-card-head-actions">
+            <button class="arova-icon-btn btn-action-apply-all" id="btn-arova-head-apply-all" title="Postuler à toutes les offres de ce tableau en 1 Clic">
+              <i class="fa-solid fa-paper-plane"></i>
+            </button>
+            <button class="arova-icon-btn" id="btn-toggle-arova-search" title="Rechercher une offre">
+              <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+            <button class="arova-icon-btn" id="btn-toggle-table-mode" title="Afficher la vue table détaillée">
+              <i class="fa-solid fa-table-cells"></i>
+            </button>
+            <button class="arova-icon-btn" id="btn-close-arova-card" title="Fermer (Echap)">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Inline Search Field -->
+        <div class="arova-card-search-row" id="arova-card-search-row" style="display:none;">
+          <i class="fa-solid fa-magnifying-glass" style="opacity:0.6; font-size:12px;"></i>
+          <input type="text" id="arova-card-search-input" placeholder="Filtrer par intitulé, entreprise, lieu..." autocomplete="off">
+          <button type="button" id="btn-clear-arova-search" style="background:none; border:none; color:inherit; cursor:pointer; opacity:0.6;"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <!-- Column Header: CLIENT / SCOPE          YEAR & SORT & STATUS FILTER -->
+        <div class="arova-columns-header">
+          <div class="col-left" style="display:flex; align-items:center; gap:8px;">
+            <span>POSTE / ENTREPRISE & MATCH</span>
+            <!-- Inline Status Filter Tabs: Tout | À postuler | Postulées -->
+            <div class="arova-status-tabs" id="arova-status-tabs">
+              <button type="button" class="arova-status-tab-btn active" data-arova-status="" title="Toutes les offres de ce tableau">Tout</button>
+              <button type="button" class="arova-status-tab-btn" data-arova-status="unapplied" title="Offres non encore postulées">À postuler</button>
+              <button type="button" class="arova-status-tab-btn tab-applied" data-arova-status="applied" title="Offres déjà envoyées avec succès">
+                <i class="fa-solid fa-check" style="font-size:10px;"></i> Postulées (<span id="arova-tab-count-applied">0</span>)
+              </button>
+            </div>
+          </div>
+          <div class="col-right" style="display:flex; align-items:center; gap:6px;">
+            <button type="button" class="arova-sort-pill-btn active" id="btn-arova-sort-relevance" title="Trier par pertinence du profil">
+              <i class="fa-solid fa-bullseye"></i> Pertinence
+            </button>
+            <button type="button" class="arova-sort-pill-btn" id="btn-arova-sort-date" title="Trier par date récente">
+              <i class="fa-solid fa-clock"></i> Récent
+            </button>
+          </div>
+        </div>
+
+        <!-- List of Candidatures (Exact Typography matching Framer) -->
+        <div class="arova-card-rows" id="arova-card-rows">
+          <!-- Dynamically populated rows -->
+        </div>
+
+        <!-- Footer: Load more ••• & Tout Postuler -->
+        <div class="arova-card-foot" style="display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap;">
+          <button type="button" class="arova-load-more-btn" id="btn-arova-load-more">Load more •••</button>
+          <button type="button" class="arova-apply-all-foot-btn" id="btn-arova-foot-apply-all" title="Lancer les candidatures automatiques en 1 Clic">
+            <i class="fa-solid fa-bolt"></i> Tout postuler (<span id="arova-foot-unapplied-count">0</span>)
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================================
+         FLOATING AROVA BOTTOM DOCK (EXACT FRAMER AROVA REPLICA)
+    ========================================================== -->
+    <div class="arova-dock-container" id="arova-dock">
+      <nav class="arova-dock-pill" role="navigation" aria-label="Navigation des candidatures" style="display:inline-flex; align-items:center; gap:7px; flex-wrap:nowrap; white-space:nowrap; overflow-x:auto; overflow-y:hidden; max-width:calc(100vw - 32px); scrollbar-width:none;">
+        <!-- Left Brand / Menu Trigger Button -->
+        <button class="arova-dock-brand" id="btn-dock-menu" title="Ouvrir toutes les options et paramètres">
+          <span class="arova-dock-brand-circle"></span>
+          <span>Menu</span>
+        </button>
+
+        <!-- Direct Instant Scan Button -->
+        <button class="arova-dock-scan-btn" id="btn-dock-scan" title="Lancer un scan ultra-rapide en direct">
+          <i class="fa-solid fa-bolt"></i>
+          <span>Scanner</span>
+        </button>
+
+        <span class="arova-dock-divider"></span>
+
+        <!-- Dynamic Platform CTAs Container (Toutes, France Travail, LinkedIn, Indeed, + all added platforms) -->
+        <div class="arova-dock-ctas" id="arova-dock-ctas" style="display:inline-flex; align-items:center; gap:7px; flex-wrap:nowrap; white-space:nowrap; flex-shrink:0;">
+          <!-- CTA 1: TOUTES (Noir / Deep Obsidian) -->
+          <button class="arova-cta-btn arova-cta-black" id="btn-dock-all" data-dock-platform="" title="Voir toutes les candidatures">
+            <span>Toutes</span>
+            <span class="arova-cta-badge" id="dock-count-all">0</span>
+          </button>
+
+          <!-- CTA 2: FRANCE TRAVAIL (Red / Coral) -->
+          <button class="arova-cta-btn arova-cta-red" id="btn-dock-ft" data-dock-platform="francetravail" title="Candidatures France Travail">
+            <span>France Travail</span>
+            <span class="arova-cta-badge" id="dock-count-ft">0</span>
+          </button>
+
+          <!-- CTA 3: LINKEDIN (Royal Blue) -->
+          <button class="arova-cta-btn arova-cta-blue" id="btn-dock-linkedin" data-dock-platform="linkedin" title="Candidatures LinkedIn">
+            <span>LinkedIn</span>
+            <span class="arova-cta-badge" id="dock-count-linkedin">0</span>
+          </button>
+
+          <!-- CTA 4: INDEED & WEB (Emerald Green) -->
+          <button class="arova-cta-btn arova-cta-green" id="btn-dock-indeed" data-dock-platform="indeed" title="Candidatures Indeed & Web">
+            <span>Indeed</span>
+            <span class="arova-cta-badge" id="dock-count-indeed">0</span>
+          </button>
+
+          <!-- CTA 5: POSTULÉES (Emerald Glow) -->
+          <button class="arova-cta-btn arova-cta-emerald" id="btn-dock-applied" title="Consulter les candidatures déjà envoyées avec succès">
+            <i class="fa-solid fa-circle-check" style="font-size:11px; margin-right:2px;"></i>
+            <span>Postulées</span>
+            <span class="arova-cta-badge" id="dock-count-applied">0</span>
+          </button>
+        </div>
+      </nav>
+    </div>
+  </div>
+
+  <!-- ==========================================================
+       CANDIDATURES SLIDING SHEET (APPLE / AIRBNB FOCUSED TABLE)
+  ========================================================== -->
+  <div class="candidatures-sheet-overlay" id="candidatures-sheet-overlay">
+    <div class="candidatures-sheet-card">
+      <div class="candidatures-sheet-header">
+        <div class="sheet-title-group">
+          <span class="sheet-title-dot" id="sheet-platform-dot"></span>
+          <h2 class="sheet-title-text" id="sheet-platform-title">Toutes les candidatures</h2>
+          <span class="sheet-count-tag" id="sheet-current-count">0 offres</span>
+        </div>
+
+        <!-- Quick Platform Switcher inside Sheet Header -->
+        <div class="sheet-platform-switch">
+          <button class="sheet-plat-btn active" data-sheet-platform="" id="sheet-tab-all">Toutes</button>
+          <button class="sheet-plat-btn" data-sheet-platform="francetravail" id="sheet-tab-ft">France Travail</button>
+          <button class="sheet-plat-btn" data-sheet-platform="linkedin" id="sheet-tab-li">LinkedIn</button>
+          <button class="sheet-plat-btn" data-sheet-platform="indeed" id="sheet-tab-ind">Indeed</button>
+        </div>
+
+        <button class="btn-sheet-close" id="btn-close-candidatures-sheet" title="Fermer la vue (Echap)">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="candidatures-sheet-body">
+        <!-- VIEW 1: DATABASE TABLE -->
+        <section class="notion-view-page active" id="tab-table">
+
+          <!-- Clean Spotlight Search & Unified Segmented Controls -->
+          <div class="notion-db-toolbar">
+            <div class="db-search-and-location-row">
+              <div class="db-search-box">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" id="search-query" placeholder="Rechercher parmi toutes les offres (ex: Commercial, Chef de Projet, Pharmacie, Luxe, RH, Tech...)" autocomplete="off">
+                <button id="btn-clear-search" class="clear-search-btn" style="display:none;" title="Effacer"><i class="fa-solid fa-xmark"></i></button>
+              </div>
+
+              <!-- Location Picker Dropdown / Choix du Lieu -->
+              <div class="location-picker-container" id="location-picker-container">
+                <button type="button" class="location-picker-btn" id="btn-location-picker" title="Choisir ou modifier la localisation des candidatures">
+                  <i class="fa-solid fa-location-dot"></i>
+                  <span class="location-picker-label">Lieu :</span>
+                  <span class="location-picker-current" id="current-selected-location-label">Tout Paris & IDF</span>
+                  <i class="fa-solid fa-chevron-down location-chevron"></i>
+                </button>
+                <div class="location-dropdown-popover" id="location-dropdown-popover" style="display:none;">
+                  <div class="location-popover-header">
+                    <span>Lieu des candidatures</span>
+                    <button type="button" id="btn-close-location-popover" class="location-close-btn"><i class="fa-solid fa-xmark"></i></button>
+                  </div>
+                  <div class="location-popover-search">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="input-custom-location" placeholder="Entrer une ville ou code postal (ex: Lyon, 75001...)" autocomplete="off">
+                    <button type="button" id="btn-apply-custom-loc" class="btn-location-apply">OK</button>
+                  </div>
+                  <div class="location-popover-section-title">Présélections</div>
+                  <div class="location-options-grid">
+                    <button type="button" class="location-option-pill active" data-loc-value="">Tout Paris & IDF</button>
+                    <button type="button" class="location-option-pill" data-loc-value="intra">Paris (75)</button>
+                    <button type="button" class="location-option-pill" data-loc-value="idf">Île-de-France</button>
+                    <button type="button" class="location-option-pill" data-loc-value="remote">Télétravail / Remote</button>
+                    <button type="button" class="location-option-pill" data-loc-value="france">Toute la France</button>
+                  </div>
+                  <div class="location-popover-section-title">Grandes Métropoles</div>
+                  <div class="location-options-grid">
+                    <button type="button" class="location-option-pill" data-loc-value="lyon">Lyon</button>
+                    <button type="button" class="location-option-pill" data-loc-value="bordeaux">Bordeaux</button>
+                    <button type="button" class="location-option-pill" data-loc-value="nantes">Nantes</button>
+                    <button type="button" class="location-option-pill" data-loc-value="lille">Lille</button>
+                    <button type="button" class="location-option-pill" data-loc-value="marseille">Marseille</button>
+                    <button type="button" class="location-option-pill" data-loc-value="toulouse">Toulouse</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Segmented Controls Bar (Structured, Clean, High-Contrast) -->
+            <div class="db-segmented-filters-bar">
+              <!-- Segment 1: Mode Candidature -->
+              <div class="segmented-filter-block">
+                <span class="segmented-filter-label">Mode</span>
+                <div class="segmented-control-pill">
+                  <button class="segmented-item active" id="filter-chip-all-jobs" data-easy-filter="false">
+                    Toutes (<span id="count-total-jobs-badge">0</span>)
+                  </button>
+                  <button class="segmented-item" id="filter-chip-1click" data-easy-filter="true">
+                    <i class="fa-solid fa-bolt"></i> 1 Clic (<span id="count-1click-jobs">0</span>)
+                  </button>
+                </div>
+              </div>
+
+              <!-- Segment 2: Plateforme -->
+              <div class="segmented-filter-block">
+                <span class="segmented-filter-label">Plateforme</span>
+                <div class="segmented-control-pill">
+                  <button class="segmented-item active" data-platform="">Toutes</button>
+                  <button class="segmented-item" data-platform="francetravail">France Travail</button>
+                  <button class="segmented-item" data-platform="linkedin">LinkedIn</button>
+                  <button class="segmented-item" data-platform="indeed">Indeed</button>
+                </div>
+              </div>
+
+              <!-- Segment 3: Suivi -->
+              <div class="segmented-filter-block">
+                <span class="segmented-filter-label">Suivi</span>
+                <div class="segmented-control-pill">
+                  <button class="segmented-item active" data-status-filter="">Tous</button>
+                  <button class="segmented-item" data-status-filter="applied">Postulés</button>
+                  <button class="segmented-item" data-status-filter="detected">À contacter</button>
+                  <button class="segmented-item" data-status-filter="skipped">Redirection</button>
+                  <button class="segmented-item" data-status-filter="failed">Échecs</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Count & Sort header -->
+          <div class="notion-table-header-info">
+            <span id="jobs-count-text">Chargement des offres...</span>
+            <span class="table-sort-badge">
+              <i class="fa-solid fa-clock-rotate-left"></i> Trié par offres les plus récentes en direct
+            </span>
+          </div>
+
+          <!-- Database Table -->
+          <div class="notion-table-wrapper">
+            <table class="notion-db-table">
+              <thead>
+                <tr>
+                  <th style="width: 270px;">Poste & Studio</th>
+                  <th style="width: 170px;">Entreprise & Contact</th>
+                  <th style="width: 130px;">Lieu</th>
+                  <th style="width: 130px;">Publication</th>
+                  <th style="width: 120px;">Suivi</th>
+                  <th style="width: 80px;">Score</th>
+                  <th style="width: 160px;">Candidature</th>
+                  <th style="width: 150px;">Notes / Analyse</th>
+                  <th style="width: 60px;">Lien</th>
+                </tr>
+              </thead>
+              <tbody id="notion-table-body">
+                <!-- Dynamically populated rows -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================
+       STUDIO MENU DRAWER (SLIDE-OVER FROM RIGHT)
+  ========================================================== -->
+  <div class="studio-drawer-backdrop" id="studio-drawer-backdrop"></div>
+  <aside class="studio-menu-drawer" id="studio-menu-drawer">
+    <div class="drawer-header">
+      <div class="drawer-title-row">
+        <span class="drawer-logo-dot"></span>
+        <h3>Studio & Contrôles</h3>
+      </div>
+      <button class="drawer-close-btn" id="btn-close-menu-drawer" title="Fermer le menu (Echap)">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="drawer-body">
+      <!-- Card 0: Profil Candidat Actif & Matching IA -->
+      <div class="drawer-card profile-showcase-card">
+        <div class="drawer-card-title">
+          <i class="fa-solid fa-user-astronaut" style="color: #38bdf8;"></i>
+          <span>Profil Candidat Actif & IA</span>
+        </div>
+        
+        <div class="drawer-profile-header">
+          <div class="drawer-profile-avatar">
+            <span id="drawer-profile-initials">EH</span>
+            <span class="drawer-avatar-check"><i class="fa-solid fa-check"></i></span>
+          </div>
+          <div class="drawer-profile-info">
+            <h4 id="drawer-profile-fullname">Eliot Hantute</h4>
+            <p id="drawer-profile-title">Creative Front-End Developer & UI Designer</p>
+          </div>
+        </div>
+
+        <div class="drawer-profile-links">
+          <a href="https://eliotlab.fr/" target="_blank" id="drawer-link-portfolio" class="profile-link-badge">
+            <i class="fa-solid fa-globe"></i> eliotlab.fr
+          </a>
+          <a href="https://www.linkedin.com/in/eliot-hantute/" target="_blank" id="drawer-link-linkedin" class="profile-link-badge">
+            <i class="fa-brands fa-linkedin"></i> LinkedIn
+          </a>
+          <a href="https://github.com/eliothantute" target="_blank" id="drawer-link-github" class="profile-link-badge">
+            <i class="fa-brands fa-github"></i> GitHub
+          </a>
+        </div>
+
+        <div class="drawer-skills-box">
+          <div class="drawer-skills-title">Compétences clés & Technologies</div>
+          <div class="drawer-skills-tags" id="drawer-profile-skills-tags">
+            <!-- Dynamically populated tags -->
+            <span class="skill-tag highlight">Three.js</span>
+            <span class="skill-tag highlight">React 19</span>
+            <span class="skill-tag highlight">WebGL</span>
+            <span class="skill-tag">TypeScript</span>
+            <span class="skill-tag">Figma</span>
+            <span class="skill-tag">Tailwind</span>
+            <span class="skill-tag">UI/UX</span>
+            <span class="skill-tag">GSAP</span>
+          </div>
+        </div>
+
+        <div class="drawer-profile-actions">
+          <button class="btn-primary" id="btn-open-analyze-profile-modal" style="width:100%; justify-content:center; margin-bottom:8px;">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Analyser un profil (URL / CV)
+          </button>
+          <button class="drawer-ghost-btn" id="btn-drawer-rescore-jobs" style="width:100%; justify-content:center;">
+            <i class="fa-solid fa-crosshairs"></i> Recalculer la pertinence
+          </button>
+        </div>
+      </div>
+
+      <!-- Card 1: 1-Click Master Option & Tout Postuler -->
+      <div class="drawer-card">
+        <div class="drawer-card-title">
+          <i class="fa-solid fa-bolt" style="color: #60a5fa;"></i>
+          <span>Mode Candidature 1 Clic</span>
+        </div>
+        <div class="drawer-card-row">
+          <div class="drawer-card-label">
+            <strong>Postuler en 1 Clic</strong>
+            <p>Envoi direct sans formulaire externe</p>
+          </div>
+          <div class="app-toggle-wrapper" id="header-option-1click-container">
+            <label class="apple-switch">
+              <input type="checkbox" id="header-toggle-1click" checked>
+              <span class="apple-slider"></span>
+            </label>
+            <span class="toggle-option-badge active" id="header-toggle-badge" style="display:none;">ACTIVE</span>
+          </div>
+        </div>
+        <button class="btn-primary arova-btn-apply-all-master" id="btn-drawer-apply-all-master" style="width:100%; justify-content:center; margin-top:12px; background:linear-gradient(135deg, #059669, #10b981);">
+          <i class="fa-solid fa-paper-plane"></i> Postuler à toutes les offres (<span id="drawer-count-all-unapplied">0</span>)
+        </button>
+        <button class="drawer-ghost-btn" id="btn-drawer-view-applied" style="width:100%; justify-content:center; margin-top:8px; border-color:rgba(52,211,153,0.4); color:#34d399;">
+          <i class="fa-solid fa-circle-check"></i> Voir les candidatures déjà faites (<span id="drawer-count-applied-badge">0</span>)
+        </button>
+      </div>
+
+      <!-- Card 2: CV Actif & Visualisateur -->
+      <div class="drawer-card">
+        <div class="drawer-card-title">
+          <i class="fa-solid fa-file-pdf" style="color: #ef4444;"></i>
+          <span>Document & CV Actif</span>
+        </div>
+        <div class="drawer-cv-pill" id="header-cv-pill" title="Changer de CV actif">
+          <span class="app-status-dot-green"></span>
+          <span class="drawer-cv-name" id="topbar-active-cv-name">Chargement...</span>
+          <i class="fa-solid fa-chevron-down" style="font-size:12px; color:#94a3b8;"></i>
+        </div>
+        <button class="drawer-ghost-btn" id="btn-drawer-open-cv">
+          <i class="fa-solid fa-eye"></i> Ouvrir le Visualisateur de CV
+        </button>
+      </div>
+
+      <!-- Card 3: Plateformes & Connexions -->
+      <div class="drawer-card">
+        <div class="drawer-card-title">
+          <i class="fa-solid fa-key" style="color: #38bdf8;"></i>
+          <span>Plateformes & Sessions</span>
+        </div>
+        <div class="drawer-platforms-status-grid">
+          <div class="drawer-plat-pill">
+            <span class="mini-status-dot" id="drawer-dot-ft"></span>
+            <span>France Travail</span>
+          </div>
+          <div class="drawer-plat-pill">
+            <span class="mini-status-dot" id="drawer-dot-li"></span>
+            <span>LinkedIn</span>
+          </div>
+          <div class="drawer-plat-pill">
+            <span class="mini-status-dot" id="drawer-dot-ind"></span>
+            <span>Indeed</span>
+          </div>
+        </div>
+        <button class="drawer-ghost-btn" id="btn-drawer-open-platforms">
+          <i class="fa-solid fa-gear"></i> Gérer les Connexions
+        </button>
+      </div>
+
+      <!-- Card 4: Critères & Mots-Clés -->
+      <div class="drawer-card">
+        <div class="drawer-card-title">
+          <i class="fa-solid fa-sliders" style="color: #a855f7;"></i>
+          <span>Paramètres de Recherche</span>
+        </div>
+        <p style="font-size:12px; color:#94a3b8; margin:0 0 12px; line-height:1.4;">
+          Scanne tous les secteurs ou ciblez vos métiers et zones géographiques de prédilection.
+        </p>
+        <button class="drawer-ghost-btn" id="btn-drawer-open-criteria">
+          <i class="fa-solid fa-crosshairs"></i> Modifier les Critères
+        </button>
+      </div>
+
+      <!-- Card 5: Actions Rapides -->
+      <div class="drawer-card">
+        <div class="drawer-card-title">
+          <i class="fa-solid fa-wand-magic-sparkles" style="color: #facc15;"></i>
+          <span>Actions Rapides</span>
+        </div>
+        <div class="drawer-actions-stack">
+          <button class="btn-primary" id="btn-scan-now" style="width:100%; justify-content:center;">
+            <i class="fa-solid fa-bolt"></i> Scanner en Direct
+          </button>
+          <div class="drawer-actions-row">
+            <button class="drawer-ghost-btn" id="btn-clean-inactive">
+              <i class="fa-solid fa-broom"></i> Nettoyer inactives
+            </button>
+            <button class="drawer-ghost-btn" id="btn-refresh">
+              <i class="fa-solid fa-rotate"></i> Actualiser
+            </button>
+          </div>
+          <div class="drawer-actions-row">
+            <button class="drawer-ghost-btn" id="btn-drawer-upload-banner">
+              <i class="fa-solid fa-camera"></i> Image de fond
+            </button>
+            <button class="drawer-ghost-btn" id="btn-drawer-reset-banner">
+              <i class="fa-solid fa-rotate-left"></i> Rétablir 3D
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ==========================================================
+       SECONDARY VIEWS MODAL SHEET (CV VIEWER / PLATEFORMES / CRITÈRES)
+  ========================================================== -->
+  <div class="secondary-sheet-overlay" id="secondary-sheet-overlay">
+    <div class="secondary-sheet-card">
+      <div class="secondary-sheet-header">
+        <h3 id="secondary-sheet-title">
+          <i class="fa-solid fa-layer-group"></i>
+          <span>Gestionnaire</span>
+        </h3>
+        <button class="btn-sheet-close" id="btn-close-secondary-sheet" title="Fermer la vue (Echap)">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="secondary-sheet-body">
+        <!-- VIEW 2: VISUALISATEUR DE CV -->
+        <section class="notion-view-page" id="tab-cv">
+          <div class="cv-page-header">
+            <div class="cv-page-title-row">
+              <i class="fa-solid fa-file-pdf" style="color: #ef4444; font-size: 24px;"></i>
+              <div>
+                <h2 class="cv-page-title">Visualisateur & Gestionnaire de Documents</h2>
+                <p class="cv-page-sub">Sélectionnez le CV avec lequel postuler en 1 Clic ou téléversez-en un nouveau</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="cv-workspace-split">
+            <!-- Left: CV Manager & Profile Properties -->
+            <div class="cv-left-pane">
+              <!-- Active CV Status Card -->
+              <div class="notion-card active-card">
+                <div class="card-title-sm"><i class="fa-solid fa-star"></i> CV Actif pour les Candidatures</div>
+                <div class="active-filename-display" id="viewer-active-filename">-</div>
+                <div class="active-status-desc"><i class="fa-solid fa-circle-check"></i> Prêt pour l'envoi automatique</div>
+              </div>
+
+              <!-- Upload Dropzone -->
+              <div class="notion-card">
+                <div class="card-title-sm"><i class="fa-solid fa-cloud-arrow-up"></i> Ajouter un nouveau CV</div>
+                <div class="notion-dropzone" id="cv-dropzone">
+                  <input type="file" id="cv-file-input" accept=".pdf" style="display:none;">
+                  <i class="fa-regular fa-file-pdf dropzone-icon"></i>
+                  <div class="dropzone-text">
+                    <strong>Glissez votre CV PDF ici</strong> ou <span>parcourez vos fichiers</span>
+                  </div>
+                  <div class="dropzone-hint">Format PDF uniquement (max 10 Mo)</div>
+                </div>
+                <label class="checkbox-notion">
+                  <input type="checkbox" id="upload-set-active" checked>
+                  <span>Définir immédiatement comme CV actif</span>
+                </label>
+              </div>
+
+              <!-- CV Library List -->
+              <div class="notion-card">
+                <div class="card-header-between">
+                  <div class="card-title-sm"><i class="fa-solid fa-folder-open"></i> Bibliothèque de CVs (<span id="resumes-count-badge">0</span>)</div>
+                </div>
+                <div class="cv-items-list" id="resumes-list-container">
+                  <!-- Dynamically populated CV rows -->
+                </div>
+              </div>
+
+              <!-- Profile Metadata Properties -->
+              <div class="notion-card">
+                <div class="card-header-between">
+                  <div class="card-title-sm"><i class="fa-solid fa-id-card"></i> Propriétés du Candidat</div>
+                  <button class="btn-xs-link" id="btn-edit-profile-jump">Modifier</button>
+                </div>
+                <div class="profile-properties-list" id="profile-summary-content">
+                  <!-- Populated dynamically -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: Full Document Preview Frame -->
+            <div class="cv-right-canvas">
+              <div class="canvas-top-bar">
+                <div class="canvas-meta">
+                  <span class="canvas-caption">APERÇU DU DOCUMENT :</span>
+                  <span class="canvas-name" id="viewer-display-title">-</span>
+                  <span class="active-tag-pill" id="viewer-is-active-badge" style="display:none;">
+                    <i class="fa-solid fa-check"></i> Actif pour postuler
+                  </span>
+                </div>
+
+                <div class="canvas-buttons">
+                  <button class="btn-notion primary" id="btn-set-viewed-active">
+                    <i class="fa-solid fa-check"></i> Définir comme CV Actif
+                  </button>
+                  <a href="#" class="btn-notion" id="btn-download-pdf" download title="Télécharger">
+                    <i class="fa-solid fa-download"></i>
+                  </a>
+                </div>
+              </div>
+
+              <div class="pdf-viewer-frame" id="pdf-viewer-frame">
+                <iframe id="pdf-iframe" src="" title="Aperçu du CV"></iframe>
+                <div class="pdf-loading-overlay" id="pdf-loading-overlay">
+                  <i class="fa-solid fa-spinner fa-spin"></i>
+                  <span>Chargement du document PDF...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW 3: CRITERES & PARAMETRES -->
+        <section class="notion-view-page" id="tab-settings">
+          <div class="settings-page-header">
+            <h2 class="cv-page-title"><i class="fa-solid fa-sliders"></i> Critères de Veille & Notifications</h2>
+            <p class="cv-page-sub">Ajustez les intitulés de poste, zones de recherche et alertes instantanées</p>
+          </div>
+
+          <div class="settings-two-col">
+            <!-- Option 1-Click Card -->
+            <div class="notion-card option-card-featured">
+              <div class="card-title-sm"><i class="fa-solid fa-bolt" style="color: #60a5fa;"></i> Option "Postuler en 1 Clic" (Easy Apply)</div>
+              <p class="card-desc-text">
+                Cette option permet de postuler directement et instantanément aux offres sans être redirigé vers des formulaires externes complexes.
+              </p>
+              <div class="form-field-notion">
+                <label class="checkbox-notion">
+                  <input type="checkbox" id="settings-toggle-easy-apply" checked>
+                  <span><strong>Activer l'option Postuler en 1 Clic</strong> (Rechercher prioritairement les offres Easy Apply / Candidature simplifiée)</span>
+                </label>
+              </div>
+              <div class="form-field-notion">
+                <label class="checkbox-notion">
+                  <input type="checkbox" id="settings-auto-apply" checked>
+                  <span><strong>Candidature Automatique en 1 Clic</strong> dès détection d'une opportunité (Score IA &ge; 75%)</span>
+                </label>
+              </div>
+              <div class="active-cv-indicator-box">
+                <i class="fa-solid fa-file-pdf" style="color:#ef4444;"></i>
+                <span>CV utilisé pour l'envoi 1 Clic : <strong id="settings-active-cv-label">Chargement...</strong></span>
+                <button type="button" class="btn-xs-link" id="btn-settings-change-cv">Changer</button>
+              </div>
+            </div>
+
+            <!-- Criteria Form -->
+            <div class="notion-card">
+              <div class="card-title-sm"><i class="fa-solid fa-crosshairs"></i> Paramètres de Recherche</div>
+              <form id="form-criteria">
+                <div class="form-field-notion">
+                  <label for="input-keywords">Mots-clés cibles <span style="font-weight:400; font-size:11.5px; color:var(--text-muted);">(Laisser vide pour détecter TOUS les métiers)</span></label>
+                  <input type="text" id="input-keywords" placeholder="Tous métiers (Commercial, Assistant, Marketing, Ingénieur, RH, Santé...)">
+                </div>
+                <div class="form-field-notion">
+                  <label for="input-locations">Localisations</label>
+                  <input type="text" id="input-locations" placeholder="Paris, France, Île-de-France, Remote">
+                </div>
+                <div class="form-row-notion">
+                  <div class="form-field-notion">
+                    <label for="input-min-score">Score IA minimal (sur 100)</label>
+                    <input type="number" id="input-min-score" min="0" max="100" value="65">
+                  </div>
+                  <div class="form-field-notion">
+                    <label for="input-max-daily">Limite quotidienne de candidatures</label>
+                    <input type="number" id="input-max-daily" min="1" max="100" value="25">
+                  </div>
+                </div>
+                <button type="submit" class="btn-notion primary" id="btn-save-criteria">
+                  <i class="fa-solid fa-floppy-disk"></i> Enregistrer les critères
+                </button>
+              </form>
+            </div>
+
+            <!-- Notifications Form -->
+            <div class="notion-card">
+              <div class="card-title-sm"><i class="fa-solid fa-bell"></i> Alertes Instantanées Push</div>
+              <form id="form-notifications">
+                <div class="form-field-notion">
+                  <label class="checkbox-notion">
+                    <input type="checkbox" id="notif-telegram-enable">
+                    <span>Activer les alertes Telegram</span>
+                  </label>
+                </div>
+                <div class="form-field-notion">
+                  <label for="input-telegram-token">Token Bot Telegram</label>
+                  <input type="text" id="input-telegram-token" placeholder="123456:ABC-DEF1234...">
+                </div>
+                <div class="form-field-notion">
+                  <label for="input-telegram-chatid">Chat ID Telegram</label>
+                  <input type="text" id="input-telegram-chatid" placeholder="123456789">
+                </div>
+                <div class="form-field-notion">
+                  <label class="checkbox-notion">
+                    <input type="checkbox" id="notif-discord-enable">
+                    <span>Activer les alertes Discord</span>
+                  </label>
+                </div>
+                <div class="form-field-notion">
+                  <label for="input-discord-webhook">URL Webhook Discord</label>
+                  <input type="text" id="input-discord-webhook" placeholder="https://discord.com/api/webhooks/...">
+                </div>
+                <div class="actions-split-notion">
+                  <button type="submit" class="btn-notion primary">Enregistrer</button>
+                  <button type="button" class="btn-notion" id="btn-test-notif">
+                    <i class="fa-solid fa-paper-plane"></i> Tester notification
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW 4: CONNEXIONS & SESSIONS DES PLATEFORMES -->
+        <section class="notion-view-page" id="tab-platforms">
+          <div class="platforms-page-header">
+            <div class="platforms-title-row" style="display: flex; justify-content: space-between; align-items: center;">
+              <div style="display:flex; align-items:center; gap:12px;">
+                <i class="fa-solid fa-key" style="color: #60a5fa; font-size: 26px;"></i>
+                <div>
+                  <h2 class="cv-page-title">Connexions & Sessions des Plateformes</h2>
+                  <p class="cv-page-sub">Authentifiez vos comptes pour permettre à l'agent de chercher et postuler en 1 Clic sans blocage</p>
+                </div>
+              </div>
+              <button class="btn-notion btn-kill-all-browsers" id="btn-kill-all-browsers" title="Fermer immédiatement toute fenêtre de navigateur ouverte">
+                <i class="fa-solid fa-power-off"></i> Fermer tous les navigateurs
+              </button>
+            </div>
+          </div>
+
+          <!-- Info Banner -->
+          <div class="platform-alert-banner">
+            <i class="fa-solid fa-shield-halved" style="color:#60a5fa; font-size:18px;"></i>
+            <div>
+              <strong>Pourquoi se connecter ?</strong> Les plateformes comme LinkedIn et Indeed bloquent l'accès aux offres détaillées ou limitent le bouton "Postuler en 1 Clic" si vous n'êtes pas connecté. Votre session Chromium persistante reste 100% stockée sur votre machine dans <code>data/browser_sessions</code>.
+            </div>
+          </div>
+
+          <!-- Platform Search & Add Row -->
+          <div class="platforms-search-bar-row">
+            <div class="platforms-search-input-box">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="input-search-platforms" placeholder="Rechercher une plateforme (ex: Welcome to the Jungle, Apec, HelloWork, Glassdoor, LinkedIn...)" autocomplete="off">
+              <button id="btn-clear-platforms-search" class="clear-search-btn" style="display:none;" title="Effacer"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <button class="notion-action-btn primary" id="btn-open-add-platform-modal" title="Ajouter manuellement une plateforme ou site d'offres">
+              <i class="fa-solid fa-plus"></i> Ajouter manuellement
+            </button>
+          </div>
+
+          <!-- Quick Platform Filter Chips -->
+          <div class="platforms-filter-chips">
+            <button class="notion-chip active" data-platform-filter="all">Toutes les plateformes</button>
+            <button class="notion-chip" data-platform-filter="connected">Connectées (<span id="count-platforms-connected">0</span>)</button>
+            <button class="notion-chip" data-platform-filter="builtin">Principales (LinkedIn, Indeed, FT)</button>
+            <button class="notion-chip" data-platform-filter="popular">Découverte Emploi (WTTJ, Apec, HelloWork...)</button>
+            <button class="notion-chip" data-platform-filter="custom">Personnalisées (<span id="count-platforms-custom">0</span>)</button>
+          </div>
+
+          <div class="platforms-cards-grid" id="platforms-cards-grid">
+            <!-- LinkedIn Card -->
+            <div class="notion-card platform-box" id="card-plat-linkedin">
+              <div class="plat-box-head">
+                <div class="plat-info">
+                  <div class="plat-icon-circle linkedin-bg">
+                    <i class="fa-brands fa-linkedin-in"></i>
+                  </div>
+                  <div>
+                    <h3 class="plat-name">LinkedIn</h3>
+                    <div class="plat-role">Easy Apply & Candidatures directes</div>
+                  </div>
+                </div>
+                <span class="platform-status-badge disconnected" id="badge-linkedin">
+                  <span class="dot"></span> <span class="txt">Déconnecté</span>
+                </span>
+              </div>
+
+              <div class="plat-box-content">
+                <p class="plat-tip">
+                  Deux méthodes de connexion simples au choix :
+                </p>
+
+                <!-- Option A: Open Browser -->
+                <div class="method-card">
+                  <div class="method-card-head">
+                    <span class="method-num">1</span>
+                    <strong>Ouverture du navigateur de connexion</strong>
+                  </div>
+                  <p class="method-desc-text">
+                    Ouvre Chromium directement sur votre écran avec la page de connexion LinkedIn. Connectez-vous, puis cliquez sur "Valider".
+                  </p>
+                  <div class="method-actions-row">
+                    <button class="btn-notion primary btn-open-browser-win" data-plat="linkedin">
+                      <i class="fa-solid fa-window-restore"></i> Ouvrir Chromium & Me connecter
+                    </button>
+                    <button class="btn-notion btn-verify-session-plat" data-plat="linkedin">
+                      <i class="fa-solid fa-check"></i> Valider la connexion
+                    </button>
+                    <button class="btn-notion btn-close-browser-win" data-plat="linkedin" title="Fermer la fenêtre">
+                      <i class="fa-solid fa-xmark"></i> Fermer
+                    </button>
+                    <button class="btn-notion btn-disconnect-plat" data-plat="linkedin" title="Déconnecter la session" style="display: none;">
+                      <i class="fa-solid fa-arrow-right-from-bracket"></i> Déconnecter
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Option B: Paste Cookie -->
+                <div class="method-card">
+                  <div class="method-card-head">
+                    <span class="method-num">2</span>
+                    <strong>Connexion instantanée par cookie <code>li_at</code> (Recommandé)</strong>
+                  </div>
+                  <p class="method-desc-text">
+                    Si vous êtes déjà connecté à LinkedIn dans Chrome ou Safari, copiez votre cookie <code>li_at</code> pour une connexion immédiate sans retaper votre mot de passe ni code SMS :
+                  </p>
+                  <form class="cookie-input-form" data-plat="linkedin">
+                    <div class="cookie-input-row">
+                      <input type="password" class="cookie-input-field" placeholder="Collez votre cookie li_at ici (ex: AQEDAT...)" required>
+                      <button type="submit" class="btn-notion primary"><i class="fa-solid fa-floppy-disk"></i> Enregistrer</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+            <!-- Indeed Card -->
+            <div class="notion-card platform-box" id="card-plat-indeed">
+              <div class="plat-box-head">
+                <div class="plat-info">
+                  <div class="plat-icon-circle indeed-bg">
+                    <i class="fa-solid fa-briefcase"></i>
+                  </div>
+                  <div>
+                    <h3 class="plat-name">Indeed</h3>
+                    <div class="plat-role">Indeed Postuler & Candidatures rapides</div>
+                  </div>
+                </div>
+                <span class="platform-status-badge disconnected" id="badge-indeed">
+                  <span class="dot"></span> <span class="txt">Déconnecté</span>
+                </span>
+              </div>
+
+              <div class="plat-box-content">
+                <p class="plat-tip">
+                  Connectez-vous à votre compte candidat Indeed pour lever toute restriction :
+                </p>
+
+                <div class="method-card">
+                  <div class="method-card-head">
+                    <span class="method-num">1</span>
+                    <strong>Connexion via le navigateur Chromium</strong>
+                  </div>
+                  <p class="method-desc-text">
+                    Cliquez sur "Ouvrir Chromium", identifiez-vous sur Indeed, puis cliquez sur "Valider ma connexion".
+                  </p>
+                  <div class="method-actions-row">
+                    <button class="btn-notion primary btn-open-browser-win" data-plat="indeed">
+                      <i class="fa-solid fa-window-restore"></i> Ouvrir Chromium & Me connecter
+                    </button>
+                    <button class="btn-notion btn-verify-session-plat" data-plat="indeed">
+                      <i class="fa-solid fa-check"></i> Valider ma connexion
+                    </button>
+                    <button class="btn-notion btn-close-browser-win" data-plat="indeed" title="Fermer la fenêtre">
+                      <i class="fa-solid fa-xmark"></i> Fermer
+                    </button>
+                    <button class="btn-notion btn-disconnect-plat" data-plat="indeed" title="Déconnecter la session" style="display: none;">
+                      <i class="fa-solid fa-arrow-right-from-bracket"></i> Déconnecter
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- France Travail Card -->
+            <div class="notion-card platform-box" id="card-plat-francetravail">
+              <div class="plat-box-head">
+                <div class="plat-info">
+                  <div class="plat-icon-circle francetravail-bg">
+                    <i class="fa-solid fa-building-columns"></i>
+                  </div>
+                  <div>
+                    <h3 class="plat-name">France Travail (Pôle Emploi)</h3>
+                    <div class="plat-role">API Officielle & Espace Candidat</div>
+                  </div>
+                </div>
+                <span class="platform-status-badge disconnected" id="badge-francetravail">
+                  <span class="dot"></span> <span class="txt">Déconnecté</span>
+                </span>
+              </div>
+
+              <div class="plat-box-content">
+                <p class="plat-tip">
+                  L'API France Travail scanne déjà en temps réel. Pour postuler directement avec vos identifiants candidat :
+                </p>
+
+                <div class="method-card">
+                  <div class="method-card-head">
+                    <span class="method-num">1</span>
+                    <strong>Connexion Espace Candidat France Travail</strong>
+                  </div>
+                  <div class="method-actions-row">
+                    <button class="btn-notion primary btn-open-browser-win" data-plat="francetravail">
+                      <i class="fa-solid fa-window-restore"></i> Ouvrir Chromium
+                    </button>
+                    <button class="btn-notion btn-verify-session-plat" data-plat="francetravail">
+                      <i class="fa-solid fa-check"></i> Valider ma connexion
+                    </button>
+                    <button class="btn-notion btn-close-browser-win" data-plat="francetravail" title="Fermer la fenêtre">
+                      <i class="fa-solid fa-xmark"></i> Fermer
+                    </button>
+                    <button class="btn-notion btn-disconnect-plat" data-plat="francetravail" title="Déconnecter la session" style="display: none;">
+                      <i class="fa-solid fa-arrow-right-from-bracket"></i> Déconnecter
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dynamic Popular & Custom Platforms Grid -->
+            <div id="platforms-extra-grid" class="platforms-extra-grid-contents"></div>
+
+            <!-- Empty search state -->
+            <div id="platforms-empty-state" class="platforms-empty-state" style="display:none;">
+              <i class="fa-solid fa-folder-open"></i>
+              <h4>Aucune plateforme trouvée</h4>
+              <p>Aucun résultat pour cette recherche. Vous pouvez l'ajouter en 1 clic manuellement.</p>
+              <button class="notion-action-btn primary" id="btn-empty-add-platform">
+                <i class="fa-solid fa-plus"></i> Ajouter cette plateforme
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================
+       NOTION SIDE-PEEK DRAWER (DETAIL DE L'OFFRE & 1-CLIC)
+  ========================================================== -->
+  <aside class="notion-side-peek" id="notion-side-peek" style="display:none;">
+    <div class="side-peek-header">
+      <div class="side-peek-status" id="peek-status-pill">
+        <span class="status-dot"></span> À contacter
+      </div>
+      <button class="side-peek-close" id="btn-close-side-peek"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <div class="side-peek-body">
+      <h2 class="side-peek-title" id="peek-job-title">-</h2>
+      <div class="side-peek-company" id="peek-company">-</div>
+
+      <!-- Prominent 1-Click Apply Action Box -->
+      <div class="peek-apply-box">
+        <button class="btn-peek-apply" id="btn-peek-apply-now">
+          <i class="fa-solid fa-bolt"></i> POSTULER EN 1 CLIC
+        </button>
+        <div class="peek-cv-notice">
+          <i class="fa-solid fa-file-pdf" style="color:#ef4444;"></i>
+          <span>Document joint : <strong id="peek-active-cv-name">-</strong></span>
+          <button class="btn-peek-change-cv" id="btn-peek-change-cv">Changer</button>
+        </div>
+      </div>
+
+      <!-- Properties Grid -->
+      <div class="peek-props-grid">
+        <div class="peek-prop-row">
+          <span class="peek-prop-label">🕒 Publication</span>
+          <span class="peek-prop-val" id="peek-posted-time" style="font-weight: 600; color: #047857;">-</span>
+        </div>
+        <div class="peek-prop-row">
+          <span class="peek-prop-label">📍 Localisation</span>
+          <span class="peek-prop-val" id="peek-location">-</span>
+        </div>
+        <div class="peek-prop-row">
+          <span class="peek-prop-label">🌐 Plateforme</span>
+          <span class="peek-prop-val" id="peek-platform">-</span>
+        </div>
+        <div class="peek-prop-row">
+          <span class="peek-prop-label">🎯 Score IA</span>
+          <span class="peek-prop-val" id="peek-score">-</span>
+        </div>
+        <div class="peek-prop-row">
+          <span class="peek-prop-label">🔗 Lien externe</span>
+          <a href="#" target="_blank" class="peek-link" id="peek-external-link">Ouvrir l'annonce <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+        </div>
+      </div>
+
+      <!-- Audit & Preuve de transmission Box -->
+      <div class="peek-audit-box" id="peek-audit-box" style="display:none;">
+        <div class="peek-audit-title" id="peek-audit-title"><i class="fa-solid fa-shield-halved"></i> Preuve & Suivi d'envoi</div>
+        <div class="peek-audit-detail" id="peek-audit-detail">-</div>
+      </div>
+
+      <!-- LLM Analysis Box -->
+      <div class="peek-analysis-card">
+        <div class="peek-analysis-head"><i class="fa-solid fa-brain"></i> Analyse de Correspondance IA</div>
+        <p class="peek-analysis-text" id="peek-match-reason">-</p>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Quick Switch Modal -->
+  <div class="modal-backdrop" id="quick-switch-modal" style="display:none;">
+    <div class="modal-dialog">
+      <div class="modal-head">
+        <div class="modal-title-box">
+          <i class="fa-solid fa-bolt" style="color:#60a5fa; font-size:16px;"></i>
+          <div>
+            <div class="modal-title">Changer de CV actif</div>
+            <div class="modal-sub">Sélectionnez en 1 clic le CV à associer aux candidatures</div>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btn-close-modal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="modal-list" id="modal-resumes-list">
+        <!-- Dynamically populated CV rows -->
+      </div>
+
+      <div class="modal-foot">
+        <button class="btn-notion" id="btn-modal-upload">
+          <i class="fa-solid fa-upload"></i> Importer un nouveau CV
+        </button>
+        <button class="btn-notion primary" id="btn-modal-goto-viewer">
+          <i class="fa-solid fa-eye"></i> Ouvrir le visualisateur
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Ajouter manuellement une plateforme -->
+  <div class="modal-backdrop" id="modal-add-platform" style="display:none;">
+    <div class="modal-dialog platform-modal-dialog">
+      <div class="modal-head">
+        <div class="modal-title-box">
+          <div class="plat-icon-circle" style="background: linear-gradient(135deg, #38bdf8, #818cf8); width:32px; height:32px; font-size:13px;">
+            <i class="fa-solid fa-plus"></i>
+          </div>
+          <div>
+            <div class="modal-title">Ajouter une plateforme d'offres</div>
+            <div class="modal-sub">Ajoutez n'importe quel jobboard ou site carrière pour y postuler</div>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btn-close-add-platform"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <form id="form-add-custom-platform" style="display:flex; flex-direction:column; gap:16px; padding:18px;">
+        <div class="form-field-notion">
+          <label for="custom-platform-name">Nom de la plateforme <span style="color:#ef4444;">*</span></label>
+          <input type="text" id="custom-platform-name" placeholder="ex: Welcome to the Jungle, Apec, Station F, LesJeunesTalents..." required>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+          <div class="form-field-notion">
+            <label for="custom-platform-url">URL du site <span style="color:#ef4444;">*</span></label>
+            <input type="url" id="custom-platform-url" placeholder="https://www.welcometothejungle.com" required>
+          </div>
+          <div class="form-field-notion">
+            <label for="custom-platform-category">Catégorie</label>
+            <select id="custom-platform-category" style="background:rgba(0,0,0,0.4); border:1px solid var(--border-medium); border-radius:var(--radius-sm); padding:8px 10px; color:#fff; font-size:13px; height:38px;">
+              <option value="Tech & Startups">Tech & Startups</option>
+              <option value="Généraliste">Généraliste / Emploi</option>
+              <option value="Cadres & Dirigeants">Cadres & Dirigeants</option>
+              <option value="Design & Créa">Design & Créa</option>
+              <option value="Freelance & Mission">Freelance & Mission</option>
+              <option value="Autre">Autre</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+          <div class="form-field-notion">
+            <label for="custom-platform-login-url">URL de connexion (Login)</label>
+            <input type="url" id="custom-platform-login-url" placeholder="https://www.welcometothejungle.com/fr/signin">
+          </div>
+          <div class="form-field-notion">
+            <label for="custom-platform-search-url">URL Recherche d'offres</label>
+            <input type="url" id="custom-platform-search-url" placeholder="https://www.welcometothejungle.com/fr/jobs">
+          </div>
+        </div>
+
+        <div class="form-field-notion">
+          <label for="custom-platform-notes">Notes ou Identifiant de connexion</label>
+          <input type="text" id="custom-platform-notes" placeholder="ex: Compte candidat personnel...">
+        </div>
+
+        <div class="modal-foot" style="padding:0; margin-top:8px;">
+          <button type="button" class="btn-notion" id="btn-cancel-add-platform">Annuler</button>
+          <button type="submit" class="btn-notion primary" id="btn-save-custom-platform">
+            <i class="fa-solid fa-floppy-disk"></i> Enregistrer la plateforme
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================
+       MODAL ANALYSE DE PROFIL CANDIDAT (PORTFOLIO, LINKEDIN, CV)
+  ========================================================== -->
+  <div class="profile-modal-overlay" id="profile-analyze-modal" style="display:none;">
+    <div class="profile-modal-card">
+      <div class="profile-modal-head">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div class="profile-modal-icon-badge">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+          </div>
+          <div>
+            <h3 class="profile-modal-title">Analyser un Profil Candidat</h3>
+            <p class="profile-modal-sub">Ingestion IA de portfolio, LinkedIn ou CV pour recommander les meilleures offres</p>
+          </div>
+        </div>
+        <button class="btn-sheet-close" id="btn-close-profile-modal" title="Fermer (Echap)">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="form-profile-analyzer" class="profile-modal-body">
+        <div class="form-field-notion">
+          <label for="input-profile-portfolio">
+            <i class="fa-solid fa-globe" style="color:#38bdf8;"></i> URL du Portfolio
+          </label>
+          <input type="url" id="input-profile-portfolio" placeholder="https://eliotlab.fr/" value="https://eliotlab.fr/">
+          <span class="field-hint" style="font-size:11px; opacity:0.7; margin-top:3px; display:block;">Scanne les projets 3D, technologies, stacks et réalisations en direct.</span>
+        </div>
+
+        <div class="form-field-notion">
+          <label for="input-profile-linkedin">
+            <i class="fa-brands fa-linkedin" style="color:#60a5fa;"></i> URL du Profil LinkedIn
+          </label>
+          <input type="url" id="input-profile-linkedin" placeholder="https://www.linkedin.com/in/eliot-hantute/" value="https://www.linkedin.com/in/eliot-hantute/">
+          <span class="field-hint" style="font-size:11px; opacity:0.7; margin-top:3px; display:block;">Extrait l'intitulé exact, les expériences et la localisation.</span>
+        </div>
+
+        <div class="form-field-notion">
+          <label for="select-profile-resume">
+            <i class="fa-solid fa-file-pdf" style="color:#ef4444;"></i> Document CV de référence
+          </label>
+          <select id="select-profile-resume" class="notion-select" style="background:#151928; color:#fff; border:1px solid rgba(255,255,255,0.15); padding:8px 12px; border-radius:6px; width:100%;">
+            <option value="CV_Eliot_Hantute-4.pdf" selected>CV_Eliot_Hantute-4.pdf (CV Actif Eliot Hantute)</option>
+          </select>
+        </div>
+
+        <div class="form-field-notion">
+          <label for="input-profile-notes">
+            <i class="fa-solid fa-comment-dots" style="color:#facc15;"></i> Objectifs de recherche ou notes complémentaires
+          </label>
+          <textarea id="input-profile-notes" rows="2" style="background:#151928; color:#fff; border:1px solid rgba(255,255,255,0.15); padding:8px 12px; border-radius:6px; width:100%; font-family:inherit; resize:vertical;" placeholder="Ex: Cible prioritaire Creative Developer Three.js / React 19 / UI Designer en CDI ou Freelance..."></textarea>
+        </div>
+
+        <!-- Live Step Progress Indicator -->
+        <div class="analyze-progress-box" id="analyze-progress-box" style="display:none;">
+          <div class="analyze-progress-item active" id="prog-step-1">
+            <i class="fa-solid fa-circle-notch fa-spin"></i>
+            <span>1. Scraping du portfolio & projets réels (Atelier Berger 3D, Nari OS...)</span>
+          </div>
+          <div class="analyze-progress-item" id="prog-step-2">
+            <i class="fa-regular fa-circle"></i>
+            <span>2. Extraction sémantique des compétences clés (Three.js, React, UI/UX...)</span>
+          </div>
+          <div class="analyze-progress-item" id="prog-step-3">
+            <i class="fa-regular fa-circle"></i>
+            <span>3. Définition des critères de recherche ciblés</span>
+          </div>
+          <div class="analyze-progress-item" id="prog-step-4">
+            <i class="fa-regular fa-circle"></i>
+            <span>4. Recalcul et classement par pertinence de toutes les offres</span>
+          </div>
+        </div>
+
+        <div class="profile-modal-actions">
+          <button type="button" class="drawer-ghost-btn" id="btn-cancel-profile-modal">Annuler</button>
+          <button type="submit" class="btn-primary" id="btn-run-profile-analysis">
+            <i class="fa-solid fa-bolt"></i> Lancer l'analyse & calibrer les offres
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================
+       MODAL POSTULER A TOUTES LES OFFRES EN 1 CLIC (BATCH APPLY)
+  ========================================================== -->
+  <div class="profile-modal-overlay" id="modal-batch-apply" style="display:none;">
+    <div class="profile-modal-card" style="max-width: 620px;">
+      <div class="profile-modal-head">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div class="profile-modal-icon-badge" style="background:linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 182, 212, 0.2)); color:#10b981; border-color:rgba(16, 185, 129, 0.4);">
+            <i class="fa-solid fa-paper-plane"></i>
+          </div>
+          <div>
+            <h3 class="profile-modal-title">Postuler à Toutes les Offres en 1 Clic</h3>
+            <p class="profile-modal-sub">Automatisation Playwright avec comportement humain indétectable & IA</p>
+          </div>
+        </div>
+        <button class="btn-sheet-close" id="btn-close-batch-modal" title="Fermer (Echap)">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="profile-modal-body">
+        <!-- Quick stats banner -->
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px;">
+          <div class="notion-card" style="padding:12px; margin:0; text-align:center; background:rgba(255,255,255,0.03);">
+            <div style="font-size:11px; color:#94a3b8; font-weight:600; text-transform:uppercase;">Offres disponibles</div>
+            <div style="font-size:22px; font-weight:800; color:#f8fafc; margin-top:4px;" id="batch-stat-total">0</div>
+          </div>
+          <div class="notion-card" style="padding:12px; margin:0; text-align:center; background:rgba(255,255,255,0.03);">
+            <div style="font-size:11px; color:#94a3b8; font-weight:600; text-transform:uppercase;">Top Match &ge; 80%</div>
+            <div style="font-size:22px; font-weight:800; color:#34d399; margin-top:4px;" id="batch-stat-high">0</div>
+          </div>
+          <div class="notion-card" style="padding:12px; margin:0; text-align:center; background:rgba(255,255,255,0.03);">
+            <div style="font-size:11px; color:#94a3b8; font-weight:600; text-transform:uppercase;">Plateforme</div>
+            <div style="font-size:13px; font-weight:700; color:#38bdf8; margin-top:7px;" id="batch-stat-platform">Toutes</div>
+          </div>
+        </div>
+
+        <!-- Target Platform Choice (Apply per platform or all) -->
+        <div class="form-field-notion" style="margin-top:14px; margin-bottom:12px;">
+          <label style="font-weight:700; font-size:13px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
+            <span><i class="fa-solid fa-layer-group" style="color:#38bdf8;"></i> Filtrer par Plateforme Cible</span>
+            <span style="font-size:11px; font-weight:normal; color:#94a3b8;">Cibler une plateforme ou tout le catalogue</span>
+          </label>
+          <div class="batch-platform-pills" id="batch-platform-pills">
+            <button type="button" class="batch-plat-pill active" data-batch-plat="">
+              <i class="fa-solid fa-globe"></i> <span>Toutes (<span id="batch-pill-count-all">0</span>)</span>
+            </button>
+            <button type="button" class="batch-plat-pill" data-batch-plat="francetravail">
+              <i class="fa-solid fa-circle" style="color:#ef4444; font-size:9px;"></i> <span>France Travail (<span id="batch-pill-count-ft">0</span>)</span>
+            </button>
+            <button type="button" class="batch-plat-pill" data-batch-plat="linkedin">
+              <i class="fa-solid fa-circle" style="color:#38bdf8; font-size:9px;"></i> <span>LinkedIn (<span id="batch-pill-count-li">0</span>)</span>
+            </button>
+            <button type="button" class="batch-plat-pill" data-batch-plat="indeed">
+              <i class="fa-solid fa-circle" style="color:#22c55e; font-size:9px;"></i> <span>Indeed (<span id="batch-pill-count-ind">0</span>)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Scope choice -->
+        <div class="form-field-notion">
+          <label style="font-weight:700; font-size:13px; margin-bottom:8px; display:block;">
+            <i class="fa-solid fa-filter" style="color:#a855f7;"></i> Périmètre des candidatures
+          </label>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <label class="checkbox-notion" style="background:rgba(255,255,255,0.04); padding:10px 14px; border-radius:8px; border:1px solid rgba(255,255,255,0.08); cursor:pointer;">
+              <input type="radio" name="batch-scope" value="all" checked>
+              <span><strong>Toutes les offres non postulées (<span id="batch-scope-count-all">0</span> offres)</strong> — Postuler à tout le catalogue</span>
+            </label>
+            <label class="checkbox-notion" style="background:rgba(255,255,255,0.04); padding:10px 14px; border-radius:8px; border:1px solid rgba(255,255,255,0.08); cursor:pointer;">
+              <input type="radio" name="batch-scope" value="high">
+              <span><strong>Offres recommandées par l'IA (<span id="batch-scope-count-high">0</span> offres)</strong> — Score de pertinence &ge; 80%</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Config review -->
+        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:12px 14px; font-size:12px; line-height:1.5; color:#94a3b8;">
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px; color:#cbd5e1;">
+            <i class="fa-solid fa-file-pdf" style="color:#ef4444;"></i>
+            <span>Document joint : <strong id="batch-modal-resume-name" style="color:#fff;">CV_Eliot_Hantute-4.pdf</strong></span>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px; color:#cbd5e1;">
+            <i class="fa-solid fa-user-shield" style="color:#10b981;"></i>
+            <span>Mode Playwright Stealth : Courbes Bézier, vitesse de frappe gaussienne et pauses humaines anti-blocage.</span>
+          </div>
+        </div>
+
+        <!-- Live Progress Section (Shown while running) -->
+        <div class="batch-live-progress" id="batch-live-progress" style="display:none; flex-direction:column; gap:10px; background:rgba(0,0,0,0.3); border:1px solid rgba(56,189,248,0.3); border-radius:10px; padding:14px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <i class="fa-solid fa-circle-notch fa-spin" style="color:#38bdf8;"></i>
+              <strong id="batch-progress-title" style="font-size:13px; color:#f8fafc;">Candidature en cours...</strong>
+            </div>
+            <span id="batch-progress-pct" style="font-size:12px; font-weight:800; color:#38bdf8;">0%</span>
+          </div>
+
+          <!-- Progress bar -->
+          <div style="width:100%; height:8px; background:rgba(255,255,255,0.1); border-radius:4px; overflow:hidden;">
+            <div id="batch-progress-bar" style="width:0%; height:100%; background:linear-gradient(90deg, #3b82f6, #10b981); transition:width 0.3s ease;"></div>
+          </div>
+
+          <!-- Current job info -->
+          <div id="batch-progress-job-info" style="font-size:11.5px; color:#94a3b8;">
+            Offre : <span id="batch-progress-curr-job" style="color:#f8fafc; font-weight:600;">-</span>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; color:#94a3b8; border-top:1px solid rgba(255,255,255,0.06); padding-top:8px;">
+            <span>Succès : <strong id="batch-stat-success" style="color:#34d399;">0</strong></span>
+            <span>Ignorées : <strong id="batch-stat-skipped" style="color:#fbbf24;" title="Offres nécessitant une redirection externe ou une session connectée">0</strong></span>
+            <span>Erreurs : <strong id="batch-stat-failed" style="color:#f87171;">0</strong></span>
+            <span>Restantes : <strong id="batch-stat-remaining" style="color:#cbd5e1;">0</strong></span>
+          </div>
+
+          <!-- Helpful live tip if skipped/auth issue occurs -->
+          <div id="batch-stat-tip" style="font-size:11px; color:#e2e8f0; line-height:1.4; display:none; background:rgba(251,191,36,0.1); border-left:3px solid #fbbf24; padding:6px 10px; border-radius:4px;">
+            <i class="fa-solid fa-circle-info" style="color:#fbbf24; margin-right:4px;"></i>
+            <span id="batch-stat-tip-text"></span>
+          </div>
+        </div>
+
+        <div class="profile-modal-actions" style="margin-top:10px;">
+          <button type="button" class="drawer-ghost-btn" id="btn-cancel-batch">Fermer</button>
+          <button type="button" class="btn-notion" id="btn-stop-batch-action" style="display:none; background:rgba(239, 68, 68, 0.2); color:#f87171; border:1px solid rgba(239, 68, 68, 0.4);">
+            <i class="fa-solid fa-hand"></i> Interrompre
+          </button>
+          <button type="button" class="btn-primary" id="btn-start-batch-action" style="background:linear-gradient(135deg, #059669, #10b981);">
+            <i class="fa-solid fa-paper-plane"></i> Lancer les candidatures groupées
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- React & Babel for native .jsx support -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script src="/static/three.min.js"></script>
+  <script src="/static/app.js?v=3.1"></script>
+</body>
+</html>
