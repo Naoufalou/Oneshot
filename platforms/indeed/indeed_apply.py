@@ -8,6 +8,8 @@ from core.browser.browser_manager import BrowserManager
 from core.llm.job_evaluator import job_evaluator
 from core.llm.form_filler import form_filler
 from core.storage.db import ApplicationRecord
+from core.browser.external_form_filler import run_external_apply
+from core.rate_limiter import PlatformBlockedError
 from config.settings import settings, UserProfile, BASE_DIR
 
 logger = logging.getLogger("IndeedApply")
@@ -62,6 +64,43 @@ class IndeedApply:
             # Find Indeed apply button
             apply_btn = page.locator("#indeedApplyButton, button:has-text('Postuler maintenant'), button:has-text('Candidature facile')").first
             if await apply_btn.count() == 0:
+                # External employer site (apply on company website)
+                ext_btn = page.locator("a:has-text('Postuler sur le site'), a:has-text('Apply on company website'), button:has-text('Postuler sur le site')").first
+                if await ext_btn.count() > 0:
+                    logger.info(f"Job requires external application for {job.company}. Filling external form…")
+                    try:
+                        ext_url = await ext_btn.get_attribute("href")
+                        if ext_url:
+                            await page.goto(ext_url, wait_until="domcontentloaded", timeout=45000)
+                            ext_page = page
+                        else:
+                            async with page.context.expect_page(timeout=20000) as page_info:
+                                await self.bm.human_click(ext_btn)
+                            ext_page = await page_info.value
+                            await ext_page.wait_for_load_state("domcontentloaded", timeout=30000)
+
+                        ext_result = await run_external_apply(
+                            ext_page, job, profile,
+                            cv_path=profile.resume_path,
+                            bm=self.bm,
+                        )
+                        if ext_result["status"] == "applied":
+                            record.status = "applied"
+                            record.applied_at = datetime.utcnow().isoformat()
+                            record.form_answers = ext_result.get("filled_fields", {})
+                        else:
+                            record.status = "requires_review"
+                            record.error_message = ext_result.get("message", "Candidature externe à finaliser")
+                            record.form_answers = ext_result.get("filled_fields", {})
+                        return record
+                    except PlatformBlockedError:
+                        raise
+                    except Exception as e:
+                        logger.warning(f"External apply failed, leaving aside: {e}")
+                        record.status = "requires_review"
+                        record.error_message = f"Candidature externe non finalisée: {e}"
+                        return record
+
                 logger.info("Job requires external site application or button not found.")
                 record.status = "skipped"
                 record.error_message = "Candidature externe requise"

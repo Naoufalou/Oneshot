@@ -86,6 +86,26 @@ class NotificationSettings(BaseModel):
     enable_in_app: bool = True
 
 
+class EmailVerificationSettings(BaseModel):
+    """IMAP access to the candidate's mailbox, used to auto-validate email
+    verification codes sent by external ATS during account creation.
+
+    SECURITY: never commit the password. Use an app-specific password
+    (Gmail / Outlook / etc.) stored in .env (EMAIL_IMAP_PASSWORD), not in yaml.
+    """
+    enabled: bool = False
+    imap_host: str = "imap.gmail.com"
+    imap_port: int = 993
+    email: str = ""          # mailbox address (same as profile.email normally)
+    username: str = ""       # login (often == email)
+    password: str = ""       # app password — prefer .env EMAIL_IMAP_PASSWORD
+    # Policy when a form requires email verification:
+    #   "auto"   -> create/verify automatically via IMAP
+    #   "skip"   -> leave the application aside (requires_review) for manual action
+    verification_policy: str = "skip"
+    code_timeout_seconds: int = 180
+
+
 class WatcherSettings(BaseModel):
     enabled: bool = False
     interval_minutes: int = 30
@@ -126,6 +146,7 @@ class Settings(BaseSettings):
     notifications: NotificationSettings = Field(default_factory=NotificationSettings)
     watcher: WatcherSettings = Field(default_factory=WatcherSettings)
     rate_limit: RateLimitSettings = Field(default_factory=RateLimitSettings)
+    email_verification: EmailVerificationSettings = Field(default_factory=EmailVerificationSettings)
     
     # Database
     db_path: Path = DATA_DIR / "applications.db"
