@@ -6,6 +6,7 @@ import httpx
 
 from config.settings import settings, SearchCriteria, UserProfile
 from core.storage.db import db, ApplicationRecord
+from core.rate_limiter import rate_limiter, RateLimitExceeded, PlatformBlockedError
 from core.llm.job_evaluator import job_evaluator
 from core.notifications.dispatcher import notification_dispatcher
 from platforms.linkedin import LinkedInPlatform
@@ -13,6 +14,9 @@ from platforms.indeed import IndeedPlatform
 from platforms.francetravail import FranceTravailPlatform
 
 logger = logging.getLogger("WatcherService")
+
+# Serialize LinkedIn URL checks (1 at a time) to avoid tripping bot detection.
+_li_sem = asyncio.Semaphore(1)
 
 
 
@@ -64,12 +68,19 @@ class WatcherService:
                 if not platform_instance:
                     continue
 
+                platform_blocked = False
                 for keyword in criteria.keywords:
+                    if platform_blocked:
+                        break
                     for location in criteria.locations:
+                        if platform_blocked:
+                            break
                         logger.info(f"[Veille] {plat_name.upper()} ➜ '{keyword}' à '{location}'")
                         self.status_message = f"Veille {plat_name.upper()} : '{keyword}'"
 
                         try:
+                            # Pace searches to avoid hammering the platform.
+                            await rate_limiter.wait_before_search(plat_name)
                             jobs = await platform_instance.search_jobs(keyword, location, limit=10)
                             for job in jobs:
                                 # Check if already in DB
@@ -115,8 +126,27 @@ class WatcherService:
                                     # Check auto-apply on high match
                                     if settings.watcher.auto_apply_on_high_match and eval_res.score >= settings.watcher.high_match_threshold:
                                         logger.info(f"High match {eval_res.score}% >= {settings.watcher.high_match_threshold}% - Auto-applying...")
-                                        await platform_instance.apply(job)
+                                        try:
+                                            # Enforce daily cap + interval before auto-applying.
+                                            applied_now = db.get_applications_count_today(plat_name)
+                                            await rate_limiter.wait_before_apply(plat_name, applied_now)
+                                            await platform_instance.apply(job)
+                                        except RateLimitExceeded as e:
+                                            logger.info(f"{e} Auto-apply disabled for the day on {plat_name}.")
+                                            break
+                                        except PlatformBlockedError as e:
+                                            logger.warning(f"Platform {plat_name} blocked during auto-apply: {e}. Halting.")
+                                            platform_blocked = True
+                                            break
 
+                        except PlatformBlockedError as e:
+                            logger.warning(f"Platform {plat_name} blocked during search: {e}. Halting.")
+                            platform_blocked = True
+                            break
+                        except RateLimitExceeded as e:
+                            logger.info(f"{e} Halting search loop for {plat_name}.")
+                            platform_blocked = True
+                            break
                         except Exception as e:
                             logger.error(f"Error in search iteration ({plat_name}, {keyword}): {e}")
 
@@ -186,6 +216,12 @@ class WatcherService:
             # Check mock/invalid URLs
             if not url or "test_" in url or "ft_9921" in url or "ind_7743" in url or "li_8832" in url:
                 return (jid, title, True, "Lien de maquette ou offre de test")
+
+            # LinkedIn: serialize checks (1 at a time) with a short stagger to
+            # avoid a parallel burst against linkedin.com.
+            if "linkedin.com" in url:
+                async with _li_sem:
+                    await asyncio.sleep(1.5)
 
             try:
                 r = await client.get(url, timeout=6.0, follow_redirects=True)

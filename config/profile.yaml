@@ -8,7 +8,11 @@ custom_qa:
   permis: Oui
   stack_preferee: React, Three.js, TypeScript, Tailwind, Figma
   statut: Cadre / Freelance
+education:
+- period: ''
+  title: Product Designer / BUT Info-Com & Arts Appliqués
 email: eliot.hantute@gmail.com
+experience: []
 first_name: Eliot
 github_url: https://github.com/eliothantute
 languages:
@@ -21,6 +25,31 @@ phone_country_code: '+33'
 phone_number: '775036875'
 portfolio_url: https://eliotlab.fr/
 postal_code: '75000'
+projects:
+- description: Globe 3D & Carte Interactive Immersive — Three.js/WebGL
+  name: Atelier Berger
+  url: https://eliotlab.fr/
+- description: Site Vitrine 3D Immersif pour Artiste & Producteur — Three.js, GSAP
+  name: DISFOCUS
+  url: https://eliotlab.fr/
+- description: Boutique E-Commerce Cosmétique Bio — React, Tailwind, Cart Drawer
+  name: AUM Paris
+  url: https://eliotlab.fr/
+- description: Localisateur Urbain & Météo API — PWA, Leaflet Map, Geolocation
+  name: Ping Paris
+  url: https://eliotlab.fr/
+- description: Site Vitrine sur Maquette Figma — React, Motion
+  name: Elora
+  url: https://eliotlab.fr/
+- description: Landing Page Agent Vocal Autonome — React 19, TypeScript
+  name: NARI OS
+  url: https://eliotlab.fr/
+- description: Landing Page Logiciel Desktop 3D Edition — Three.js
+  name: Hazi Whatsapp
+  url: https://eliotlab.fr/
+- description: Composition Musicale & Ambiance Immersive — Audio Web API, Sound Design
+  name: Motion Study / Spatial Flow
+  url: https://eliotlab.fr/
 requires_sponsorship: false
 resume_path: data/resumes/CV_Eliot_Hantute-4.pdf
 salary_expectation_annual_eur: 55000
@@ -41,6 +70,10 @@ skills:
 - PWA
 - Python
 - Playwright
+- Audio Web API
+- Sound Design
+- React Globe GL
+- Framer Motion
 summary: Développeur front-end créatif & UI Designer spécialisé en React 19, TypeScript,
   Three.js et WebGL.
 total_years_experience: 3

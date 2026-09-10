@@ -24,8 +24,11 @@ from config.settings import (
     SCREENSHOTS_DIR,
     RESUMES_DIR,
     SESSIONS_DIR,
+    GENERATED_DIR,
 )
 from core.storage.db import db, ApplicationRecord
+from core.rate_limiter import rate_limiter, RateLimitExceeded, PlatformBlockedError
+from core.documents.application_documents import prepare_application_documents
 from core.watcher.watcher_service import watcher_service
 from core.watcher.realtime_scanner import realtime_scanner
 from core.notifications.dispatcher import notification_dispatcher
@@ -48,6 +51,7 @@ STATIC_DIR = WEB_DIR / "static"
 
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 app.mount("/screenshots", StaticFiles(directory=str(SCREENSHOTS_DIR)), name="screenshots")
+app.mount("/generated", StaticFiles(directory=str(GENERATED_DIR)), name="generated")
 
 # Global runner state for batch apply
 RUNNER_STATE = {
@@ -180,6 +184,7 @@ async def get_config():
             "llm_provider": settings.llm_provider,
             "llm_model_name": settings.llm_model_name,
         },
+        "rate_limit": settings.rate_limit.model_dump(),
     }
 
 
@@ -888,8 +893,16 @@ async def execute_single_job_apply(job_id: int):
 
     if platform_instance:
         try:
+            # Enforce daily cap + minimum interval before applying.
+            applied_today = db.get_applications_count_today(plat_name)
+            await rate_limiter.wait_before_apply(plat_name, applied_today)
             res_record = await platform_instance.apply(job_post)
             db.save_or_update(res_record)
+        except PlatformBlockedError:
+            db.update_status(job_id, "failed", error_message="Mur anti-bot détecté — run interrompu")
+            raise
+        except RateLimitExceeded as e:
+            db.update_status(job_id, "skipped", error_message=str(e))
         except Exception as e:
             db.update_status(job_id, "failed", error_message=str(e))
         finally:
@@ -906,6 +919,30 @@ async def apply_single_job(job_id: int, background_tasks: BackgroundTasks):
     db.update_status(job_id, "applying")
     background_tasks.add_task(execute_single_job_apply, job_id)
     return {"status": "started", "message": f"Candidature 1-clic initiée pour {record['job_title']}"}
+
+
+@app.post("/api/jobs/{job_id}/prepare-documents")
+async def prepare_job_documents(job_id: int):
+    """Generate a tailored ATS CV + cover letter for one stored job offer."""
+    record = db.get_application_by_id(job_id)
+    if not record:
+        raise HTTPException(status_code=404, detail="Offre introuvable")
+
+    profile = settings.load_profile()
+    documents = prepare_application_documents(
+        profile,
+        job_title=record["job_title"],
+        company=record["company"],
+        job_description=record.get("match_reason") or "",
+        location=record.get("location") or "",
+    )
+    return {
+        "status": "success",
+        "job_id": job_id,
+        "job_title": record["job_title"],
+        "company": record["company"],
+        "documents": documents,
+    }
 
 
 @app.get("/api/jobs/{job_id}/status")
@@ -985,7 +1022,11 @@ async def execute_batch_apply_task(job_ids: List[int]):
                     RUNNER_STATE["success_count"] += 1
                 elif status == "skipped":
                     RUNNER_STATE["skipped_count"] += 1
-                    if "Session" in err_msg or "Authwall" in err_msg:
+                    if "Quota journalier" in err_msg:
+                        logger.info(f"[Batch Apply] Daily quota reached for {platform}. Stopping batch.")
+                        RUNNER_STATE["current_task"] = f"Arrêt : {err_msg}"
+                        break
+                    elif "Session" in err_msg or "Authwall" in err_msg:
                         RUNNER_STATE["current_task"] = f"Ignorée : Connexion {platform.capitalize()} requise"
                     elif "externe" in err_msg.lower():
                         RUNNER_STATE["current_task"] = f"Ignorée : Redirection externe ({company})"
@@ -993,19 +1034,23 @@ async def execute_batch_apply_task(job_ids: List[int]):
                         RUNNER_STATE["current_task"] = f"Ignorée : {err_msg or 'Non Easy-Apply'}"
                 else:
                     RUNNER_STATE["failed_count"] += 1
+            except PlatformBlockedError as e:
+                logger.error(f"[Batch Apply] Platform block on job ID {jid}: {e}. Halting batch.")
+                db.update_status(jid, "failed", error_message=str(e))
+                RUNNER_STATE["failed_count"] += 1
+                RUNNER_STATE["last_reason"] = str(e)
+                RUNNER_STATE["current_task"] = f"Arrêt : {e}"
+                RUNNER_STATE["stop_requested"] = True
+                break
             except Exception as e:
                 logger.error(f"[Batch Apply] Error on job ID {jid}: {e}")
                 db.update_status(jid, "failed", error_message=str(e))
                 RUNNER_STATE["failed_count"] += 1
                 RUNNER_STATE["last_reason"] = str(e)
 
-            # Anti-bot human pacing between consecutive applications
-            if idx < total and not RUNNER_STATE.get("stop_requested"):
-                pause_sec = random.uniform(5.0, 10.0)
-                if not RUNNER_STATE["current_task"].startswith("Ignorée"):
-                    RUNNER_STATE["current_task"] = f"Pause humaine anti-bot ({pause_sec:.0f}s)..."
-                logger.info(f"[Batch Apply] Human pause of {pause_sec:.1f}s before next application...")
-                await asyncio.sleep(pause_sec)
+            # Human pacing between consecutive applications is enforced centrally
+            # by core.rate_limiter.wait_before_apply(); no manual sleep here to
+            # avoid double-counting delays.
 
         success = RUNNER_STATE["success_count"]
         skipped = RUNNER_STATE["skipped_count"]
@@ -1077,12 +1122,22 @@ async def apply_all_jobs_endpoint(req: ApplyAllRequest, background_tasks: Backgr
     if req.job_ids and len(req.job_ids) > 0:
         target_ids = req.job_ids
     else:
+        # Smart targeting: by default only apply to offers at/above the profile's
+        # minimum match score, ordered highest-match first, so submissions go to
+        # the jobs with the best chance of success.
+        criteria = settings.load_search_criteria()
+        floor = req.min_score if req.min_score is not None else criteria.min_match_score
         unapplied = db.get_unapplied_jobs(
             platform=req.platform,
-            min_score=req.min_score,
+            min_score=floor,
             limit=req.limit,
         )
+        # get_unapplied_jobs already sorts by match_score DESC, id DESC.
         target_ids = [j["id"] for j in unapplied]
+        logger.info(
+            f"[Smart Apply] Targeting {len(target_ids)} unapplied job(s) with "
+            f"match_score >= {floor}, highest relevance first."
+        )
 
     if not target_ids:
         raise HTTPException(status_code=400, detail="Aucune offre non postulée trouvée pour ces critères")

@@ -3,6 +3,7 @@ import logging
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel
 from core.storage.db import db, ApplicationRecord
+from core.rate_limiter import rate_limiter, RateLimitExceeded, PlatformBlockedError
 from config.settings import settings, UserProfile, SearchCriteria
 
 logger = logging.getLogger("BasePlatform")
@@ -55,13 +56,18 @@ class BasePlatform(abc.ABC):
 
         results: List[ApplicationRecord] = []
 
+        blocked = False
         for keyword in self.criteria.keywords:
+            if blocked:
+                break
             for loc in self.criteria.locations:
-                if len(results) + already_applied_today >= max_apps:
+                if blocked or len(results) + already_applied_today >= max_apps:
                     break
 
                 logger.info(f"Searching {self.platform_name} for '{keyword}' in '{loc}'...")
                 try:
+                    # Pace searches to avoid hammering the platform.
+                    await rate_limiter.wait_before_search(self.platform_name)
                     jobs = await self.search_jobs(keyword, loc)
                     for job in jobs:
                         if len(results) + already_applied_today >= max_apps:
@@ -71,10 +77,27 @@ class BasePlatform(abc.ABC):
                             logger.info(f"Skipping already processed job: {job.title} at {job.company}")
                             continue
 
+                        # Enforce daily cap + interval before each application.
+                        try:
+                            applied_now = self.db.get_applications_count_today(self.platform_name)
+                            await rate_limiter.wait_before_apply(self.platform_name, applied_now)
+                        except RateLimitExceeded as e:
+                            logger.info(f"{e} Stopping run for {self.platform_name}.")
+                            blocked = True
+                            break
+
                         # Execute application flow
                         record = await self.apply(job)
                         results.append(record)
 
+                except PlatformBlockedError as e:
+                    logger.warning(f"Platform {self.platform_name} blocked: {e}. Halting run.")
+                    blocked = True
+                    break
+                except RateLimitExceeded as e:
+                    logger.info(f"{e} Stopping run for {self.platform_name}.")
+                    blocked = True
+                    break
                 except Exception as e:
                     logger.error(f"Error during search loop for {keyword} - {loc}: {e}")
 

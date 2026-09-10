@@ -4,6 +4,7 @@ venv/
 data/browser_sessions/
 data/screenshots/
 data/resumes/
+data/generated/
 data/*.db
 data/platform_sessions.json
 __pycache__/

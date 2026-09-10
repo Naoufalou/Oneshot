@@ -10,9 +10,10 @@ DATA_DIR = BASE_DIR / "data"
 SESSIONS_DIR = DATA_DIR / "browser_sessions"
 SCREENSHOTS_DIR = DATA_DIR / "screenshots"
 RESUMES_DIR = DATA_DIR / "resumes"
+GENERATED_DIR = DATA_DIR / "generated"
 
 # Ensure directories exist
-for folder in [DATA_DIR, SESSIONS_DIR, SCREENSHOTS_DIR, RESUMES_DIR]:
+for folder in [DATA_DIR, SESSIONS_DIR, SCREENSHOTS_DIR, RESUMES_DIR, GENERATED_DIR]:
     folder.mkdir(parents=True, exist_ok=True)
 
 
@@ -53,6 +54,13 @@ class UserProfile(BaseModel):
     )
     resume_path: Optional[str] = None
 
+    # Structured career data (truthful; used by the ATS CV builder). Empty by
+    # default — the CV builder emits a skills/projects-based résumé when these
+    # are not populated, rather than inventing experience.
+    experience: List[Dict[str, str]] = Field(default_factory=list)
+    education: List[Dict[str, str]] = Field(default_factory=list)
+    projects: List[Dict[str, str]] = Field(default_factory=list)
+
 
 class SearchCriteria(BaseModel):
     keywords: List[str] = ["Développeur Python", "Full Stack Developer", "Software Engineer"]
@@ -86,6 +94,19 @@ class WatcherSettings(BaseModel):
     platforms: List[str] = ["linkedin", "indeed", "francetravail"]
 
 
+class RateLimitSettings(BaseModel):
+    # Daily caps (conservative: LinkedIn Easy Apply blocks ~10-15/day in practice)
+    linkedin_daily_apply_cap: int = 10
+    indeed_daily_apply_cap: int = 25
+    francetravail_daily_apply_cap: int = 25
+    # Minimum interval between two applications (seconds, jittered upward)
+    min_apply_interval_seconds: float = 45.0
+    linkedin_min_apply_interval_seconds: float = 45.0
+    # Minimum interval between two search page loads (seconds)
+    min_search_interval_seconds: float = 20.0
+    linkedin_min_search_interval_seconds: float = 20.0
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=BASE_DIR / ".env", env_file_encoding="utf-8", extra="ignore")
     
@@ -104,6 +125,7 @@ class Settings(BaseSettings):
     # Notifications & Watcher
     notifications: NotificationSettings = Field(default_factory=NotificationSettings)
     watcher: WatcherSettings = Field(default_factory=WatcherSettings)
+    rate_limit: RateLimitSettings = Field(default_factory=RateLimitSettings)
     
     # Database
     db_path: Path = DATA_DIR / "applications.db"
@@ -136,3 +158,7 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+# Wire anti-ban rate limits into the central limiter once at import time.
+from core.rate_limiter import configure_from_settings  # noqa: E402
+configure_from_settings(settings)

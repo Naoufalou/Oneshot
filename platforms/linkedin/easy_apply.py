@@ -10,6 +10,8 @@ from core.browser.browser_manager import BrowserManager
 from core.llm.job_evaluator import job_evaluator
 from core.llm.form_filler import form_filler
 from core.storage.db import ApplicationRecord
+from core.rate_limiter import detect_block_reason, PlatformBlockedError
+from core.documents.application_documents import prepare_application_documents
 from config.settings import settings, UserProfile, BASE_DIR
 
 logger = logging.getLogger("LinkedInEasyApply")
@@ -35,6 +37,17 @@ class LinkedInEasyApply:
             logger.info(f"Navigating to job: {job.title} at {job.company} ({job.url})")
             await page.goto(job.url, wait_until="domcontentloaded", timeout=45000)
             await self.bm.random_delay(1.5, 2.5)
+
+            # Detect rate-limit / captcha / security walls EARLY and stop the
+            # whole run instead of retrying into the block.
+            try:
+                page_text = (await page.locator("body").inner_text(timeout=4000))[:8000]
+            except Exception:
+                page_text = ""
+            block_reason = detect_block_reason(page_text, page.url)
+            if block_reason:
+                logger.warning(f"LinkedIn block detected before applying: '{block_reason}' at {page.url}")
+                raise PlatformBlockedError(f"LinkedIn bloque l'accès (signal détecté : '{block_reason}'). Run interrompu pour protéger le compte.")
 
             # Human reading simulation: scroll through description
             await self.bm.human_scroll_and_read(min_seconds=2.0, max_seconds=3.8)
@@ -71,6 +84,23 @@ class LinkedInEasyApply:
                 record.error_message = "Session LinkedIn requise (Authwall)"
                 return record
 
+            # Generate tailored ATS CV + cover letter for THIS job before applying.
+            tailored_cv_path = None
+            tailored_lm_path = None
+            try:
+                documents = prepare_application_documents(
+                    profile,
+                    job_title=job.title,
+                    company=job.company,
+                    job_description=job_description,
+                    location=job.location or "",
+                )
+                tailored_cv_path = documents["cv_path"]
+                tailored_lm_path = documents["cover_letter_path"]
+                logger.info(f"Tailored documents generated for {job.title} → {tailored_cv_path}")
+            except Exception as e:
+                logger.warning(f"Could not generate tailored documents (will fall back to static CV): {e}")
+
             # Locate Easy Apply button
             apply_btn = page.locator("button.jobs-apply-button, button:has-text('Candidature simplifiée'), button:has-text('Easy Apply')").first
             if await apply_btn.count() == 0:
@@ -96,7 +126,10 @@ class LinkedInEasyApply:
                 return record
 
             # Process multi-step modal
-            form_answers: Dict[str, Any] = {}
+            form_answers: Dict[str, Any] = {
+                "tailored_cv_path": tailored_cv_path,
+                "cover_letter_path": tailored_lm_path,
+            }
             max_steps = 10
             step = 0
 
@@ -106,7 +139,7 @@ class LinkedInEasyApply:
                 await self.bm.random_delay(1.0, 2.0)
 
                 # Fill current step inputs with human interaction
-                await self._fill_step_inputs(modal, profile, job_description, form_answers)
+                await self._fill_step_inputs(modal, profile, job_description, form_answers, tailored_cv_path)
 
                 # Check if we are on the Submit step
                 submit_btn = modal.locator("button:has-text('Envoyer la candidature'), button:has-text('Submit application')").first
@@ -158,13 +191,16 @@ class LinkedInEasyApply:
             record.error_message = "Formulaire non finalisé (trop d'étapes ou bloqué)"
             return record
 
+        except PlatformBlockedError:
+            # Let the block signal propagate so batch/watcher/run halt entirely.
+            raise
         except Exception as e:
             logger.error(f"Error applying to LinkedIn job: {e}")
             record.status = "failed"
             record.error_message = str(e)
             return record
 
-    async def _fill_step_inputs(self, modal: Locator, profile: UserProfile, job_desc: str, answers_log: Dict[str, Any]):
+    async def _fill_step_inputs(self, modal: Locator, profile: UserProfile, job_desc: str, answers_log: Dict[str, Any], cv_path_override: Optional[str] = None):
         # 1. Fill Phone Input if present
         phone_inputs = await modal.locator("input[id*='phoneNumber'], input[autocomplete='tel'], input[name*='phone']").all()
         for inp in phone_inputs:
@@ -255,10 +291,11 @@ class LinkedInEasyApply:
                 except Exception:
                     pass
 
-        # 5. File inputs (Resume upload)
+        # 5. File inputs (Resume upload) — prefer the tailored CV for this job.
         file_inputs = await modal.locator("input[type='file']").all()
-        if file_inputs and profile.resume_path:
-            resolved_resume = Path(profile.resume_path)
+        resume_to_use = cv_path_override or profile.resume_path
+        if file_inputs and resume_to_use:
+            resolved_resume = Path(resume_to_use)
             if not resolved_resume.is_absolute():
                 resolved_resume = (BASE_DIR / resolved_resume).resolve()
             if resolved_resume.exists():
@@ -266,7 +303,7 @@ class LinkedInEasyApply:
                     try:
                         await self.bm.human_upload_file(finp, str(resolved_resume))
                         answers_log["resume"] = resolved_resume.name
-                        logger.info(f"Attached active resume: {resolved_resume.name}")
+                        logger.info(f"Attached {'tailored' if cv_path_override else 'static'} resume: {resolved_resume.name}")
                     except Exception as e:
                         logger.warning(f"Error setting resume file input: {e}")
 

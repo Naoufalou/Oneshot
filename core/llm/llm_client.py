@@ -34,6 +34,11 @@ class LLMClient:
             except Exception as e:
                 logger.warning(f"Failed to initialize OpenAI client: {e}")
 
+    @property
+    def available(self) -> bool:
+        """True only when a real LLM backend is configured and usable."""
+        return bool(self._gemini_client or self._openai_client) or self.provider == "ollama"
+
     def generate_text(self, prompt: str, system_prompt: Optional[str] = None, json_mode: bool = False) -> str:
         # Check if we have active Gemini client
         if self.provider == "gemini" and self._gemini_client:

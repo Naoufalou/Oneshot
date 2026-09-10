@@ -10,6 +10,7 @@ from typing import List, Dict, Any, Optional
 from core.storage.db import db, ApplicationRecord
 from config.settings import settings
 from core.llm.job_evaluator import job_evaluator
+from core.rate_limiter import rate_limiter, detect_block_reason
 
 logger = logging.getLogger("RealtimeScanner")
 
@@ -279,6 +280,10 @@ class RealtimeScanner:
 
     async def fetch_linkedin_live(self, query: str, location: str) -> List[Dict[str, Any]]:
         """Scrapes LinkedIn guest job API with sortBy=DD (most recent date)"""
+        # Pace guest API requests — this endpoint rate-limits aggressively and
+        # a parallel burst is a strong bot signal.
+        await rate_limiter.wait_before_search("linkedin")
+
         loc_str = location if "france" in location.lower() else f"{location}, France"
         params = {
             "keywords": query,
@@ -301,7 +306,11 @@ class RealtimeScanner:
 
         try:
             html = await loop.run_in_executor(None, _fetch)
-            card_blocks = re.findall(r'<div[^>]*class=[\"\'][^\"\']*job-search-card[^\"\']*[\"\'][^>]*>(.*?)</div>\s*</li>', html, re.DOTALL)
+            block_reason = detect_block_reason(html[:8000], url)
+            if block_reason:
+                logger.warning(f"LinkedIn guest API blocked: '{block_reason}'. Aborting live fetch.")
+                return []
+            card_blocks = re.findall(r'<div[^>]*class=[\"\']job-search-card[^\"\']*[\"\'][^>]*>(.*?)</div>\s*</li>', html, re.DOTALL)
             results = []
 
             for content in card_blocks[:20]:
