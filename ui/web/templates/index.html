@@ -3,353 +3,346 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Candidatures Agence Paris • Arova Edition</title>
+  <title>Oneshot • Candidatures Automatisées en 1 Clic</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/style.css?v=2.7">
+  <link rel="stylesheet" href="/static/style.css?v=3.3">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body class="notion-dark-clean">
 
   <!-- ==========================================================
-       AROVA MINIMALIST TOP BAR (ZERO CLUTTER)
+       STEADY INVOICING EXECUTIVE HEADER (SAAS COMMAND BAR)
   ========================================================== -->
-  <header class="arova-top-bar">
-    <div class="arova-top-brand" id="btn-brand-home" title="Studio Candidatures">
-      <span class="arova-top-brand-dot"></span>
-      <span class="arova-top-brand-title">Candidatures</span>
-      <span class="arova-top-brand-badge" id="arova-top-jobs-badge">Chargement...</span>
+  <header class="steady-header">
+    <div class="steady-header-left">
+      <!-- Brand & Workspace Identity -->
+      <div class="steady-brand-block" id="btn-brand-home" title="Oneshot • Candidatures Automatisées">
+        <div class="steady-logo-icon">
+          <i class="fa-solid fa-bolt"></i>
+        </div>
+        <div class="steady-brand-meta">
+          <div class="steady-brand-title-row">
+            <span class="steady-brand-name">Oneshot</span>
+            <span class="steady-live-status-pill"><span class="steady-live-dot"></span> Agent IA Actif</span>
+          </div>
+          <span class="steady-brand-sub">Tableau de bord de pilotage • Paris & IDF</span>
+        </div>
+      </div>
+
+      <!-- Active Profile CV Quick Pill -->
+      <div class="steady-cv-pill" id="header-cv-pill" title="Cliquer pour changer de CV actif">
+        <i class="fa-solid fa-file-pdf steady-cv-icon"></i>
+        <div class="steady-cv-info">
+          <span class="steady-cv-label">CV Actif :</span>
+          <span class="steady-cv-name" id="topbar-active-cv-name">Chargement...</span>
+        </div>
+        <i class="fa-solid fa-chevron-down steady-cv-arrow"></i>
+      </div>
     </div>
 
-    <div class="arova-top-actions">
-      <!-- Hidden compatibility hooks for existing JS -->
-      <span id="tab-jobs-count" style="display:none;">0</span>
-      <span id="tab-cv-status-dot" style="display:none;"></span>
-      <span id="tab-platforms-badge" style="display:none;">0/3</span>
-      <span id="topbar-platforms-count" style="display:none;">0/3</span>
-      <span id="header-batch-count" style="display:none;">0</span>
-      <button id="btn-header-platforms" style="display:none;"></button>
-      <button id="btn-header-batch-apply" style="display:none;"></button>
-      <input type="file" id="banner-file-input" accept="image/*" style="display:none;">
-      <button id="btn-upload-banner" style="display:none;"></button>
-      <button id="btn-reset-banner" style="display:none;"></button>
-
-      <!-- Theme Switch (Dark Studio / Arova Gallery Cream) -->
-      <button class="arova-theme-toggle-btn" id="btn-arova-theme-toggle" title="Basculer le thème visuel">
-        <i class="fa-solid fa-circle-half-stroke"></i>
+    <!-- Header Actions (Decluttered, Modern, Executive) -->
+    <div class="steady-header-actions">
+      <!-- Direct Fast Scan -->
+      <button type="button" class="steady-action-btn steady-btn-ghost" id="btn-header-scan" title="Lancer un scan ultra-rapide en direct">
+        <i class="fa-solid fa-satellite-dish"></i>
+        <span>Scanner</span>
       </button>
 
-      <!-- Menu Button (Reveals full navigation & controls) -->
-      <button class="arova-top-menu-btn" id="btn-top-menu" title="Ouvrir le menu complet">
-        <i class="fa-solid fa-bars"></i>
+      <!-- Primary 1-Click Apply Batch CTA -->
+      <button type="button" class="steady-action-btn steady-btn-primary" id="btn-header-batch-apply" title="Lancer toutes les candidatures en 1 Clic">
+        <i class="fa-solid fa-bolt"></i>
+        <span>Postuler en 1 Clic</span>
+        <span class="steady-action-badge" id="header-batch-count">0</span>
+      </button>
+
+      <!-- Sleek Menu Trigger (Ouvre / Ferme le menu complet) -->
+      <button type="button" class="steady-action-btn steady-btn-menu" id="btn-top-menu" title="Ouvrir le menu de navigation">
+        <i class="fa-solid fa-bars-staggered"></i>
         <span>Menu</span>
       </button>
     </div>
   </header>
 
   <!-- ==========================================================
-       AROVA FULLSCREEN 3D PLAYGROUND & STAGE
+       STEADY INVOICING MAIN SAAS WORKSPACE
   ========================================================== -->
-  <div class="arova-stage-wrapper" id="notion-banner-container">
-    <!-- Center 3D Interactive WebGL Swarm Sculpture -->
-    <canvas id="motion-3d-banner-canvas" class="arova-3d-canvas"></canvas>
-    <canvas id="pixelate-banger-canvas" class="pixelate-banger-canvas" style="display:none;"></canvas>
+  <main class="steady-workspace">
+    <!-- ROW 1: KPI SUMMARY CARDS (Exact Steady Invoicing SaaS Metric Cards) -->
+    <section class="steady-kpi-grid">
+      <!-- Card 1: Opportunités Détectées -->
+      <div class="steady-kpi-card" id="steady-kpi-card-total">
+        <div class="steady-kpi-top">
+          <span class="steady-kpi-label">OPPORTUNITÉS DÉTECTÉES</span>
+          <span class="steady-kpi-icon-wrap"><i class="fa-solid fa-briefcase"></i></span>
+        </div>
+        <div class="steady-kpi-body">
+          <div class="steady-kpi-value" id="steady-kpi-total">0</div>
+        </div>
+        <div class="steady-kpi-foot">
+          <span class="steady-kpi-tag positive"><i class="fa-solid fa-arrow-trend-up"></i> Temps Réel</span>
+          <span class="steady-kpi-sub">Paris, IDF & Télétravail</span>
+        </div>
+      </div>
 
-    <!-- Subtle Center Joyful Hint -->
-    <div class="arova-hero-center-hint">
-      <span class="arova-hero-tagline">✨ Explorez les offres d'emploi en direct • Cliquez sur une plateforme ci-dessous</span>
+      <!-- Card 2: Candidatures Envoyées (Postulées) -->
+      <div class="steady-kpi-card steady-card-emerald" id="steady-kpi-card-applied">
+        <div class="steady-kpi-top">
+          <span class="steady-kpi-label">CANDIDATURES POSTULÉES</span>
+          <span class="steady-kpi-icon-wrap emerald"><i class="fa-solid fa-circle-check"></i></span>
+        </div>
+        <div class="steady-kpi-body">
+          <div class="steady-kpi-value emerald" id="steady-kpi-applied">0</div>
+        </div>
+        <div class="steady-kpi-foot">
+          <span class="steady-kpi-tag emerald"><i class="fa-solid fa-check"></i> Transmises</span>
+          <span class="steady-kpi-sub">Preuves de transmission validées</span>
+        </div>
+      </div>
+
+      <!-- Card 3: Formulaires 1-Clic -->
+      <div class="steady-kpi-card steady-card-sky" id="steady-kpi-card-1click">
+        <div class="steady-kpi-top">
+          <span class="steady-kpi-label">ÉLIGIBLES 1 CLIC</span>
+          <span class="steady-kpi-icon-wrap sky"><i class="fa-solid fa-bolt"></i></span>
+        </div>
+        <div class="steady-kpi-body">
+          <div class="steady-kpi-value sky" id="steady-kpi-1click">0</div>
+        </div>
+        <div class="steady-kpi-foot">
+          <span class="steady-kpi-tag sky"><i class="fa-solid fa-bolt"></i> Prêtes</span>
+          <span class="steady-kpi-sub">Sans redirection externe</span>
+        </div>
+      </div>
+
+      <!-- Card 4: Plateformes & Connecteurs -->
+      <div class="steady-kpi-card" id="steady-kpi-card-platforms">
+        <div class="steady-kpi-top">
+          <span class="steady-kpi-label">CONNECTEURS & SESSIONS</span>
+          <span class="steady-kpi-icon-wrap"><i class="fa-solid fa-shield-halved"></i></span>
+        </div>
+        <div class="steady-kpi-body">
+          <div class="steady-kpi-value" id="steady-kpi-platforms-count">3 / 3</div>
+        </div>
+        <div class="steady-kpi-foot">
+          <div class="steady-kpi-platform-pills">
+            <span class="steady-plat-chip online" title="France Travail : Connecté"><span class="steady-dot ft"></span> FT</span>
+            <span class="steady-plat-chip online" title="LinkedIn : Connecté"><span class="steady-dot li"></span> LI</span>
+            <span class="steady-plat-chip online" title="Indeed : Connecté"><span class="steady-dot ind"></span> Indeed</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- COLORED PLATFORM TABS (COMME AVANT - VIBRANT & ADHD ZEN) -->
+    <section class="zen-platform-hub" id="zen-platform-hub">
+      <div class="zen-platform-pills-row">
+        <!-- Toutes -->
+        <button type="button" class="zen-plat-pill zen-pill-all" data-platform="" id="btn-plat-all" title="Afficher toutes les candidatures">
+          <i class="fa-solid fa-layer-group"></i>
+          <span>Toutes</span>
+          <span class="zen-plat-badge" id="plat-count-all">0</span>
+        </button>
+
+        <!-- France Travail (Rouge) -->
+        <button type="button" class="zen-plat-pill zen-pill-ft" data-platform="francetravail" id="btn-plat-ft" title="Afficher les candidatures France Travail">
+          <i class="fa-solid fa-briefcase"></i>
+          <span>France Travail</span>
+          <span class="zen-plat-badge" id="plat-count-ft">0</span>
+        </button>
+
+        <!-- LinkedIn (Bleu) -->
+        <button type="button" class="zen-plat-pill zen-pill-li" data-platform="linkedin" id="btn-plat-li" title="Afficher les candidatures LinkedIn">
+          <i class="fa-brands fa-linkedin"></i>
+          <span>LinkedIn</span>
+          <span class="zen-plat-badge" id="plat-count-li">0</span>
+        </button>
+
+        <!-- Indeed (Vert) -->
+        <button type="button" class="zen-plat-pill zen-pill-ind" data-platform="indeed" id="btn-plat-ind" title="Afficher les candidatures Indeed">
+          <i class="fa-solid fa-circle-nodes"></i>
+          <span>Indeed</span>
+          <span class="zen-plat-badge" id="plat-count-ind">0</span>
+        </button>
+
+        <!-- Postulées (Émeraude) -->
+        <button type="button" class="zen-plat-pill zen-pill-applied" data-status-filter="applied" id="btn-plat-applied" title="Afficher les candidatures déjà transmises">
+          <i class="fa-solid fa-circle-check"></i>
+          <span>Postulées</span>
+          <span class="zen-plat-badge" id="plat-count-applied">0</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- CALM ZEN PLACEHOLDER (VISIBLE WHEN TABLE IS HIDDEN) -->
+    <div class="zen-calm-state" id="zen-calm-state">
+      <div class="zen-calm-icon"><i class="fa-solid fa-hand-pointer"></i></div>
+      <h3 class="zen-calm-title">Sélectionnez une plateforme ci-dessus</h3>
+      <p class="zen-calm-sub">Cliquez sur France Travail, LinkedIn ou Indeed pour ouvrir et gérer vos candidatures.</p>
     </div>
 
-    <!-- ==========================================================
-         AROVA FLOATING EDITORIAL CARD (MATCHING FRAMER SCREENSHOT)
-         Dynamic platform color theme: Noir for Toutes, Rouge for FT, Bleu for LinkedIn, Vert for Indeed
-    ========================================================== -->
-    <div class="arova-card-container" id="arova-floating-card">
-      <div class="arova-card-widget arova-theme-black" id="arova-card-widget">
-        <!-- Card Header -->
-        <div class="arova-card-head">
-          <h2 class="arova-card-title">
-            <span id="arova-card-name">Toutes les candidatures</span>
-            <span class="arova-card-count" id="arova-card-count">- 0</span>
-          </h2>
-          <div class="arova-card-head-actions">
-            <button class="arova-icon-btn btn-action-apply-all" id="btn-arova-head-apply-all" title="Postuler à toutes les offres de ce tableau en 1 Clic">
-              <i class="fa-solid fa-paper-plane"></i>
-            </button>
-            <button class="arova-icon-btn" id="btn-toggle-arova-search" title="Rechercher une offre">
-              <i class="fa-solid fa-magnifying-glass"></i>
-            </button>
-            <button class="arova-icon-btn" id="btn-toggle-table-mode" title="Afficher la vue table détaillée">
-              <i class="fa-solid fa-table-cells"></i>
-            </button>
-            <button class="arova-icon-btn" id="btn-close-arova-card" title="Fermer (Echap)">
-              <i class="fa-solid fa-xmark"></i>
-            </button>
+    <!-- ROW 2: STEADY INVOICING WORKBENCH CARD (HIDDEN BY DEFAULT, OPENS ON CLICK) -->
+    <section class="steady-workbench-card" id="steady-workbench" style="display: none;">
+      <!-- Workbench Header -->
+      <div class="steady-workbench-header">
+        <div class="steady-workbench-title-group">
+          <div class="steady-workbench-title-row">
+            <h2 class="steady-workbench-title" id="workbench-active-title">Opportunités & Candidatures</h2>
+            <span class="steady-count-pill" id="sheet-current-count">0 offres</span>
           </div>
+          <span class="steady-workbench-subtitle" id="jobs-count-text" style="display:none;"></span>
         </div>
 
-        <!-- Inline Search Field -->
-        <div class="arova-card-search-row" id="arova-card-search-row" style="display:none;">
-          <i class="fa-solid fa-magnifying-glass" style="opacity:0.6; font-size:12px;"></i>
-          <input type="text" id="arova-card-search-input" placeholder="Filtrer par intitulé, entreprise, lieu..." autocomplete="off">
-          <button type="button" id="btn-clear-arova-search" style="background:none; border:none; color:inherit; cursor:pointer; opacity:0.6;"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-
-        <!-- Column Header: CLIENT / SCOPE          YEAR & SORT & STATUS FILTER -->
-        <div class="arova-columns-header">
-          <div class="col-left" style="display:flex; align-items:center; gap:8px;">
-            <span>POSTE / ENTREPRISE & MATCH</span>
-            <!-- Inline Status Filter Tabs: Tout | À postuler | Postulées -->
-            <div class="arova-status-tabs" id="arova-status-tabs">
-              <button type="button" class="arova-status-tab-btn active" data-arova-status="" title="Toutes les offres de ce tableau">Tout</button>
-              <button type="button" class="arova-status-tab-btn" data-arova-status="unapplied" title="Offres non encore postulées">À postuler</button>
-              <button type="button" class="arova-status-tab-btn tab-applied" data-arova-status="applied" title="Offres déjà envoyées avec succès">
-                <i class="fa-solid fa-check" style="font-size:10px;"></i> Postulées (<span id="arova-tab-count-applied">0</span>)
-              </button>
-            </div>
-          </div>
-          <div class="col-right" style="display:flex; align-items:center; gap:6px;">
-            <button type="button" class="arova-sort-pill-btn active" id="btn-arova-sort-relevance" title="Trier par pertinence du profil">
-              <i class="fa-solid fa-bullseye"></i> Pertinence
-            </button>
-            <button type="button" class="arova-sort-pill-btn" id="btn-arova-sort-date" title="Trier par date récente">
-              <i class="fa-solid fa-clock"></i> Récent
-            </button>
-          </div>
-        </div>
-
-        <!-- List of Candidatures (Exact Typography matching Framer) -->
-        <div class="arova-card-rows" id="arova-card-rows">
-          <!-- Dynamically populated rows -->
-        </div>
-
-        <!-- Footer: Load more ••• & Tout Postuler -->
-        <div class="arova-card-foot" style="display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap;">
-          <button type="button" class="arova-load-more-btn" id="btn-arova-load-more">Load more •••</button>
-          <button type="button" class="arova-apply-all-foot-btn" id="btn-arova-foot-apply-all" title="Lancer les candidatures automatiques en 1 Clic">
-            <i class="fa-solid fa-bolt"></i> Tout postuler (<span id="arova-foot-unapplied-count">0</span>)
+        <div class="steady-workbench-actions">
+          <button type="button" class="steady-sm-btn primary arova-btn-apply-all-master" id="btn-drawer-apply-all-master" title="Lancer toutes les candidatures automatiques en 1 Clic">
+            <i class="fa-solid fa-bolt"></i> <span>Tout postuler (<span id="drawer-count-all-unapplied">0</span>)</span>
+          </button>
+          <button type="button" class="steady-sm-btn" id="btn-close-table-workbench" title="Masquer le tableau et revenir au calme">
+            <i class="fa-solid fa-xmark"></i> <span>Fermer</span>
           </button>
         </div>
       </div>
-    </div>
 
-    <!-- ==========================================================
-         FLOATING AROVA BOTTOM DOCK (EXACT FRAMER AROVA REPLICA)
-    ========================================================== -->
-    <div class="arova-dock-container" id="arova-dock">
-      <nav class="arova-dock-pill" role="navigation" aria-label="Navigation des candidatures" style="display:inline-flex; align-items:center; gap:7px; flex-wrap:nowrap; white-space:nowrap; overflow-x:auto; overflow-y:hidden; max-width:calc(100vw - 32px); scrollbar-width:none;">
-        <!-- Left Brand / Menu Trigger Button -->
-        <button class="arova-dock-brand" id="btn-dock-menu" title="Ouvrir toutes les options et paramètres">
-          <span class="arova-dock-brand-circle"></span>
-          <span>Menu</span>
-        </button>
+      <!-- Integrated Search & Minimal Toolbar (Zero Clutter) -->
+      <div class="steady-toolbar">
+        <div class="steady-toolbar-top-row">
+          <!-- Realtime Search -->
+          <div class="steady-search-box">
+            <i class="fa-solid fa-magnifying-glass steady-search-icon"></i>
+            <input type="text" id="search-query" placeholder="Rechercher par poste, entreprise..." autocomplete="off">
+            <button id="btn-clear-search" class="steady-search-clear" style="display:none;" title="Effacer"><i class="fa-solid fa-xmark"></i></button>
+          </div>
 
-        <!-- Direct Instant Scan Button -->
-        <button class="arova-dock-scan-btn" id="btn-dock-scan" title="Lancer un scan ultra-rapide en direct">
-          <i class="fa-solid fa-bolt"></i>
-          <span>Scanner</span>
-        </button>
+          <!-- Location Picker Dropdown -->
+          <div class="location-picker-container" id="location-picker-container">
+            <button type="button" class="location-picker-btn" id="btn-location-picker" title="Choisir ou modifier la localisation">
+              <i class="fa-solid fa-location-dot"></i>
+              <span class="location-picker-current" id="current-selected-location-label">Paris & IDF</span>
+              <i class="fa-solid fa-chevron-down location-chevron"></i>
+            </button>
+            <div class="location-dropdown-popover" id="location-dropdown-popover" style="display:none;">
+              <div class="location-popover-header">
+                <span>Lieu des candidatures</span>
+                <button type="button" id="btn-close-location-popover" class="location-close-btn"><i class="fa-solid fa-xmark"></i></button>
+              </div>
+              <div class="location-popover-search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="input-custom-location" placeholder="Entrer une ville ou code postal..." autocomplete="off">
+                <button type="button" id="btn-apply-custom-loc" class="btn-location-apply">OK</button>
+              </div>
+              <div class="location-popover-section-title">Présélections</div>
+              <div class="location-options-grid">
+                <button type="button" class="location-option-pill active" data-loc-value="">Tout Paris & IDF</button>
+                <button type="button" class="location-option-pill" data-loc-value="intra">Paris (75)</button>
+                <button type="button" class="location-option-pill" data-loc-value="idf">Île-de-France</button>
+                <button type="button" class="location-option-pill" data-loc-value="remote">Télétravail</button>
+                <button type="button" class="location-option-pill" data-loc-value="france">Toute la France</button>
+              </div>
+            </div>
+          </div>
 
-        <span class="arova-dock-divider"></span>
-
-        <!-- Dynamic Platform CTAs Container (Toutes, France Travail, LinkedIn, Indeed, + all added platforms) -->
-        <div class="arova-dock-ctas" id="arova-dock-ctas" style="display:inline-flex; align-items:center; gap:7px; flex-wrap:nowrap; white-space:nowrap; flex-shrink:0;">
-          <!-- CTA 1: TOUTES (Noir / Deep Obsidian) -->
-          <button class="arova-cta-btn arova-cta-black" id="btn-dock-all" data-dock-platform="" title="Voir toutes les candidatures">
-            <span>Toutes</span>
-            <span class="arova-cta-badge" id="dock-count-all">0</span>
-          </button>
-
-          <!-- CTA 2: FRANCE TRAVAIL (Red / Coral) -->
-          <button class="arova-cta-btn arova-cta-red" id="btn-dock-ft" data-dock-platform="francetravail" title="Candidatures France Travail">
-            <span>France Travail</span>
-            <span class="arova-cta-badge" id="dock-count-ft">0</span>
-          </button>
-
-          <!-- CTA 3: LINKEDIN (Royal Blue) -->
-          <button class="arova-cta-btn arova-cta-blue" id="btn-dock-linkedin" data-dock-platform="linkedin" title="Candidatures LinkedIn">
-            <span>LinkedIn</span>
-            <span class="arova-cta-badge" id="dock-count-linkedin">0</span>
-          </button>
-
-          <!-- CTA 4: INDEED & WEB (Emerald Green) -->
-          <button class="arova-cta-btn arova-cta-green" id="btn-dock-indeed" data-dock-platform="indeed" title="Candidatures Indeed & Web">
-            <span>Indeed</span>
-            <span class="arova-cta-badge" id="dock-count-indeed">0</span>
-          </button>
-
-          <!-- CTA 5: POSTULÉES (Emerald Glow) -->
-          <button class="arova-cta-btn arova-cta-emerald" id="btn-dock-applied" title="Consulter les candidatures déjà envoyées avec succès">
-            <i class="fa-solid fa-circle-check" style="font-size:11px; margin-right:2px;"></i>
-            <span>Postulées</span>
-            <span class="arova-cta-badge" id="dock-count-applied">0</span>
+          <!-- 1-Click Fast Toggle -->
+          <button type="button" class="steady-seg-btn-1click" id="filter-chip-1click" data-easy-filter="true" title="Afficher uniquement les offres 1 Clic">
+            <i class="fa-solid fa-bolt"></i> <span>1 Clic uniquement</span>
           </button>
         </div>
-      </nav>
-    </div>
-  </div>
+      </div>
+
+      <!-- Main Database Table Section -->
+      <section class="notion-view-page active" id="tab-table">
+        <div class="steady-table-wrapper notion-table-wrapper">
+          <table class="notion-db-table steady-table" id="notion-db-table">
+            <thead>
+              <tr>
+                <th style="width: 270px;">Poste & Studio</th>
+                <th style="width: 170px;">Entreprise & Contact</th>
+                <th style="width: 130px;">Lieu</th>
+                <th style="width: 130px;">Publication</th>
+                <th style="width: 120px;">Suivi</th>
+                <th style="width: 80px;">Score</th>
+                <th style="width: 160px;">Candidature</th>
+                <th style="width: 150px;">Notes / Analyse</th>
+                <th style="width: 60px;">Lien</th>
+              </tr>
+            </thead>
+            <tbody id="notion-table-body">
+              <!-- Dynamically populated rows -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+  </main>
 
   <!-- ==========================================================
-       CANDIDATURES SLIDING SHEET (APPLE / AIRBNB FOCUSED TABLE)
+       HIDDEN COMPATIBILITY CONTAINERS (ZERO JS BREAKAGES)
   ========================================================== -->
-  <div class="candidatures-sheet-overlay" id="candidatures-sheet-overlay">
-    <div class="candidatures-sheet-card">
-      <div class="candidatures-sheet-header">
-        <div class="sheet-title-group">
-          <span class="sheet-title-dot" id="sheet-platform-dot"></span>
-          <h2 class="sheet-title-text" id="sheet-platform-title">Toutes les candidatures</h2>
-          <span class="sheet-count-tag" id="sheet-current-count">0 offres</span>
+  <div style="display:none;" aria-hidden="true">
+    <span id="tab-jobs-count">0</span>
+    <span id="tab-cv-status-dot"></span>
+    <span id="tab-platforms-badge">0/3</span>
+    <span id="topbar-platforms-count">0/3</span>
+    <span id="arova-top-jobs-badge"></span>
+    <button id="btn-header-platforms"></button>
+    <input type="file" id="banner-file-input" accept="image/*">
+    <button id="btn-upload-banner"></button>
+    <button id="btn-reset-banner"></button>
+    <div id="notion-banner-container"></div>
+    <div id="candidatures-sheet-overlay">
+      <span id="sheet-platform-dot"></span>
+      <span id="sheet-platform-title"></span>
+      <button id="btn-close-candidatures-sheet"></button>
+    </div>
+    <div id="arova-floating-card">
+      <div id="arova-card-widget">
+        <span id="arova-card-name"></span>
+        <span id="arova-card-count"></span>
+        <button id="btn-main-quick-apply"><span id="main-quick-apply-count">0</span></button>
+        <button id="btn-arova-head-apply-all"></button>
+        <button id="btn-toggle-arova-search"></button>
+        <button id="btn-toggle-table-mode"></button>
+        <button id="btn-close-arova-card"></button>
+        <div id="arova-card-search-row">
+          <input type="text" id="arova-card-search-input">
+          <button id="btn-clear-arova-search"></button>
         </div>
-
-        <!-- Quick Platform Switcher inside Sheet Header -->
-        <div class="sheet-platform-switch">
-          <button class="sheet-plat-btn active" data-sheet-platform="" id="sheet-tab-all">Toutes</button>
-          <button class="sheet-plat-btn" data-sheet-platform="francetravail" id="sheet-tab-ft">France Travail</button>
-          <button class="sheet-plat-btn" data-sheet-platform="linkedin" id="sheet-tab-li">LinkedIn</button>
-          <button class="sheet-plat-btn" data-sheet-platform="indeed" id="sheet-tab-ind">Indeed</button>
+        <div id="arova-status-tabs">
+          <span id="arova-tab-count-applied">0</span>
         </div>
-
-        <button class="btn-sheet-close" id="btn-close-candidatures-sheet" title="Fermer la vue (Echap)">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
+        <button id="btn-arova-sort-relevance"></button>
+        <button id="btn-arova-sort-date"></button>
+        <div id="arova-card-rows"></div>
+        <button id="btn-arova-load-more"></button>
+        <button id="btn-arova-foot-apply-all"><span id="arova-foot-unapplied-count">0</span></button>
       </div>
-
-      <div class="candidatures-sheet-body">
-        <!-- VIEW 1: DATABASE TABLE -->
-        <section class="notion-view-page active" id="tab-table">
-
-          <!-- Clean Spotlight Search & Unified Segmented Controls -->
-          <div class="notion-db-toolbar">
-            <div class="db-search-and-location-row">
-              <div class="db-search-box">
-                <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                <input type="text" id="search-query" placeholder="Rechercher parmi toutes les offres (ex: Commercial, Chef de Projet, Pharmacie, Luxe, RH, Tech...)" autocomplete="off">
-                <button id="btn-clear-search" class="clear-search-btn" style="display:none;" title="Effacer"><i class="fa-solid fa-xmark"></i></button>
-              </div>
-
-              <!-- Location Picker Dropdown / Choix du Lieu -->
-              <div class="location-picker-container" id="location-picker-container">
-                <button type="button" class="location-picker-btn" id="btn-location-picker" title="Choisir ou modifier la localisation des candidatures">
-                  <i class="fa-solid fa-location-dot"></i>
-                  <span class="location-picker-label">Lieu :</span>
-                  <span class="location-picker-current" id="current-selected-location-label">Tout Paris & IDF</span>
-                  <i class="fa-solid fa-chevron-down location-chevron"></i>
-                </button>
-                <div class="location-dropdown-popover" id="location-dropdown-popover" style="display:none;">
-                  <div class="location-popover-header">
-                    <span>Lieu des candidatures</span>
-                    <button type="button" id="btn-close-location-popover" class="location-close-btn"><i class="fa-solid fa-xmark"></i></button>
-                  </div>
-                  <div class="location-popover-search">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" id="input-custom-location" placeholder="Entrer une ville ou code postal (ex: Lyon, 75001...)" autocomplete="off">
-                    <button type="button" id="btn-apply-custom-loc" class="btn-location-apply">OK</button>
-                  </div>
-                  <div class="location-popover-section-title">Présélections</div>
-                  <div class="location-options-grid">
-                    <button type="button" class="location-option-pill active" data-loc-value="">Tout Paris & IDF</button>
-                    <button type="button" class="location-option-pill" data-loc-value="intra">Paris (75)</button>
-                    <button type="button" class="location-option-pill" data-loc-value="idf">Île-de-France</button>
-                    <button type="button" class="location-option-pill" data-loc-value="remote">Télétravail / Remote</button>
-                    <button type="button" class="location-option-pill" data-loc-value="france">Toute la France</button>
-                  </div>
-                  <div class="location-popover-section-title">Grandes Métropoles</div>
-                  <div class="location-options-grid">
-                    <button type="button" class="location-option-pill" data-loc-value="lyon">Lyon</button>
-                    <button type="button" class="location-option-pill" data-loc-value="bordeaux">Bordeaux</button>
-                    <button type="button" class="location-option-pill" data-loc-value="nantes">Nantes</button>
-                    <button type="button" class="location-option-pill" data-loc-value="lille">Lille</button>
-                    <button type="button" class="location-option-pill" data-loc-value="marseille">Marseille</button>
-                    <button type="button" class="location-option-pill" data-loc-value="toulouse">Toulouse</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Segmented Controls Bar (Structured, Clean, High-Contrast) -->
-            <div class="db-segmented-filters-bar">
-              <!-- Segment 1: Mode Candidature -->
-              <div class="segmented-filter-block">
-                <span class="segmented-filter-label">Mode</span>
-                <div class="segmented-control-pill">
-                  <button class="segmented-item active" id="filter-chip-all-jobs" data-easy-filter="false">
-                    Toutes (<span id="count-total-jobs-badge">0</span>)
-                  </button>
-                  <button class="segmented-item" id="filter-chip-1click" data-easy-filter="true">
-                    <i class="fa-solid fa-bolt"></i> 1 Clic (<span id="count-1click-jobs">0</span>)
-                  </button>
-                </div>
-              </div>
-
-              <!-- Segment 2: Plateforme -->
-              <div class="segmented-filter-block">
-                <span class="segmented-filter-label">Plateforme</span>
-                <div class="segmented-control-pill">
-                  <button class="segmented-item active" data-platform="">Toutes</button>
-                  <button class="segmented-item" data-platform="francetravail">France Travail</button>
-                  <button class="segmented-item" data-platform="linkedin">LinkedIn</button>
-                  <button class="segmented-item" data-platform="indeed">Indeed</button>
-                </div>
-              </div>
-
-              <!-- Segment 3: Suivi -->
-              <div class="segmented-filter-block">
-                <span class="segmented-filter-label">Suivi</span>
-                <div class="segmented-control-pill">
-                  <button class="segmented-item active" data-status-filter="">Tous</button>
-                  <button class="segmented-item" data-status-filter="applied">Postulés</button>
-                  <button class="segmented-item" data-status-filter="detected">À contacter</button>
-                  <button class="segmented-item" data-status-filter="skipped">Redirection</button>
-                  <button class="segmented-item" data-status-filter="failed">Échecs</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Count & Sort header -->
-          <div class="notion-table-header-info">
-            <span id="jobs-count-text">Chargement des offres...</span>
-            <span class="table-sort-badge">
-              <i class="fa-solid fa-clock-rotate-left"></i> Trié par offres les plus récentes en direct
-            </span>
-          </div>
-
-          <!-- Database Table -->
-          <div class="notion-table-wrapper">
-            <table class="notion-db-table">
-              <thead>
-                <tr>
-                  <th style="width: 270px;">Poste & Studio</th>
-                  <th style="width: 170px;">Entreprise & Contact</th>
-                  <th style="width: 130px;">Lieu</th>
-                  <th style="width: 130px;">Publication</th>
-                  <th style="width: 120px;">Suivi</th>
-                  <th style="width: 80px;">Score</th>
-                  <th style="width: 160px;">Candidature</th>
-                  <th style="width: 150px;">Notes / Analyse</th>
-                  <th style="width: 60px;">Lien</th>
-                </tr>
-              </thead>
-              <tbody id="notion-table-body">
-                <!-- Dynamically populated rows -->
-              </tbody>
-            </table>
-          </div>
-        </section>
+    </div>
+    <div id="arova-dock">
+      <button id="btn-dock-menu"></button>
+      <button id="btn-dock-quick-apply"><span id="dock-apply-count-badge">0</span></button>
+      <button id="btn-dock-scan"></button>
+      <div id="arova-dock-ctas">
+        <button id="btn-dock-all"><span id="dock-count-all">0</span></button>
+        <button id="btn-dock-ft"><span id="dock-count-ft">0</span></button>
+        <button id="btn-dock-linkedin"><span id="dock-count-linkedin">0</span></button>
+        <button id="btn-dock-indeed"><span id="dock-count-indeed">0</span></button>
+        <button id="btn-dock-applied"><span id="dock-count-applied">0</span></button>
       </div>
     </div>
   </div>
 
   <!-- ==========================================================
-       STUDIO MENU DRAWER (SLIDE-OVER FROM RIGHT)
+       STUDIO MENU DRAWER (SIMPLIFIED UNIFIED NAVIGATION HUB)
   ========================================================== -->
   <div class="studio-drawer-backdrop" id="studio-drawer-backdrop"></div>
   <aside class="studio-menu-drawer" id="studio-menu-drawer">
     <div class="drawer-header">
       <div class="drawer-title-row">
         <span class="drawer-logo-dot"></span>
-        <h3>Studio & Contrôles</h3>
+        <div>
+          <h3 style="font-size:16px; font-weight:700; color:#fff; margin:0;">Studio Navigation</h3>
+          <p style="font-size:11.5px; color:#94a3b8; margin:2px 0 0 0;">Agent IA & Candidatures Automatiques</p>
+        </div>
       </div>
       <button class="drawer-close-btn" id="btn-close-menu-drawer" title="Fermer le menu (Echap)">
         <i class="fa-solid fa-xmark"></i>
@@ -357,71 +350,161 @@
     </div>
 
     <div class="drawer-body">
-      <!-- Card 0: Profil Candidat Actif & Matching IA -->
-      <div class="drawer-card profile-showcase-card">
-        <div class="drawer-card-title">
-          <i class="fa-solid fa-user-astronaut" style="color: #38bdf8;"></i>
-          <span>Profil Candidat Actif & IA</span>
-        </div>
-        
-        <div class="drawer-profile-header">
-          <div class="drawer-profile-avatar">
+      <!-- 1. Quick Profile Overview Strip -->
+      <div class="drawer-profile-compact">
+        <div class="drawer-profile-compact-left">
+          <div class="drawer-profile-avatar-sm">
             <span id="drawer-profile-initials">EH</span>
             <span class="drawer-avatar-check"><i class="fa-solid fa-check"></i></span>
           </div>
-          <div class="drawer-profile-info">
+          <div class="drawer-profile-compact-info">
             <h4 id="drawer-profile-fullname">Eliot Hantute</h4>
-            <p id="drawer-profile-title">Creative Front-End Developer & UI Designer</p>
+            <p id="drawer-profile-title">Creative Developer & UI Designer</p>
           </div>
         </div>
-
-        <div class="drawer-profile-links">
-          <a href="https://eliotlab.fr/" target="_blank" id="drawer-link-portfolio" class="profile-link-badge">
-            <i class="fa-solid fa-globe"></i> eliotlab.fr
-          </a>
-          <a href="https://www.linkedin.com/in/eliot-hantute/" target="_blank" id="drawer-link-linkedin" class="profile-link-badge">
-            <i class="fa-brands fa-linkedin"></i> LinkedIn
-          </a>
-          <a href="https://github.com/eliothantute" target="_blank" id="drawer-link-github" class="profile-link-badge">
-            <i class="fa-brands fa-github"></i> GitHub
-          </a>
+        <div class="drawer-profile-compact-cv" id="drawer-cv-pill" title="Changer de CV actif">
+          <i class="fa-solid fa-file-pdf" style="color:#ef4444; font-size:13px;"></i>
+          <span class="drawer-compact-cv-name" id="drawer-active-cv-name">Chargement...</span>
+          <i class="fa-solid fa-chevron-down" style="font-size:10px; color:#94a3b8;"></i>
         </div>
+      </div>
 
-        <div class="drawer-skills-box">
-          <div class="drawer-skills-title">Compétences clés & Technologies</div>
-          <div class="drawer-skills-tags" id="drawer-profile-skills-tags">
-            <!-- Dynamically populated tags -->
-            <span class="skill-tag highlight">Three.js</span>
-            <span class="skill-tag highlight">React 19</span>
-            <span class="skill-tag highlight">WebGL</span>
-            <span class="skill-tag">TypeScript</span>
-            <span class="skill-tag">Figma</span>
-            <span class="skill-tag">Tailwind</span>
-            <span class="skill-tag">UI/UX</span>
-            <span class="skill-tag">GSAP</span>
-          </div>
-        </div>
+      <!-- Quick profile portfolio links -->
+      <div class="drawer-quick-links">
+        <a href="https://eliotlab.fr/" target="_blank" id="drawer-link-portfolio" class="quick-link-pill">
+          <i class="fa-solid fa-globe" style="color:#38bdf8;"></i> eliotlab.fr
+        </a>
+        <a href="https://www.linkedin.com/in/eliot-hantute/" target="_blank" id="drawer-link-linkedin" class="quick-link-pill">
+          <i class="fa-brands fa-linkedin" style="color:#60a5fa;"></i> LinkedIn
+        </a>
+        <a href="https://github.com/eliothantute" target="_blank" id="drawer-link-github" class="quick-link-pill">
+          <i class="fa-brands fa-github" style="color:#e2e8f0;"></i> GitHub
+        </a>
+      </div>
 
-        <div class="drawer-profile-actions">
-          <button class="btn-primary" id="btn-open-analyze-profile-modal" style="width:100%; justify-content:center; margin-bottom:8px;">
-            <i class="fa-solid fa-wand-magic-sparkles"></i> Analyser un profil (URL / CV)
+      <!-- 2. Primary Action Bar (Prominent 1-Click + Scan + Refresh) -->
+      <div class="drawer-action-hero">
+        <button class="drawer-btn-apply-hero arova-btn-apply-all-master" id="btn-drawer-apply-all-master" title="Lancer toutes les candidatures automatiques en 1 Clic">
+          <i class="fa-solid fa-bolt"></i>
+          <span>Postuler en 1 Clic (<span id="drawer-count-all-unapplied">0</span>)</span>
+        </button>
+        <div class="drawer-action-subrow">
+          <button class="drawer-quick-action-btn primary" id="btn-scan-now" title="Lancer un scan en direct">
+            <i class="fa-solid fa-satellite-dish"></i>
+            <span>Scanner</span>
           </button>
-          <button class="drawer-ghost-btn" id="btn-drawer-rescore-jobs" style="width:100%; justify-content:center;">
-            <i class="fa-solid fa-crosshairs"></i> Recalculer la pertinence
+          <button class="drawer-quick-action-btn" id="btn-refresh" title="Actualiser la liste des offres">
+            <i class="fa-solid fa-rotate"></i>
+            <span>Actualiser</span>
+          </button>
+          <button class="drawer-quick-action-btn" id="btn-clean-inactive" title="Nettoyer les offres inactives">
+            <i class="fa-solid fa-broom"></i>
+            <span>Nettoyer</span>
           </button>
         </div>
       </div>
 
-      <!-- Card 1: 1-Click Master Option & Tout Postuler -->
-      <div class="drawer-card">
-        <div class="drawer-card-title">
-          <i class="fa-solid fa-bolt" style="color: #60a5fa;"></i>
-          <span>Mode Candidature 1 Clic</span>
+      <!-- 3. Simplified Unified Navigation Grid (Structured workspace functions) -->
+      <div class="drawer-section-title">Espaces & Fonctionnalités</div>
+      <div class="studio-nav-grid">
+        <!-- Tile 1: Candidatures & Database Table -->
+        <div class="studio-nav-tile" id="menu-tile-table" role="button" tabindex="0">
+          <div class="nav-tile-icon sky">
+            <i class="fa-solid fa-table-cells"></i>
+          </div>
+          <div class="nav-tile-text">
+            <div class="nav-tile-title">Tableau & Filtres</div>
+            <div class="nav-tile-sub">Base de données complète, recherche et tri</div>
+          </div>
+          <span class="nav-tile-badge" id="menu-badge-jobs-count">Offres</span>
+          <i class="fa-solid fa-chevron-right nav-tile-arrow"></i>
         </div>
-        <div class="drawer-card-row">
-          <div class="drawer-card-label">
-            <strong>Postuler en 1 Clic</strong>
-            <p>Envoi direct sans formulaire externe</p>
+
+        <!-- Tile 2: CV & Documents Viewer -->
+        <div class="studio-nav-tile" id="menu-tile-cv" role="button" tabindex="0">
+          <div class="nav-tile-icon red">
+            <i class="fa-solid fa-file-pdf"></i>
+          </div>
+          <div class="nav-tile-text">
+            <div class="nav-tile-title">Visualisateur de CV</div>
+            <div class="nav-tile-sub">Aperçu PDF interactif, import & bibliothèque</div>
+          </div>
+          <span class="nav-tile-badge green" id="resumes-count-badge">Actif</span>
+          <i class="fa-solid fa-chevron-right nav-tile-arrow"></i>
+        </div>
+
+        <!-- Tile 3: Plateformes & Sessions -->
+        <div class="studio-nav-tile" id="menu-tile-platforms" role="button" tabindex="0">
+          <div class="nav-tile-icon amber">
+            <i class="fa-solid fa-key"></i>
+          </div>
+          <div class="nav-tile-text">
+            <div class="nav-tile-title">Plateformes & Sessions</div>
+            <div class="nav-tile-sub">LinkedIn, Indeed, France Travail & cookies</div>
+          </div>
+          <div class="mini-platform-dots">
+            <span class="mini-status-dot" id="drawer-dot-ft" title="France Travail"></span>
+            <span class="mini-status-dot" id="drawer-dot-li" title="LinkedIn"></span>
+            <span class="mini-status-dot" id="drawer-dot-ind" title="Indeed"></span>
+          </div>
+          <i class="fa-solid fa-chevron-right nav-tile-arrow"></i>
+        </div>
+
+        <!-- Tile 4: Paramètres & Critères de Veille -->
+        <div class="studio-nav-tile" id="menu-tile-criteria" role="button" tabindex="0">
+          <div class="nav-tile-icon purple">
+            <i class="fa-solid fa-sliders"></i>
+          </div>
+          <div class="nav-tile-text">
+            <div class="nav-tile-title">Critères & Notifications</div>
+            <div class="nav-tile-sub">Mots-clés cibles, lieux et alertes push</div>
+          </div>
+          <i class="fa-solid fa-chevron-right nav-tile-arrow"></i>
+        </div>
+
+        <!-- Tile 5: Profil Candidat & Matching IA -->
+        <div class="studio-nav-tile" id="menu-tile-profile" role="button" tabindex="0">
+          <div class="nav-tile-icon cyan">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+          </div>
+          <div class="nav-tile-text">
+            <div class="nav-tile-title">Profil IA & Scoring</div>
+            <div class="nav-tile-sub">Analyser portfolio/CV et calibrer les offres</div>
+          </div>
+          <i class="fa-solid fa-chevron-right nav-tile-arrow"></i>
+        </div>
+
+        <!-- Tile 6: Candidatures Déjà Envoyées -->
+        <div class="studio-nav-tile" id="menu-tile-applied" role="button" tabindex="0">
+          <div class="nav-tile-icon emerald">
+            <i class="fa-solid fa-circle-check"></i>
+          </div>
+          <div class="nav-tile-text">
+            <div class="nav-tile-title">Candidatures Postulées</div>
+            <div class="nav-tile-sub">Preuves de transmission et suivi des envois</div>
+          </div>
+          <span class="nav-tile-badge emerald" id="drawer-count-applied-badge">0</span>
+          <i class="fa-solid fa-chevron-right nav-tile-arrow"></i>
+        </div>
+      </div>
+
+      <!-- Compatibility hooks preserved -->
+      <div style="display:none;" id="drawer-profile-skills-tags"></div>
+      <button id="btn-drawer-open-cv" style="display:none;"></button>
+      <button id="btn-drawer-open-platforms" style="display:none;"></button>
+      <button id="btn-drawer-open-criteria" style="display:none;"></button>
+      <button id="btn-open-analyze-profile-modal" style="display:none;"></button>
+      <button id="btn-drawer-rescore-jobs" style="display:none;"></button>
+      <button id="btn-drawer-view-applied" style="display:none;"></button>
+
+      <!-- 4. Studio Controls & Quick Toggles -->
+      <div class="drawer-section-title" style="margin-top:16px;">Préférences & Système</div>
+      <div class="drawer-controls-box">
+        <!-- 1-Click Toggle Row -->
+        <div class="drawer-control-row">
+          <div class="drawer-control-info">
+            <span class="drawer-control-title"><i class="fa-solid fa-bolt" style="color:#10b981; font-size:12px; margin-right:4px;"></i> Mode Postuler en 1 Clic</span>
+            <span class="drawer-control-sub">Prioriser candidatures directes sans redirection</span>
           </div>
           <div class="app-toggle-wrapper" id="header-option-1click-container">
             <label class="apple-switch">
@@ -431,95 +514,18 @@
             <span class="toggle-option-badge active" id="header-toggle-badge" style="display:none;">ACTIVE</span>
           </div>
         </div>
-        <button class="btn-primary arova-btn-apply-all-master" id="btn-drawer-apply-all-master" style="width:100%; justify-content:center; margin-top:12px; background:linear-gradient(135deg, #059669, #10b981);">
-          <i class="fa-solid fa-paper-plane"></i> Postuler à toutes les offres (<span id="drawer-count-all-unapplied">0</span>)
-        </button>
-        <button class="drawer-ghost-btn" id="btn-drawer-view-applied" style="width:100%; justify-content:center; margin-top:8px; border-color:rgba(52,211,153,0.4); color:#34d399;">
-          <i class="fa-solid fa-circle-check"></i> Voir les candidatures déjà faites (<span id="drawer-count-applied-badge">0</span>)
-        </button>
-      </div>
 
-      <!-- Card 2: CV Actif & Visualisateur -->
-      <div class="drawer-card">
-        <div class="drawer-card-title">
-          <i class="fa-solid fa-file-pdf" style="color: #ef4444;"></i>
-          <span>Document & CV Actif</span>
-        </div>
-        <div class="drawer-cv-pill" id="header-cv-pill" title="Changer de CV actif">
-          <span class="app-status-dot-green"></span>
-          <span class="drawer-cv-name" id="topbar-active-cv-name">Chargement...</span>
-          <i class="fa-solid fa-chevron-down" style="font-size:12px; color:#94a3b8;"></i>
-        </div>
-        <button class="drawer-ghost-btn" id="btn-drawer-open-cv">
-          <i class="fa-solid fa-eye"></i> Ouvrir le Visualisateur de CV
-        </button>
-      </div>
-
-      <!-- Card 3: Plateformes & Connexions -->
-      <div class="drawer-card">
-        <div class="drawer-card-title">
-          <i class="fa-solid fa-key" style="color: #38bdf8;"></i>
-          <span>Plateformes & Sessions</span>
-        </div>
-        <div class="drawer-platforms-status-grid">
-          <div class="drawer-plat-pill">
-            <span class="mini-status-dot" id="drawer-dot-ft"></span>
-            <span>France Travail</span>
-          </div>
-          <div class="drawer-plat-pill">
-            <span class="mini-status-dot" id="drawer-dot-li"></span>
-            <span>LinkedIn</span>
-          </div>
-          <div class="drawer-plat-pill">
-            <span class="mini-status-dot" id="drawer-dot-ind"></span>
-            <span>Indeed</span>
-          </div>
-        </div>
-        <button class="drawer-ghost-btn" id="btn-drawer-open-platforms">
-          <i class="fa-solid fa-gear"></i> Gérer les Connexions
-        </button>
-      </div>
-
-      <!-- Card 4: Critères & Mots-Clés -->
-      <div class="drawer-card">
-        <div class="drawer-card-title">
-          <i class="fa-solid fa-sliders" style="color: #a855f7;"></i>
-          <span>Paramètres de Recherche</span>
-        </div>
-        <p style="font-size:12px; color:#94a3b8; margin:0 0 12px; line-height:1.4;">
-          Scanne tous les secteurs ou ciblez vos métiers et zones géographiques de prédilection.
-        </p>
-        <button class="drawer-ghost-btn" id="btn-drawer-open-criteria">
-          <i class="fa-solid fa-crosshairs"></i> Modifier les Critères
-        </button>
-      </div>
-
-      <!-- Card 5: Actions Rapides -->
-      <div class="drawer-card">
-        <div class="drawer-card-title">
-          <i class="fa-solid fa-wand-magic-sparkles" style="color: #facc15;"></i>
-          <span>Actions Rapides</span>
-        </div>
-        <div class="drawer-actions-stack">
-          <button class="btn-primary" id="btn-scan-now" style="width:100%; justify-content:center;">
-            <i class="fa-solid fa-bolt"></i> Scanner en Direct
+        <!-- 3D Banner Controls & Utilities -->
+        <div class="drawer-tools-row">
+          <button class="drawer-tool-chip" id="btn-drawer-upload-banner" title="Changer l'image de fond">
+            <i class="fa-solid fa-camera"></i> <span>Image de fond</span>
           </button>
-          <div class="drawer-actions-row">
-            <button class="drawer-ghost-btn" id="btn-clean-inactive">
-              <i class="fa-solid fa-broom"></i> Nettoyer inactives
-            </button>
-            <button class="drawer-ghost-btn" id="btn-refresh">
-              <i class="fa-solid fa-rotate"></i> Actualiser
-            </button>
-          </div>
-          <div class="drawer-actions-row">
-            <button class="drawer-ghost-btn" id="btn-drawer-upload-banner">
-              <i class="fa-solid fa-camera"></i> Image de fond
-            </button>
-            <button class="drawer-ghost-btn" id="btn-drawer-reset-banner">
-              <i class="fa-solid fa-rotate-left"></i> Rétablir 3D
-            </button>
-          </div>
+          <button class="drawer-tool-chip" id="btn-drawer-reset-banner" title="Rétablir le fond 3D interactif">
+            <i class="fa-solid fa-rotate-left"></i> <span>Fond 3D</span>
+          </button>
+          <button class="drawer-tool-chip danger" id="btn-kill-all-browsers-drawer" title="Fermer les fenêtres de navigateur">
+            <i class="fa-solid fa-power-off"></i> <span>Fermer navigateurs</span>
+          </button>
         </div>
       </div>
     </div>
@@ -1260,6 +1266,36 @@
           </div>
         </div>
 
+        <!-- Execution Mode Choice (Simultaneous Parallel vs Sequential) -->
+        <div class="form-field-notion" style="margin-top:14px; margin-bottom:12px;" id="batch-execution-mode-field">
+          <label style="font-weight:700; font-size:13px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
+            <span><i class="fa-solid fa-bolt" style="color:#eab308;"></i> Mode d'Exécution</span>
+            <span class="batch-parallel-badge">⚡ SIMULTANÉ RECOMMANDÉ</span>
+          </label>
+          <div class="batch-mode-container">
+            <label class="batch-mode-card active" id="batch-mode-parallel-label">
+              <input type="radio" name="batch-execution-mode" value="parallel" checked style="display:none;">
+              <div class="batch-mode-title">
+                <i class="fa-solid fa-layer-group" style="color:#38bdf8;"></i>
+                <span>Simultané par plateforme</span>
+              </div>
+              <p class="batch-mode-desc">
+                Workers Playwright indépendants pour <strong>France Travail</strong>, <strong>LinkedIn</strong> et <strong>Indeed</strong> s'exécutant en parallèle sans se bloquer.
+              </p>
+            </label>
+            <label class="batch-mode-card" id="batch-mode-serial-label">
+              <input type="radio" name="batch-execution-mode" value="serial" style="display:none;">
+              <div class="batch-mode-title">
+                <i class="fa-solid fa-arrow-down-1-9" style="color:#a855f7;"></i>
+                <span>Séquentiel standard</span>
+              </div>
+              <p class="batch-mode-desc">
+                Postule à une seule offre à la fois sur une file d'attente globale unique.
+              </p>
+            </label>
+          </div>
+        </div>
+
         <!-- Scope choice -->
         <div class="form-field-notion">
           <label style="font-weight:700; font-size:13px; margin-bottom:8px; display:block;">
@@ -1299,7 +1335,7 @@
             <span id="batch-progress-pct" style="font-size:12px; font-weight:800; color:#38bdf8;">0%</span>
           </div>
 
-          <!-- Progress bar -->
+          <!-- Overall Progress bar -->
           <div style="width:100%; height:8px; background:rgba(255,255,255,0.1); border-radius:4px; overflow:hidden;">
             <div id="batch-progress-bar" style="width:0%; height:100%; background:linear-gradient(90deg, #3b82f6, #10b981); transition:width 0.3s ease;"></div>
           </div>
@@ -1307,6 +1343,11 @@
           <!-- Current job info -->
           <div id="batch-progress-job-info" style="font-size:11.5px; color:#94a3b8;">
             Offre : <span id="batch-progress-curr-job" style="color:#f8fafc; font-weight:600;">-</span>
+          </div>
+
+          <!-- Dedicated Real-time Multi-Platform Workers List -->
+          <div class="batch-platform-workers-list" id="batch-platform-workers-list">
+            <!-- Dynamically populated per-platform worker cards -->
           </div>
 
           <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; color:#94a3b8; border-top:1px solid rgba(255,255,255,0.06); padding-top:8px;">
@@ -1323,10 +1364,32 @@
           </div>
         </div>
 
+        <!-- LinkedIn Auth Warning Banner (Shown if LinkedIn selected and not authenticated) -->
+        <div id="batch-auth-warning-linkedin" style="display:none; background:rgba(239, 68, 68, 0.12); border:1px solid rgba(239, 68, 68, 0.35); border-radius:8px; padding:10px 14px; margin-top:8px; font-size:12px; color:#fca5a5;">
+          <div style="display:flex; align-items:center; gap:8px; font-weight:700; color:#f87171; margin-bottom:4px;">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span>Session LinkedIn non connectée (Authwall détecté)</span>
+          </div>
+          <p style="margin:0 0 8px 0; color:#cbd5e1; font-size:11px; line-height:1.4;">
+            Sans session active, LinkedIn bloque l'accès aux offres. Collez votre cookie <code>li_at</code> ci-dessous ou ouvrez <em>Menu &gt; Plateformes &amp; Sessions</em> :
+          </p>
+          <div style="display:flex; gap:6px;">
+            <input type="password" id="input-batch-quick-li-at" placeholder="Collez votre cookie li_at ici (ex: AQEDAT...)" style="flex:1; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:6px; padding:6px 10px; font-size:11px;">
+            <button type="button" id="btn-batch-save-li-at" class="btn-primary" style="padding:6px 14px; font-size:11px; white-space:nowrap; background:#0284c7;">
+              <i class="fa-solid fa-key"></i> Connecter
+            </button>
+          </div>
+        </div>
+
         <div class="profile-modal-actions" style="margin-top:10px;">
-          <button type="button" class="drawer-ghost-btn" id="btn-cancel-batch">Fermer</button>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <button type="button" class="drawer-ghost-btn" id="btn-cancel-batch">Fermer</button>
+            <button type="button" class="drawer-ghost-btn" id="btn-reset-skipped-jobs" title="Remettre les offres ignorées dans la liste des offres à postuler" style="color:#fbbf24; border-color:rgba(251,191,36,0.3); font-size:11px;">
+              <i class="fa-solid fa-rotate-left"></i> Réinitialiser ignorées
+            </button>
+          </div>
           <button type="button" class="btn-notion" id="btn-stop-batch-action" style="display:none; background:rgba(239, 68, 68, 0.2); color:#f87171; border:1px solid rgba(239, 68, 68, 0.4);">
-            <i class="fa-solid fa-hand"></i> Interrompre
+            <i class="fa-solid fa-hand"></i> Interrompre tout
           </button>
           <button type="button" class="btn-primary" id="btn-start-batch-action" style="background:linear-gradient(135deg, #059669, #10b981);">
             <i class="fa-solid fa-paper-plane"></i> Lancer les candidatures groupées
@@ -1344,7 +1407,6 @@
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  <script src="/static/three.min.js"></script>
-  <script src="/static/app.js?v=3.1"></script>
+  <script src="/static/app.js?v=4.4"></script>
 </body>
 </html>

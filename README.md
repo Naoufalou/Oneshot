@@ -1,12 +1,12 @@
-# ⚡ ADHJob — Agent Intelligent d'Automatisation de Candidatures & Veille d'Emploi
+# ⚡ Oneshot — Agent Intelligent de Candidatures en 1 Clic & Veille d'Emploi
 
-**ADHJob** est une application web et un agent autonome conçu pour surveiller les offres d'emploi en temps réel sur les plateformes majeures (**France Travail**, **LinkedIn**, **Indeed**, etc.), analyser l'adéquation avec votre profil via IA, et postuler de manière automatisée et humaine en **1 Clic** ou en **Batch Apply ciblé par plateforme**.
+**Oneshot** (ex-ADHJob) est une application web et un agent autonome conçu pour surveiller les offres d'emploi en temps réel sur les plateformes majeures (**France Travail**, **LinkedIn**, **Indeed**, etc.), analyser l'adéquation avec votre profil via IA, et postuler de manière automatisée et humaine en **1 Clic** ou en **Batch Apply ciblé par plateforme**.
 
 ---
 
 ## ✨ Fonctionnalités Principales
 
-- 🎮 **Interface Arova Édition** : Design minimaliste, dock interactif, fiches dynamiques par plateforme et modales épurées.
+- 🎮 **Interface Épurée & Mode Zen** : Dashboard anti-distraction, onglets de plateformes colorés, tableau des candidatures à la demande et contrôle total.
 - 🌐 **Multi-Plateformes** : Support complet pour France Travail, LinkedIn, Indeed, avec catalogue extensible (WTTJ, Apec, HelloWork, Glassdoor, etc.).
 - 🧠 **Analyse & Scoring IA de Profil** : Détection des compétences et calcul en temps réel du taux d'affinité (*Match Score*) à partir de votre CV ou URL LinkedIn/Portfolio.
 - ⚡ **Postuler en 1 Clic & Batch Apply par Plateforme** :
@@ -21,8 +21,8 @@
 
 ### 1. Cloner le dépôt
 ```bash
-git clone https://github.com/eliothantute/ADHJob.git
-cd ADHJob
+git clone https://github.com/eliothantute/Oneshot.git
+cd Oneshot
 ```
 
 ### 2. Créer et activer l'environnement virtuel Python
@@ -68,7 +68,7 @@ Pour ajouter de nouvelles fonctionnalités proprement :
 ## 📁 Structure du Projet
 
 ```
-ADHJob/
+Oneshot/
 ├── config/             # Paramètres, profil utilisateur et critères de recherche
 ├── core/
 │   ├── browser/        # Gestionnaire de sessions Playwright & actions humaines

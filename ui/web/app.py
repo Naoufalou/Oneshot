@@ -53,7 +53,33 @@ app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 app.mount("/screenshots", StaticFiles(directory=str(SCREENSHOTS_DIR)), name="screenshots")
 app.mount("/generated", StaticFiles(directory=str(GENERATED_DIR)), name="generated")
 
-# Global runner state for batch apply
+# Multi-platform simultaneous runners
+PLATFORM_WORKERS: Dict[str, Dict[str, Any]] = {}
+
+def get_initial_platform_state(plat: str) -> Dict[str, Any]:
+    return {
+        "platform": plat,
+        "is_running": False,
+        "current_index": 0,
+        "total": 0,
+        "percent": 0,
+        "current_job_id": None,
+        "current_job_title": "",
+        "current_company": "",
+        "success_count": 0,
+        "skipped_count": 0,
+        "failed_count": 0,
+        "last_reason": "",
+        "current_task": "En attente",
+        "stop_requested": False,
+        "started_at": None,
+        "finished_at": None,
+    }
+
+for p in ["francetravail", "linkedin", "indeed"]:
+    PLATFORM_WORKERS[p] = get_initial_platform_state(p)
+
+# Global runner state for batch apply (retained for backward compatibility)
 RUNNER_STATE = {
     "is_running": False,
     "current_index": 0,
@@ -511,7 +537,11 @@ async def get_platforms_status():
     francetravail_cookie_file = SESSIONS_DIR / "francetravail" / "Default" / "Cookies"
 
     # Precise cookie check
-    linkedin_logged = is_cookie_in_db(linkedin_cookie_file, ["li_at"]) or check_session_cookie_generic("linkedin")
+    linkedin_logged = (
+        is_cookie_in_db(linkedin_cookie_file, ["li_at"])
+        or is_cookie_in_db(SESSIONS_DIR / "linkedin" / "Default" / "Network" / "Cookies", ["li_at"])
+        or is_cookie_in_db(SESSIONS_DIR / "linkedin" / "Cookies", ["li_at"])
+    )
     indeed_logged = is_cookie_in_db(indeed_cookie_file, ["SHARED_SESSION", "SURF", "indeed_rcon", "ACCOUNT_USER_IDENTIFIER"]) or check_session_cookie_generic("indeed")
     francetravail_logged = is_cookie_in_db(francetravail_cookie_file, ["SMSESSION", "auth_token", "pe_id", "candidat_token"]) or check_session_cookie_generic("francetravail")
 
@@ -971,27 +1001,58 @@ class ApplyAllRequest(BaseModel):
     min_score: Optional[int] = None
     limit: Optional[int] = None
     job_ids: Optional[List[int]] = None
+    mode: Optional[str] = "parallel"  # "parallel" (simultaneous per platform) or "serial"
+    platforms: Optional[List[str]] = None
 
 
-async def execute_batch_apply_task(job_ids: List[int]):
-    global RUNNER_STATE
-    total = len(job_ids)
-    RUNNER_STATE["is_running"] = True
-    RUNNER_STATE["current_index"] = 0
-    RUNNER_STATE["total"] = total
-    RUNNER_STATE["success_count"] = 0
-    RUNNER_STATE["skipped_count"] = 0
-    RUNNER_STATE["failed_count"] = 0
-    RUNNER_STATE["last_reason"] = ""
-    RUNNER_STATE["stop_requested"] = False
-    RUNNER_STATE["started_at"] = datetime.utcnow().isoformat()
-    RUNNER_STATE["current_task"] = f"Démarrage des candidatures ({total} offres)..."
+class StopBatchRequest(BaseModel):
+    platform: Optional[str] = None
 
+
+async def execute_platform_batch_task(platform: str, job_ids: List[int]):
+    global PLATFORM_WORKERS
+    if platform not in PLATFORM_WORKERS:
+        PLATFORM_WORKERS[platform] = get_initial_platform_state(platform)
+
+    worker = PLATFORM_WORKERS[platform]
+    worker["is_running"] = True
+    worker["stop_requested"] = False
+    worker["total"] = len(job_ids)
+    worker["current_index"] = 0
+    worker["percent"] = 0
+    worker["success_count"] = 0
+    worker["skipped_count"] = 0
+    worker["failed_count"] = 0
+    worker["last_reason"] = ""
+    worker["started_at"] = datetime.utcnow().isoformat()
+    worker["current_task"] = f"Initialisation worker {platform.capitalize()} ({len(job_ids)} offres)..."
+
+    logger.info(f"[{platform.upper()} Worker] Démarrage du worker simultané pour {len(job_ids)} offres...")
+
+    platform_instance = None
     try:
+        if platform == "linkedin":
+            platform_instance = LinkedInPlatform()
+            is_logged = await platform_instance.is_logged_in()
+            if not is_logged:
+                logger.warning("[LINKEDIN Worker] Session LinkedIn non connectée (Authwall). Annulation pour protéger les offres.")
+                worker["is_running"] = False
+                worker["current_task"] = "Session LinkedIn requise : connectez-vous ou collez votre cookie li_at dans Menu > Sessions."
+                worker["last_reason"] = "Session LinkedIn requise (Authwall / non connecté)"
+                for jid in job_ids:
+                    rec = db.get_application_by_id(jid)
+                    if rec and rec.get("status") == "applying":
+                        db.update_status(jid, "found")
+                return
+        elif platform == "indeed":
+            platform_instance = IndeedPlatform()
+        elif platform == "francetravail":
+            platform_instance = FranceTravailPlatform()
+
         for idx, jid in enumerate(job_ids, 1):
-            if RUNNER_STATE.get("stop_requested"):
-                logger.info("[Batch Apply] Interruption demandée par l'utilisateur.")
-                RUNNER_STATE["current_task"] = "Interrompu par l'utilisateur."
+            if worker.get("stop_requested"):
+                logger.info(f"[{platform.upper()} Worker] Interruption demandée par l'utilisateur.")
+                worker["current_task"] = "Interrompu par l'utilisateur."
                 break
 
             record_data = db.get_application_by_id(jid)
@@ -1000,75 +1061,175 @@ async def execute_batch_apply_task(job_ids: List[int]):
 
             title = record_data.get("job_title", "Offre")
             company = record_data.get("company", "Entreprise")
-            platform = record_data.get("platform", "web")
 
-            RUNNER_STATE["current_index"] = idx
-            RUNNER_STATE["current_job_id"] = jid
-            RUNNER_STATE["current_job_title"] = title
-            RUNNER_STATE["current_company"] = company
-            RUNNER_STATE["current_platform"] = platform
-            RUNNER_STATE["current_task"] = f"Traitement {idx}/{total} : {title} ({company})"
+            worker["current_index"] = idx
+            worker["percent"] = int((idx / max(1, len(job_ids))) * 100)
+            worker["current_job_id"] = jid
+            worker["current_job_title"] = title
+            worker["current_company"] = company
+            worker["current_task"] = f"Postulation {idx}/{len(job_ids)} : {title} chez {company}"
 
-            logger.info(f"[Batch Apply] Processing job {idx}/{total} (ID: {jid}): {title} ({company})...")
+            logger.info(f"[{platform.upper()} Worker] Traitement {idx}/{len(job_ids)} (ID: {jid}) : {title} ({company})...")
 
             try:
-                await execute_single_job_apply(jid)
+                job_post = JobPost(
+                    platform=platform,
+                    job_id=record_data["job_id"],
+                    title=title,
+                    company=company,
+                    location=record_data.get("location") or "France",
+                    url=record_data["job_url"],
+                    is_easy_apply=True,
+                )
+
+                if platform_instance:
+                    res_record = await platform_instance.apply(job_post)
+                    db.save_or_update(res_record)
+                else:
+                    await execute_single_job_apply(jid)
+
                 updated = db.get_application_by_id(jid)
                 status = updated.get("status") if updated else "failed"
                 err_msg = (updated.get("error_message") or "").strip()
-                RUNNER_STATE["last_reason"] = err_msg
+                worker["last_reason"] = err_msg
 
                 if status == "applied":
-                    RUNNER_STATE["success_count"] += 1
+                    worker["success_count"] += 1
+                    worker["current_task"] = f"Succès : {title} ({company})"
                 elif status == "skipped":
-                    RUNNER_STATE["skipped_count"] += 1
+                    worker["skipped_count"] += 1
                     if "Quota journalier" in err_msg:
-                        logger.info(f"[Batch Apply] Daily quota reached for {platform}. Stopping batch.")
-                        RUNNER_STATE["current_task"] = f"Arrêt : {err_msg}"
+                        logger.info(f"[{platform.upper()} Worker] Daily quota reached for {platform}. Stopping batch.")
+                        worker["current_task"] = f"Arrêt : {err_msg}"
                         break
                     elif "Session" in err_msg or "Authwall" in err_msg:
-                        RUNNER_STATE["current_task"] = f"Ignorée : Connexion {platform.capitalize()} requise"
+                        worker["current_task"] = f"Ignorée : Connexion {platform.capitalize()} requise"
                     elif "externe" in err_msg.lower():
-                        RUNNER_STATE["current_task"] = f"Ignorée : Redirection externe ({company})"
+                        worker["current_task"] = f"Ignorée : Redirection externe ({company})"
                     else:
-                        RUNNER_STATE["current_task"] = f"Ignorée : {err_msg or 'Non Easy-Apply'}"
+                        worker["current_task"] = f"Ignorée : {err_msg or 'Non Easy-Apply'}"
                 else:
-                    RUNNER_STATE["failed_count"] += 1
+                    worker["failed_count"] += 1
+                    worker["current_task"] = f"Échec : {err_msg or 'Erreur'}"
             except PlatformBlockedError as e:
-                logger.error(f"[Batch Apply] Platform block on job ID {jid}: {e}. Halting batch.")
+                logger.error(f"[{platform.upper()} Worker] Platform block on job ID {jid}: {e}. Halting batch.")
                 db.update_status(jid, "failed", error_message=str(e))
-                RUNNER_STATE["failed_count"] += 1
-                RUNNER_STATE["last_reason"] = str(e)
-                RUNNER_STATE["current_task"] = f"Arrêt : {e}"
-                RUNNER_STATE["stop_requested"] = True
+                worker["failed_count"] += 1
+                worker["last_reason"] = str(e)
+                worker["current_task"] = f"Arrêt : {e}"
+                worker["stop_requested"] = True
                 break
             except Exception as e:
-                logger.error(f"[Batch Apply] Error on job ID {jid}: {e}")
+                logger.error(f"[{platform.upper()} Worker] Erreur sur job ID {jid}: {e}")
                 db.update_status(jid, "failed", error_message=str(e))
-                RUNNER_STATE["failed_count"] += 1
-                RUNNER_STATE["last_reason"] = str(e)
+                worker["failed_count"] += 1
+                worker["last_reason"] = str(e)
+                worker["current_task"] = f"Erreur : {str(e)[:50]}"
 
             # Human pacing between consecutive applications is enforced centrally
             # by core.rate_limiter.wait_before_apply(); no manual sleep here to
             # avoid double-counting delays.
 
-        success = RUNNER_STATE["success_count"]
-        skipped = RUNNER_STATE["skipped_count"]
-        RUNNER_STATE["current_task"] = f"Session terminée ! {success} envoyée(s), {skipped} ignorée(s)."
+        worker["percent"] = 100
+        success = worker["success_count"]
+        skipped = worker["skipped_count"]
+        worker["current_task"] = f"Terminé ! {success} envoyée(s), {skipped} ignorée(s)."
+    except Exception as exc:
+        logger.error(f"[{platform.upper()} Worker] Erreur inattendue : {exc}")
+        worker["current_task"] = f"Erreur : {exc}"
     finally:
-        RUNNER_STATE["is_running"] = False
+        if platform_instance:
+            try:
+                await platform_instance.close()
+            except Exception:
+                pass
+        worker["is_running"] = False
+        worker["finished_at"] = datetime.utcnow().isoformat()
+        logger.info(f"[{platform.upper()} Worker] Session de candidatures terminée.")
+
+
+async def execute_multi_platform_batch(platform_jobs_map: Dict[str, List[int]]):
+    """Executes platform workers simultaneously in parallel using asyncio.gather."""
+    tasks = []
+    for plat, ids in platform_jobs_map.items():
+        if ids:
+            tasks.append(execute_platform_batch_task(plat, ids))
+    if tasks:
+        logger.info(f"[Multi-Batch] Lancement simultané de {len(tasks)} workers de plateformes...")
+        await asyncio.gather(*tasks, return_exceptions=True)
+        logger.info("[Multi-Batch] Tous les workers de plateformes ont terminé.")
+
+
+async def execute_batch_apply_task(job_ids: List[int]):
+    """Wrapper that partitions jobs by platform and executes them concurrently."""
+    jobs_by_platform: Dict[str, List[int]] = {}
+    for jid in job_ids:
+        rec = db.get_application_by_id(jid)
+        if rec:
+            plat = rec.get("platform") or "francetravail"
+            if plat not in jobs_by_platform:
+                jobs_by_platform[plat] = []
+            jobs_by_platform[plat].append(jid)
+    await execute_multi_platform_batch(jobs_by_platform)
+
+
+def get_aggregate_batch_status() -> Dict[str, Any]:
+    global PLATFORM_WORKERS
+    active_workers = [w for w in PLATFORM_WORKERS.values() if w.get("is_running")]
+    is_running = len(active_workers) > 0
+
+    total = sum(w.get("total", 0) for w in PLATFORM_WORKERS.values())
+    current = sum(w.get("current_index", 0) for w in PLATFORM_WORKERS.values())
+    success = sum(w.get("success_count", 0) for w in PLATFORM_WORKERS.values())
+    skipped = sum(w.get("skipped_count", 0) for w in PLATFORM_WORKERS.values())
+    failed = sum(w.get("failed_count", 0) for w in PLATFORM_WORKERS.values())
+    percent = int((current / max(1, total)) * 100) if total > 0 else 0
+
+    active_platforms = [w["platform"] for w in active_workers]
+
+    if is_running:
+        if len(active_platforms) > 1:
+            plat_names = ", ".join(p.capitalize() for p in active_platforms)
+            current_task = f"⚡ {len(active_platforms)} plateformes en simultané ({plat_names}) • {current}/{total} offres traitées"
+        elif len(active_platforms) == 1:
+            current_task = active_workers[0].get("current_task") or "Candidature en cours..."
+        else:
+            current_task = "Candidatures en cours..."
+    else:
+        if total > 0 and current >= total:
+            current_task = f"Session terminée ! {success} envoyée(s), {skipped} ignorée(s)."
+        else:
+            current_task = "En attente"
+
+    latest_job = next((w for w in active_workers if w.get("current_job_id")), None)
+    current_job_id = latest_job["current_job_id"] if latest_job else None
+    current_job_title = latest_job["current_job_title"] if latest_job else ""
+    current_company = latest_job["current_company"] if latest_job else ""
+    current_platform = latest_job["platform"] if latest_job else ""
+    last_reason = latest_job["last_reason"] if latest_job else ""
+
+    return {
+        "is_running": is_running,
+        "current_index": current,
+        "total": total,
+        "percent": percent,
+        "success_count": success,
+        "skipped_count": skipped,
+        "failed_count": failed,
+        "current_job_id": current_job_id,
+        "current_job_title": current_job_title,
+        "current_company": current_company,
+        "current_platform": current_platform,
+        "last_reason": last_reason,
+        "current_task": current_task,
+        "active_platforms": active_platforms,
+        "platforms": {p: dict(w) for p, w in PLATFORM_WORKERS.items()},
+    }
 
 
 @app.get("/api/jobs/batch-status")
 async def get_batch_status():
-    global RUNNER_STATE
-    total = RUNNER_STATE.get("total", 0)
-    current = RUNNER_STATE.get("current_index", 0)
-    percent = int((current / max(1, total)) * 100) if total > 0 else 0
-    return {
-        **RUNNER_STATE,
-        "percent": percent,
-    }
+    return get_aggregate_batch_status()
 
 
 @app.get("/api/jobs/unapplied-stats")
@@ -1112,44 +1273,118 @@ async def get_unapplied_stats(platform: Optional[str] = None):
 
 @app.post("/api/jobs/apply-all")
 async def apply_all_jobs_endpoint(req: ApplyAllRequest, background_tasks: BackgroundTasks):
-    global RUNNER_STATE
-    if RUNNER_STATE.get("is_running"):
-        return JSONResponse(
-            status_code=409,
-            content={"status": "already_running", "message": "Une session de candidature groupée est déjà en cours."}
-        )
+    global PLATFORM_WORKERS
 
+    target_plat = req.platform.strip().lower() if req.platform else ""
+    is_single_platform = bool(target_plat and target_plat != "all")
+
+    if is_single_platform:
+        # User requested a specific platform
+        worker = PLATFORM_WORKERS.get(target_plat)
+        if worker and worker.get("is_running"):
+            return JSONResponse(
+                status_code=409,
+                content={
+                    "status": "already_running",
+                    "message": f"Le worker pour {target_plat.capitalize()} est déjà en cours d'exécution."
+                }
+            )
+
+        if req.job_ids and len(req.job_ids) > 0:
+            target_ids = req.job_ids
+        else:
+            unapplied = db.get_unapplied_jobs(
+                platform=target_plat,
+                min_score=req.min_score,
+                limit=req.limit,
+            )
+            target_ids = [j["id"] for j in unapplied]
+
+        if not target_ids:
+            raise HTTPException(status_code=400, detail=f"Aucune offre non postulée trouvée pour {target_plat.capitalize()}")
+
+        for jid in target_ids:
+            db.update_status(jid, "applying")
+
+        background_tasks.add_task(execute_platform_batch_task, target_plat, target_ids)
+        return {
+            "status": "started",
+            "count": len(target_ids),
+            "platform": target_plat,
+            "mode": "single_platform",
+            "message": f"Postulation 1 Clic lancée pour {len(target_ids)} offre(s) sur {target_plat.capitalize()} !",
+        }
+
+    # All platforms requested (Simultaneous parallel execution by default)
     if req.job_ids and len(req.job_ids) > 0:
-        target_ids = req.job_ids
-    else:
+        all_candidates = [db.get_application_by_id(jid) for jid in req.job_ids]
+        all_candidates = [c for c in all_candidates if c]
         # Smart targeting: by default only apply to offers at/above the profile's
-        # minimum match score, ordered highest-match first, so submissions go to
-        # the jobs with the best chance of success.
+        # minimum match score, ordered highest-match first
         criteria = settings.load_search_criteria()
         floor = req.min_score if req.min_score is not None else criteria.min_match_score
-        unapplied = db.get_unapplied_jobs(
-            platform=req.platform,
+        all_candidates = db.get_unapplied_jobs(
+            platform=None,
             min_score=floor,
             limit=req.limit,
         )
-        # get_unapplied_jobs already sorts by match_score DESC, id DESC.
-        target_ids = [j["id"] for j in unapplied]
-        logger.info(
-            f"[Smart Apply] Targeting {len(target_ids)} unapplied job(s) with "
-            f"match_score >= {floor}, highest relevance first."
-        )
 
-    if not target_ids:
+    if not all_candidates:
         raise HTTPException(status_code=400, detail="Aucune offre non postulée trouvée pour ces critères")
 
-    for jid in target_ids:
-        db.update_status(jid, "applying")
+    # Group candidate jobs by platform
+    jobs_by_platform: Dict[str, List[int]] = {}
+    for j in all_candidates:
+        p = (j.get("platform") or "francetravail").strip().lower()
+        if req.platforms and p not in req.platforms:
+            continue
+        if p not in jobs_by_platform:
+            jobs_by_platform[p] = []
+        jobs_by_platform[p].append(j["id"])
 
-    background_tasks.add_task(execute_batch_apply_task, target_ids)
+    to_launch: Dict[str, List[int]] = {}
+    already_running_platforms = []
+    total_jobs_launched = 0
+
+    for plat, ids in jobs_by_platform.items():
+        w = PLATFORM_WORKERS.get(plat)
+        if w and w.get("is_running"):
+            already_running_platforms.append(plat)
+            continue
+        to_launch[plat] = ids
+        total_jobs_launched += len(ids)
+        for jid in ids:
+            db.update_status(jid, "applying")
+
+    if not to_launch:
+        if already_running_platforms:
+            return JSONResponse(
+                status_code=409,
+                content={
+                    "status": "already_running",
+                    "message": f"Toutes les plateformes sélectionnées ont déjà un worker actif ({', '.join(already_running_platforms)})."
+                }
+            )
+        raise HTTPException(status_code=400, detail="Aucune offre à lancer pour les plateformes sélectionnées")
+
+    if req.mode == "serial":
+        # Classical serial fallback if requested
+        flattened_ids = [jid for ids in to_launch.values() for jid in ids]
+        background_tasks.add_task(execute_batch_apply_task, flattened_ids)
+        msg = f"Candidatures séquentielles lancées pour {len(flattened_ids)} offre(s)."
+    else:
+        # Default: simultaneous parallel workers across platforms!
+        background_tasks.add_task(execute_multi_platform_batch, to_launch)
+        plat_names = ", ".join(p.capitalize() for p in to_launch.keys())
+        msg = f"⚡ Candidatures simultanées lancées pour {total_jobs_launched} offre(s) en parallèle sur {len(to_launch)} plateforme(s) ({plat_names}) !"
+
     return {
         "status": "started",
-        "count": len(target_ids),
-        "message": f"Postulation automatique lancée pour {len(target_ids)} offre(s) en 1 Clic !",
+        "count": total_jobs_launched,
+        "platforms": list(to_launch.keys()),
+        "mode": req.mode or "parallel",
+        "already_running": already_running_platforms,
+        "message": msg,
     }
 
 
@@ -1159,11 +1394,51 @@ async def apply_batch_jobs(req: BatchApplyRequest, background_tasks: BackgroundT
 
 
 @app.post("/api/jobs/stop-batch")
-async def stop_batch_endpoint():
-    global RUNNER_STATE
-    RUNNER_STATE["stop_requested"] = True
-    RUNNER_STATE["current_task"] = "Arrêt demandé en cours..."
-    return {"status": "success", "message": "Arrêt des candidatures demandé"}
+async def stop_batch_endpoint(req: Optional[StopBatchRequest] = None):
+    global PLATFORM_WORKERS
+    target = (req.platform.strip().lower() if req and req.platform else None)
+    if target and target in PLATFORM_WORKERS:
+        PLATFORM_WORKERS[target]["stop_requested"] = True
+        PLATFORM_WORKERS[target]["current_task"] = f"Arrêt demandé pour {target.capitalize()}..."
+        return {"status": "success", "message": f"Arrêt demandé pour le worker {target.capitalize()}"}
+    else:
+        stopped_any = False
+        for p, w in PLATFORM_WORKERS.items():
+            if w.get("is_running"):
+                w["stop_requested"] = True
+                w["current_task"] = "Arrêt demandé..."
+                stopped_any = True
+        return {
+            "status": "success",
+            "message": "Arrêt demandé pour tous les workers de plateformes" if stopped_any else "Aucun worker actif"
+        }
+
+
+class ResetSkippedRequest(BaseModel):
+    platform: Optional[str] = None
+
+
+@app.post("/api/jobs/reset-skipped")
+async def reset_skipped_jobs_endpoint(req: Optional[ResetSkippedRequest] = None):
+    plat = req.platform.strip().lower() if req and req.platform else None
+    with db._get_connection() as conn:
+        cursor = conn.cursor()
+        if plat and plat != "all":
+            cursor.execute(
+                "UPDATE job_applications SET status = 'found', error_message = NULL WHERE platform = ? AND status = 'skipped'",
+                (plat,)
+            )
+        else:
+            cursor.execute(
+                "UPDATE job_applications SET status = 'found', error_message = NULL WHERE status = 'skipped'"
+            )
+        count = cursor.rowcount
+        conn.commit()
+    return {
+        "status": "success",
+        "reset_count": count,
+        "message": f"{count} offre(s) ignorée(s) réinitialisée(s) avec succès !"
+    }
 
 
 

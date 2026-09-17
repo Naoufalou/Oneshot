@@ -17,11 +17,17 @@ class LinkedInPlatform(BasePlatform):
         self.applicant = LinkedInEasyApply(self.bm)
 
     async def is_logged_in(self) -> bool:
-        page = self.bm.page or await self.bm.start()
+        if not self.bm.context:
+            await self.bm.start()
         try:
-            await page.goto("https://www.linkedin.com/feed/", wait_until="domcontentloaded", timeout=30000)
-            await self.bm.random_delay(1.5, 3.0)
-            return "feed" in page.url and "login" not in page.url
+            cookies = await self.bm.context.cookies()
+            has_li_at = any(c.get("name") == "li_at" and len(c.get("value", "")) > 10 for c in cookies)
+            if not has_li_at:
+                return False
+            page = self.bm.page or await self.bm.start()
+            await page.goto("https://www.linkedin.com/feed/", wait_until="domcontentloaded", timeout=25000)
+            await self.bm.random_delay(1.0, 2.0)
+            return "feed" in page.url and "login" not in page.url and "authwall" not in page.url
         except Exception as e:
             logger.debug(f"LinkedIn login check error: {e}")
             return False

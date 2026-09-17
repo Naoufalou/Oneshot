@@ -57,273 +57,17 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* ==========================================================
-   IMMERSIVE WIDE 3D MOTION BANNER ENGINE (THREE.JS WEBGL)
-   Parametric Responsive Surface Waves + Dynamic Lighting & Reactivity
-   (Zero Text, Pure Visual Calm + Background Texture Support)
+   ZEN MODE ENGINE (LIGHTWEIGHT PROGRESS HOOKS)
+   Replaces the legacy 3D particle neural network with clean,
+   silent, zero-CPU hooks for application progress tracking.
 ========================================================== */
 function init3DMotionBanner() {
-  const canvas = document.getElementById("motion-3d-banner-canvas");
-  const container = document.getElementById("notion-banner-container");
-  if (!canvas || !container) return;
-
-  if (typeof THREE === "undefined") {
-    console.warn("Three.js not loaded, skipping 3D motion banner");
-    return;
-  }
-
-  let width = container.clientWidth || window.innerWidth;
-  let height = container.clientHeight || window.innerHeight;
-
-  // Renderer
-  const renderer = new THREE.WebGLRenderer({
-    canvas: canvas,
-    antialias: true,
-    alpha: true,
-    powerPreference: "high-performance"
-  });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-  renderer.setSize(width, height);
-  const initialIsCream = document.body.classList.contains("arova-gallery-theme");
-  renderer.setClearColor(initialIsCream ? 0xe8e6df : 0x05070d, 1);
-
-  // Scene & Camera (60 FOV, positioned at [0, 0, 100])
-  const scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(initialIsCream ? 0xe8e6df : 0x05070d, initialIsCream ? 0.0035 : 0.0045);
-
-  const camera = new THREE.PerspectiveCamera(58, width / height, 0.1, 1000);
-  camera.position.set(0, 10, 100);
-
-  // Particle Swarm (Dopa Architecture - Omnichannel convergence into CRM Core)
-  const count = 16000;
-  const speedMult = 1;
-  const speed = 0.4;
-  const chaos = 20.0;
-  const coreSize = 10.0;
-
-  const dummy = new THREE.Object3D();
-  const target = new THREE.Vector3();
-  const pColor = new THREE.Color();
-
-  // Initial random cloud positions
-  const positions = [];
-  for (let i = 0; i < count; i++) {
-    positions.push(new THREE.Vector3(
-      (Math.random() - 0.5) * 120,
-      (Math.random() - 0.5) * 120,
-      (Math.random() - 0.5) * 120
-    ));
-  }
-
-  // Geometry & Material
-  const geometry = new THREE.TetrahedronGeometry(0.28);
-  const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
-
-  const instancedMesh = new THREE.InstancedMesh(geometry, material, count);
-  instancedMesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(count * 3), 3);
-  scene.add(instancedMesh);
-
-  // Luminous Core Sphere (Center CRM Hub)
-  const coreGeom = new THREE.IcosahedronGeometry(7, 2);
-  const coreMat = new THREE.MeshBasicMaterial({
-    color: 0x9333ea,
-    wireframe: true,
-    transparent: true,
-    opacity: 0.45
-  });
-  const coreMesh = new THREE.Mesh(coreGeom, coreMat);
-  scene.add(coreMesh);
-
-  // Mouse interaction state
-  const mouse = { x: 0, y: 0, targetX: 0, targetY: 0, active: false };
-
-  container.addEventListener("mousemove", (e) => {
-    const rect = container.getBoundingClientRect();
-    mouse.targetX = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-    mouse.targetY = -(((e.clientY - rect.top) / rect.height) * 2 - 1);
-    mouse.active = true;
-  });
-
-  container.addEventListener("mouseleave", () => {
-    mouse.targetX = 0;
-    mouse.targetY = 0;
-    mouse.active = false;
-  });
-
-  // Touch support
-  container.addEventListener("touchmove", (e) => {
-    if (e.touches.length > 0) {
-      const rect = container.getBoundingClientRect();
-      mouse.targetX = ((e.touches[0].clientX - rect.left) / rect.width) * 2 - 1;
-      mouse.targetY = -(((e.touches[0].clientY - rect.top) / rect.height) * 2 - 1);
-      mouse.active = true;
-    }
-  }, { passive: true });
-
-  container.addEventListener("touchend", () => {
-    mouse.targetX = 0;
-    mouse.targetY = 0;
-    mouse.active = false;
-  });
-
-  // Resize handler
-  function onResize() {
-    width = container.clientWidth || window.innerWidth;
-    height = container.clientHeight || window.innerHeight;
-    camera.aspect = width / height;
-    camera.updateProjectionMatrix();
-    renderer.setSize(width, height);
-  }
-
-  window.addEventListener("resize", onResize);
-  const ro = new ResizeObserver(onResize);
-  ro.observe(container);
-
-  window.__updateThreeTheme = function(isCream) {
-    if (isCream) {
-      renderer.setClearColor(0xe8e6df, 1);
-      scene.fog = new THREE.FogExp2(0xe8e6df, 0.0035);
-      material.color.setHex(0x18181b);
-    } else {
-      renderer.setClearColor(0x05070d, 1);
-      scene.fog = new THREE.FogExp2(0x05070d, 0.0045);
-      material.color.setHex(0xffffff);
-    }
+  window.__updateNeuralProgress = function(pct, stepName) {
+    // Zen silent progress hook
   };
-  if (initialIsCream) {
-    window.__updateThreeTheme(true);
-  }
-
-  // Animation Loop (OrbitControls autoRotate + Particle Swarm calculation)
-  const clock = new THREE.Clock();
-  const goldenRatio = (1.0 + Math.sqrt(5.0)) / 2.0;
-
-  function animate() {
-    requestAnimationFrame(animate);
-
-    const time = clock.getElapsedTime() * speedMult;
-
-    // Smooth mouse lerp
-    mouse.x += (mouse.targetX - mouse.x) * 0.05;
-    mouse.y += (mouse.targetY - mouse.y) * 0.05;
-
-    // Auto-rotating orbital camera around the central CRM core
-    const camAngle = time * 0.22 + mouse.x * 1.8;
-    const camRadius = 96;
-    camera.position.x = Math.sin(camAngle) * camRadius;
-    camera.position.z = Math.cos(camAngle) * camRadius;
-    camera.position.y = 10 + mouse.y * 30;
-    camera.lookAt(0, 0, 0);
-
-    // Rotate core mesh
-    coreMesh.rotation.y = time * 0.4;
-    coreMesh.rotation.x = time * 0.2;
-    const corePulseScale = 1.0 + Math.sin(time * 5.0) * 0.08;
-    coreMesh.scale.set(corePulseScale, corePulseScale, corePulseScale);
-
-    // Update 16,000 convergence particles
-    for (let i = 0; i < count; i++) {
-      // 1. Progression towards the core (0.0 = outer edge, 1.0 = core)
-      const norm = i / count;
-      const progress = (norm + time * speed * 0.2) % 1.0;
-      const easeProgress = Math.pow(progress, 1.5);
-
-      // 2. Spherical Fibonacci distribution
-      const theta = 2.0 * Math.PI * i / goldenRatio;
-      const phi = Math.acos(Math.max(-1.0, Math.min(1.0, 1.0 - 2.0 * norm)));
-
-      // 3. Radius from 150 down to coreSize
-      const currentRadius = coreSize + (150.0 * (1.0 - easeProgress));
-
-      // 4. Noise/Chaos (wobble high on outside, 0 at stable core)
-      const instability = Math.pow(1.0 - progress, 2.0);
-      const wobbleX = Math.sin(time * 2.0 + norm * 100.0) * chaos * instability;
-      const wobbleY = Math.cos(time * 1.5 + norm * 200.0) * chaos * instability;
-      const wobbleZ = Math.sin(time * 3.0 - norm * 300.0) * chaos * instability;
-
-      // 5. Target position
-      const sinPhi = Math.sin(phi);
-      const x = (currentRadius * sinPhi * Math.cos(theta)) + wobbleX;
-      const y = (currentRadius * sinPhi * Math.sin(theta)) + wobbleY;
-      const z = (currentRadius * Math.cos(phi)) + wobbleZ;
-
-      target.set(x, y, z);
-
-      // 6. Color mapping: Outer = Cool Data Blue (0.55), Core = High-Energy Purple/Neon (0.8)
-      const hue = 0.55 + (0.25 * progress);
-      const saturation = 0.8 + (0.2 * progress);
-      const corePulse = (progress > 0.95) ? Math.sin(time * 10.0) * 0.3 : 0.0;
-      const lightness = 0.2 + (0.6 * progress) + corePulse;
-
-      pColor.setHSL(hue, saturation, Math.max(0.0, Math.min(1.0, lightness)));
-
-      // Lerp particle towards target
-      positions[i].lerp(target, 0.1);
-      dummy.position.copy(positions[i]);
-      dummy.updateMatrix();
-      instancedMesh.setMatrixAt(i, dummy.matrix);
-      instancedMesh.setColorAt(i, pColor);
-    }
-
-    instancedMesh.instanceMatrix.needsUpdate = true;
-    if (instancedMesh.instanceColor) instancedMesh.instanceColor.needsUpdate = true;
-
-    renderer.render(scene, camera);
-  }
-
-  animate();
-
-  // Custom user banner image texture handler
-  const fileInput = document.getElementById("banner-file-input");
-  const btnUpload = document.getElementById("btn-upload-banner");
-  const btnReset = document.getElementById("btn-reset-banner");
-
-  function applyTextureToMesh(imgUrl) {
-    new THREE.TextureLoader().load(imgUrl, (tex) => {
-      tex.wrapS = THREE.ClampToEdgeWrapping;
-      tex.wrapT = THREE.ClampToEdgeWrapping;
-      material.map = tex;
-      material.color.setHex(0xffffff);
-      material.needsUpdate = true;
-    });
-  }
-
-  const savedCustom = localStorage.getItem("user_custom_banner");
-  if (savedCustom) {
-    applyTextureToMesh(savedCustom);
-  }
-
-  if (btnUpload && fileInput) {
-    btnUpload.addEventListener("click", (e) => {
-      e.stopPropagation();
-      fileInput.click();
-    });
-
-    fileInput.addEventListener("change", (e) => {
-      const file = e.target.files && e.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = (evt) => {
-        const dataUrl = evt.target.result;
-        localStorage.setItem("user_custom_banner", dataUrl);
-        applyTextureToMesh(dataUrl);
-        showToast("✓ Fond 3D personnalisé appliqué !", "success");
-      };
-      reader.readAsDataURL(file);
-      fileInput.value = "";
-    });
-  }
-
-  if (btnReset) {
-    btnReset.addEventListener("click", (e) => {
-      e.stopPropagation();
-      localStorage.removeItem("user_custom_banner");
-      material.map = null;
-      material.color.setHex(0x090f1d);
-      material.needsUpdate = true;
-      showToast("Animation 3D par défaut rétablie", "info");
-    });
-  }
+  window.__completeNeuralProgress = function(isSuccess, finalMsg) {
+    // Zen silent completion hook
+  };
 }
 
 /* ==========================================================
@@ -354,6 +98,48 @@ function setupTabs() {
       switchViewTab(tabId);
     });
   });
+
+  // Steady Invoicing Brand Home Button
+  const btnBrandHome = document.getElementById("btn-brand-home");
+  if (btnBrandHome) {
+    btnBrandHome.addEventListener("click", () => {
+      if (typeof window.closeSecondarySheet === "function") window.closeSecondarySheet();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      document.querySelectorAll(".steady-nav-btn").forEach(b => b.classList.remove("active"));
+      const btnDash = document.getElementById("btn-nav-dashboard");
+      if (btnDash) btnDash.classList.add("active");
+    });
+  }
+
+  // Steady Invoicing Top Nav Buttons
+  document.querySelectorAll(".steady-nav-btn[data-steady-view]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const view = btn.getAttribute("data-steady-view");
+      document.querySelectorAll(".steady-nav-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      if (view === "dashboard") {
+        if (typeof window.closeSecondarySheet === "function") window.closeSecondarySheet();
+        const workbench = document.getElementById("steady-workbench");
+        if (workbench) workbench.scrollIntoView({ behavior: "smooth" });
+      } else if (view === "cv") {
+        if (typeof window.openSecondarySheet === "function") window.openSecondarySheet("tab-cv");
+      } else if (view === "platforms") {
+        if (typeof window.openSecondarySheet === "function") window.openSecondarySheet("tab-platforms");
+      } else if (view === "criteria") {
+        if (typeof window.openSecondarySheet === "function") window.openSecondarySheet("tab-settings");
+      }
+    });
+  });
+
+  // Header direct scan trigger
+  const btnHeaderScan = document.getElementById("btn-header-scan");
+  if (btnHeaderScan) {
+    btnHeaderScan.addEventListener("click", () => {
+      const btnScan = document.getElementById("btn-scan-now");
+      if (btnScan) btnScan.click();
+    });
+  }
 
   const btnGotoViewer = document.getElementById("btn-goto-viewer");
   if (btnGotoViewer) {
@@ -408,6 +194,8 @@ function setupResumeManager() {
   const btnClose = document.getElementById("btn-close-modal");
 
   if (topbarPill) topbarPill.addEventListener("click", openQuickSwitchModal);
+  const drawerPill = document.getElementById("drawer-cv-pill");
+  if (drawerPill) drawerPill.addEventListener("click", openQuickSwitchModal);
   if (triggerBtn) triggerBtn.addEventListener("click", openQuickSwitchModal);
   if (btnClose) btnClose.addEventListener("click", closeQuickSwitchModal);
 
@@ -497,6 +285,8 @@ function renderResumeElements() {
 
   const displayName = activeResumeFilename || "Aucun CV actif";
   if (topbarName) topbarName.innerText = displayName;
+  const drawerName = document.getElementById("drawer-active-cv-name");
+  if (drawerName) drawerName.innerText = displayName;
   if (reminderName) reminderName.innerText = displayName;
   if (viewerActiveName) viewerActiveName.innerText = displayName;
   if (countBadge) countBadge.innerText = allResumes.length;
@@ -920,6 +710,15 @@ function setupBatchApply() {
 
     showToast(`⚡ Postulation automatique (mode humain indétectable) lancée pour ${jobIds.length} offre(s)...`, "info");
 
+    if (window.ParticleProgress3D) {
+      window.ParticleProgress3D.open({
+        title: "Candidatures Groupées 1 Clic",
+        company: `${jobIds.length} opportunités ciblées`,
+        platform: "Multi",
+        mode: "batch"
+      });
+    }
+
     try {
       const res = await fetch("/api/jobs/apply-batch", {
         method: "POST",
@@ -986,10 +785,37 @@ function updateBatchCounts() {
   if (dockAppliedCount) dockAppliedCount.innerText = appliedTotal;
   if (drawerAppliedCount) drawerAppliedCount.innerText = appliedTotal;
 
+  // Steady Invoicing KPI Updates
+  const steadyKpiTotal = document.getElementById("steady-kpi-total");
+  const steadyKpiApplied = document.getElementById("steady-kpi-applied");
+  const steadyKpi1Click = document.getElementById("steady-kpi-1click");
+  const count1Click = allJobs.filter(j => j.is_easy_apply !== 0 && j.is_easy_apply !== false).length;
+
+  if (steadyKpiTotal) steadyKpiTotal.innerText = allJobs.length;
+  if (steadyKpiApplied) steadyKpiApplied.innerText = appliedTotal;
+  if (steadyKpi1Click) steadyKpi1Click.innerText = count1Click;
+
   if (pillAll) pillAll.innerText = unappliedTotal;
   if (pillFt) pillFt.innerText = ftUnapplied;
   if (pillLi) pillLi.innerText = liUnapplied;
   if (pillInd) pillInd.innerText = indUnapplied;
+
+  // Zen Platform Hub pill badge counters (Total count per platform)
+  const ftTotal = allJobs.filter(j => (j.platform || "").toLowerCase() === "francetravail").length;
+  const liTotal = allJobs.filter(j => (j.platform || "").toLowerCase() === "linkedin").length;
+  const indTotal = allJobs.filter(j => (j.platform || "").toLowerCase() === "indeed").length;
+
+  const pCountAll = document.getElementById("plat-count-all");
+  const pCountFt = document.getElementById("plat-count-ft");
+  const pCountLi = document.getElementById("plat-count-li");
+  const pCountInd = document.getElementById("plat-count-ind");
+  const pCountApplied = document.getElementById("plat-count-applied");
+
+  if (pCountAll) pCountAll.innerText = allJobs.length;
+  if (pCountFt) pCountFt.innerText = ftTotal;
+  if (pCountLi) pCountLi.innerText = liTotal;
+  if (pCountInd) pCountInd.innerText = indTotal;
+  if (pCountApplied) pCountApplied.innerText = appliedTotal;
 
   // For the active platform in the card
   let activeUnapplied = unappliedTotal;
@@ -1001,6 +827,14 @@ function updateBatchCounts() {
 
   if (footCount) footCount.innerText = activeUnapplied;
   if (tabCountApplied) tabCountApplied.innerText = activeApplied;
+
+  // New prominent 1-Click buttons & simplified menu badges
+  const mainQuickApplyCount = document.getElementById("main-quick-apply-count");
+  const dockQuickApplyCount = document.getElementById("dock-apply-count-badge");
+  const menuBadgeJobsCount = document.getElementById("menu-badge-jobs-count");
+  if (mainQuickApplyCount) mainQuickApplyCount.innerText = activeUnapplied;
+  if (dockQuickApplyCount) dockQuickApplyCount.innerText = unappliedTotal;
+  if (menuBadgeJobsCount) menuBadgeJobsCount.innerText = `${allJobs.length} offres`;
 
   if (footBtn) {
     const meta = getPlatformMeta(selectedPlatform);
@@ -1059,37 +893,82 @@ function setupFilters() {
     });
   }
 
-  // 1-Click Option Filter Chips (Mode 1 Clic vs Toutes)
+  // 1-Click Fast Toggle Button
   const chip1Click = document.getElementById("filter-chip-1click");
-  const chipAll = document.getElementById("filter-chip-all-jobs");
-
   if (chip1Click) {
     chip1Click.addEventListener("click", () => {
+      filterOnly1Click = !filterOnly1Click;
+      chip1Click.classList.toggle("active", filterOnly1Click);
+      renderJobsTable();
+      showToast(filterOnly1Click ? "Filtre activé : Offres '1 Clic' uniquement" : "Toutes les offres affichées", "info");
+    });
+  }
+
+  // Zen Platform Hub Pills (Toggle Table on click)
+  document.querySelectorAll(".zen-plat-pill").forEach(pill => {
+    pill.addEventListener("click", () => {
+      const isApplied = pill.getAttribute("data-status-filter") === "applied";
+      const targetPlat = pill.getAttribute("data-platform") || "";
+      const targetStatus = isApplied ? "applied" : "";
+
+      const workbench = document.getElementById("steady-workbench");
+      const isTableOpen = workbench && workbench.style.display !== "none";
+
+      // If already open on the exact same platform/status, toggle closed (zen calm mode)
+      if (isTableOpen && selectedPlatform === targetPlat && selectedStatus === targetStatus) {
+        closeZenTable();
+        return;
+      }
+
+      openZenTable(targetPlat, targetStatus);
+    });
+  });
+
+  // Workbench Close Button
+  const btnCloseWorkbench = document.getElementById("btn-close-table-workbench");
+  if (btnCloseWorkbench) {
+    btnCloseWorkbench.addEventListener("click", () => {
+      closeZenTable();
+    });
+  }
+
+  // Make KPI cards interactive to open candidatures directly
+  const kpiTotalCard = document.getElementById("steady-kpi-card-total");
+  if (kpiTotalCard) {
+    kpiTotalCard.style.cursor = "pointer";
+    kpiTotalCard.addEventListener("click", () => {
+      openZenTable("", "");
+    });
+  }
+
+  const kpiAppliedCard = document.getElementById("steady-kpi-card-applied");
+  if (kpiAppliedCard) {
+    kpiAppliedCard.style.cursor = "pointer";
+    kpiAppliedCard.addEventListener("click", () => {
+      openZenTable("", "applied");
+    });
+  }
+
+  const kpi1ClickCard = document.getElementById("steady-kpi-card-1click");
+  if (kpi1ClickCard) {
+    kpi1ClickCard.style.cursor = "pointer";
+    kpi1ClickCard.addEventListener("click", () => {
       filterOnly1Click = true;
-      chip1Click.classList.add("active");
-      if (chipAll) chipAll.classList.remove("active");
-      renderJobsTable();
-      showToast("Filtre activé : Uniquement les offres 'Postuler en 1 Clic'", "info");
+      if (chip1Click) chip1Click.classList.add("active");
+      openZenTable("", "");
     });
   }
 
-  if (chipAll) {
-    chipAll.addEventListener("click", () => {
-      filterOnly1Click = false;
-      chipAll.classList.add("active");
-      if (chip1Click) chip1Click.classList.remove("active");
-      renderJobsTable();
-      showToast("Affichage de toutes les offres d'emploi", "info");
-    });
-  }
-
-  // Platform chips
-  document.querySelectorAll("[data-platform]").forEach(chip => {
-    chip.addEventListener("click", () => {
-      document.querySelectorAll("[data-platform]").forEach(p => p.classList.remove("active"));
-      chip.classList.add("active");
-      selectedPlatform = chip.getAttribute("data-platform");
-      renderJobsTable();
+  // KPI platform chip indicators (France Travail, LinkedIn, Indeed)
+  document.querySelectorAll(".steady-plat-chip").forEach(chip => {
+    chip.style.cursor = "pointer";
+    chip.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const dot = chip.querySelector(".steady-dot");
+      if (dot && dot.classList.contains("ft")) openZenTable("francetravail", "");
+      else if (dot && dot.classList.contains("li")) openZenTable("linkedin", "");
+      else if (dot && dot.classList.contains("ind")) openZenTable("indeed", "");
+      else openZenTable("", "");
     });
   });
 
@@ -1361,6 +1240,16 @@ function renderJobsTable() {
   if (badge1ClickCount) badge1ClickCount.innerText = count1Click;
   const badgeTotalJobs = document.getElementById("count-total-jobs-badge");
   if (badgeTotalJobs) badgeTotalJobs.innerText = allJobs.length;
+
+  // Steady Invoicing KPI Cards Updates
+  const steadyKpiTotal = document.getElementById("steady-kpi-total");
+  const steadyKpiApplied = document.getElementById("steady-kpi-applied");
+  const steadyKpi1Click = document.getElementById("steady-kpi-1click");
+  const countApplied = allJobs.filter(j => j.status === "applied").length;
+
+  if (steadyKpiTotal) steadyKpiTotal.innerText = allJobs.length;
+  if (steadyKpiApplied) steadyKpiApplied.innerText = countApplied;
+  if (steadyKpi1Click) steadyKpi1Click.innerText = count1Click;
 
   // Live counts on Dock CTAs and Top Brand
   // Dynamic counts on Dock CTAs and Top Brand
@@ -1643,6 +1532,16 @@ async function handleApply(jobId, buttonElem) {
   const targetJob = allJobs.find(j => String(j.id) === String(jobId));
   const jobTitle = targetJob ? targetJob.job_title : "l'offre";
 
+  // Trigger 3D Particle Progress Bar on the main screen
+  if (window.ParticleProgress3D) {
+    window.ParticleProgress3D.open({
+      title: targetJob ? targetJob.job_title : "Candidature 1-Clic",
+      company: targetJob ? targetJob.company : "Entreprise",
+      platform: targetJob ? targetJob.platform : "1-Clic",
+      mode: "single"
+    });
+  }
+
   // Update table row visual status immediately to "En cours..."
   const row = document.getElementById(`job-row-${jobId}`);
   if (row && row.cells[3]) {
@@ -1664,6 +1563,25 @@ async function handleApply(jobId, buttonElem) {
     const maxAttempts = 25; // up to ~30-35s
     const pollInterval = setInterval(async () => {
       attempts++;
+
+      // Update 3D particle progress bar in real time
+      const estPct = Math.min(88, 12 + attempts * 8);
+      let stepMsg = "Initialisation de la session furtive Playwright...";
+      if (estPct >= 25 && estPct < 55) {
+        stepMsg = "Navigation biométrique vers l'offre & bypass anti-bot...";
+      } else if (estPct >= 55 && estPct < 80) {
+        stepMsg = "Analyse du formulaire & injection du CV Eliot...";
+      } else if (estPct >= 80) {
+        stepMsg = "Finalisation & validation de la candidature...";
+      }
+
+      if (window.ParticleProgress3D) {
+        window.ParticleProgress3D.setProgress(estPct, stepMsg);
+      }
+      if (window.__updateNeuralProgress) {
+        window.__updateNeuralProgress(estPct, stepMsg);
+      }
+
       try {
         const sRes = await fetch(`/api/jobs/${jobId}/status`);
         if (!sRes.ok) return;
@@ -1681,12 +1599,36 @@ async function handleApply(jobId, buttonElem) {
 
           if (jobStatus.status === "applied") {
             const comp = jobStatus.company || "l'employeur";
+            if (window.ParticleProgress3D) {
+              window.ParticleProgress3D.complete(true, `Candidature réellement transmise avec succès à ${comp} !`);
+            }
+            if (window.__completeNeuralProgress) {
+              window.__completeNeuralProgress(true, `Candidature réellement transmise avec succès à ${comp} !`);
+            }
             showToast(`✓ Candidature réellement transmise avec succès à ${comp} !`, "success");
           } else if (jobStatus.status === "skipped") {
+            if (window.ParticleProgress3D) {
+              window.ParticleProgress3D.complete(false, `Redirection requise : ${jobStatus.error_message || 'Site employeur externe'}`);
+            }
+            if (window.__completeNeuralProgress) {
+              window.__completeNeuralProgress(false, `Redirection requise : ${jobStatus.error_message || 'Site employeur externe'}`);
+            }
             showToast(`ℹ️ Non éligible au 1 Clic : ${jobStatus.error_message || 'Redirection externe requise'}`, "warning");
           } else if (jobStatus.status === "failed") {
+            if (window.ParticleProgress3D) {
+              window.ParticleProgress3D.complete(false, `Échec : ${jobStatus.error_message || 'Erreur lors de la postulation'}`);
+            }
+            if (window.__completeNeuralProgress) {
+              window.__completeNeuralProgress(false, `Échec : ${jobStatus.error_message || 'Erreur lors de la postulation'}`);
+            }
             showToast(`❌ Échec : ${jobStatus.error_message || 'Erreur lors de la postulation'}`, "error");
           } else if (attempts >= maxAttempts) {
+            if (window.ParticleProgress3D) {
+              window.ParticleProgress3D.complete(true, "Processus en cours en tâche de fond...");
+            }
+            if (window.__completeNeuralProgress) {
+              window.__completeNeuralProgress(true, "Processus en cours en tâche de fond...");
+            }
             showToast(`⏳ Le processus continue en tâche de fond. Rafraîchissez dans quelques instants.`, "info");
           }
 
@@ -1701,6 +1643,9 @@ async function handleApply(jobId, buttonElem) {
     }, 1300);
 
   } catch (e) {
+    if (window.ParticleProgress3D) {
+      window.ParticleProgress3D.complete(false, "Erreur : " + e.message);
+    }
     showToast("Erreur lors de l'initialisation : " + e.message, "error");
     buttonElem.disabled = false;
     buttonElem.innerHTML = '<i class="fa-solid fa-bolt"></i> Postuler (1 Clic)';
@@ -2093,6 +2038,17 @@ async function loadPlatformsStatus() {
     const countConnectedEl = document.getElementById("count-platforms-connected");
     if (countConnectedEl) countConnectedEl.innerText = countConnected;
 
+    // Steady Invoicing Platform KPI Updates
+    const steadyPlatCount = document.getElementById("steady-kpi-platforms-count");
+    if (steadyPlatCount) steadyPlatCount.innerText = `${countConnected} / 3`;
+
+    const ftChip = document.querySelector(".steady-dot.ft")?.closest(".steady-plat-chip");
+    const liChip = document.querySelector(".steady-dot.li")?.closest(".steady-plat-chip");
+    const indChip = document.querySelector(".steady-dot.ind")?.closest(".steady-plat-chip");
+    if (ftChip) ftChip.className = `steady-plat-chip ${data.francetravail?.logged_in ? 'online' : 'offline'}`;
+    if (liChip) liChip.className = `steady-plat-chip ${data.linkedin?.logged_in ? 'online' : 'offline'}`;
+    if (indChip) indChip.className = `steady-plat-chip ${data.indeed?.logged_in ? 'online' : 'offline'}`;
+
     // Mini status dots in Drawer
     const dotFT = document.getElementById("drawer-dot-ft");
     if (dotFT) dotFT.className = `mini-status-dot ${data.francetravail?.logged_in ? "" : "disconnected"}`;
@@ -2376,26 +2332,35 @@ function renderDynamicDockPlatforms() {
     }
   });
 
-  // Render CTA buttons in Dock
+  // Render CTA buttons in Dock (Zen Frosted Glass with Micro-Dots)
   ctasContainer.innerHTML = "";
   platformsToDisplay.forEach(plat => {
     const btn = document.createElement("button");
-    btn.className = `arova-cta-btn ${plat.isBlack ? 'arova-cta-black' : ''}`;
+    const isActive = (typeof selectedPlatform !== "undefined" && selectedPlatform === plat.id && typeof arovaStatusFilter !== "undefined" && arovaStatusFilter === "");
+    btn.className = `arova-cta-btn ${isActive ? 'active' : ''}`;
     btn.id = `btn-dock-${plat.id || 'all'}`;
     btn.setAttribute("data-dock-platform", plat.id);
     btn.setAttribute("title", `Candidatures • ${plat.name}`);
     btn.style.flexShrink = "0";
     btn.style.whiteSpace = "nowrap";
-    if (!plat.isBlack) {
-      btn.style.background = plat.color;
-      btn.style.color = plat.textColor || "#ffffff";
-    }
 
     const count = plat.id === ""
       ? allJobs.length
       : allJobs.filter(j => (j.platform || "").toLowerCase() === plat.id.toLowerCase()).length;
 
+    let dotClass = "custom-dot";
+    const pid = (plat.id || "").toLowerCase();
+    if (pid === "francetravail") dotClass = "ft-dot";
+    else if (pid === "linkedin") dotClass = "li-dot";
+    else if (pid === "indeed") dotClass = "ind-dot";
+    else if (pid === "wttj") dotClass = "wttj-dot";
+
+    const dotHtml = plat.id === ""
+      ? `<span class="platform-dot" style="background:#94a3b8;"></span>`
+      : `<span class="platform-dot ${dotClass}" ${plat.color && dotClass === 'custom-dot' ? `style="background:${plat.color};"` : ''}></span>`;
+
     btn.innerHTML = `
+      ${dotHtml}
       <span>${escapeHtml(plat.shortName || plat.name)}</span>
       <span class="arova-cta-badge" id="dock-count-${plat.id || 'all'}">${count}</span>
     `;
@@ -2415,13 +2380,14 @@ function renderDynamicDockPlatforms() {
   // Dedicated "Postulées" CTA button on Dock
   const appliedCount = allJobs.filter(j => j.status === "applied").length;
   const appliedBtn = document.createElement("button");
-  appliedBtn.className = "arova-cta-btn arova-cta-emerald";
+  const isAppliedActive = typeof arovaStatusFilter !== "undefined" && arovaStatusFilter === "applied";
+  appliedBtn.className = `arova-cta-btn ${isAppliedActive ? 'active' : ''}`;
   appliedBtn.id = "btn-dock-applied";
   appliedBtn.setAttribute("title", "Consulter les candidatures déjà envoyées avec succès");
   appliedBtn.style.flexShrink = "0";
   appliedBtn.style.whiteSpace = "nowrap";
   appliedBtn.innerHTML = `
-    <i class="fa-solid fa-circle-check" style="font-size:11px; margin-right:2px;"></i>
+    <span class="platform-dot" style="background:#10b981; box-shadow:0 0 6px rgba(16,185,129,0.4);"></span>
     <span>Postulées</span>
     <span class="arova-cta-badge" id="dock-count-applied">${appliedCount}</span>
   `;
@@ -2969,11 +2935,32 @@ function renderArovaCardRows() {
         </div>
         <div class="arova-row-right">
           <span class="arova-row-year">${timeLabel}</span>
+          ${isApplied 
+            ? `<span class="arova-row-quick-apply-btn applied"><i class="fa-solid fa-check"></i> Postulé</span>` 
+            : `<button type="button" class="arova-row-quick-apply-btn" data-apply-id="${job.id}" title="Postuler immédiatement en 1 Clic à cette offre"><i class="fa-solid fa-bolt"></i> 1 Clic</button>`
+          }
           <span class="arova-row-arrow">→</span>
         </div>
       </div>
     `;
   }).join("");
+
+  // Direct 1-Click apply on row button
+  rowsContainer.querySelectorAll(".arova-row-quick-apply-btn[data-apply-id]").forEach(btn => {
+    btn.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      const jobId = parseInt(btn.getAttribute("data-apply-id"), 10);
+      btn.classList.add("loading");
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Envoi...';
+      btn.disabled = true;
+      try {
+        await handleApply(jobId, btn);
+      } finally {
+        renderArovaCardRows();
+        updateBatchCounts();
+      }
+    });
+  });
 
   // Clicking an item opens the side peek drawer with 1-Click apply!
   rowsContainer.querySelectorAll(".arova-row-item").forEach(item => {
@@ -3039,26 +3026,23 @@ function setupArovaExperience() {
     const meta = getPlatformMeta(selectedPlatform);
 
     if (cardWidget) {
-      // Remove all previous theme classes
-      cardWidget.classList.remove("arova-theme-black", "arova-theme-red", "arova-theme-blue", "arova-theme-green", "arova-theme-colored", "arova-theme-emerald");
-
-      if (arovaStatusFilter === "applied" && !selectedPlatform) {
-        cardWidget.classList.add("arova-theme-emerald");
-        cardWidget.style.backgroundColor = "";
-        cardWidget.style.color = "";
-        cardWidget.style.borderColor = "";
-      } else if (meta.themeClass && meta.themeClass !== "arova-theme-colored") {
-        cardWidget.classList.add(meta.themeClass);
-        cardWidget.style.backgroundColor = "";
-        cardWidget.style.color = "";
-        cardWidget.style.borderColor = "";
-      } else {
-        cardWidget.classList.add("arova-theme-colored");
-        cardWidget.style.backgroundColor = meta.color;
-        cardWidget.style.color = meta.textColor || "#ffffff";
-        cardWidget.style.borderColor = "rgba(255, 255, 255, 0.25)";
-      }
+      // Keep card serene obsidian dark glass across all platform views
+      cardWidget.classList.remove("arova-theme-red", "arova-theme-blue", "arova-theme-green", "arova-theme-colored", "arova-theme-emerald");
+      cardWidget.classList.add("arova-theme-black");
+      cardWidget.style.backgroundColor = "";
+      cardWidget.style.color = "";
+      cardWidget.style.borderColor = "";
     }
+
+    // Sync dock button active state
+    document.querySelectorAll(".arova-cta-btn").forEach(btn => {
+      const btnPlat = btn.getAttribute("data-dock-platform");
+      if (btn.id === "btn-dock-applied") {
+        btn.classList.toggle("active", arovaStatusFilter === "applied");
+      } else if (btnPlat !== null) {
+        btn.classList.toggle("active", btnPlat === selectedPlatform && arovaStatusFilter === "");
+      }
+    });
 
     renderArovaCardRows();
     updateBatchCounts();
@@ -3101,39 +3085,104 @@ function setupArovaExperience() {
 
   window.closeArovaCard = function() {
     if (floatingCard) floatingCard.classList.remove("open");
+    document.querySelectorAll(".arova-cta-btn").forEach(btn => btn.classList.remove("active"));
   };
 
-  // Helper: Open full table sheet
-  window.openCandidaturesSheet = function(platformKey) {
+  // Helper: Open / close Zen table workbench
+  window.openZenTable = function(platformKey, statusFilter) {
     selectedPlatform = platformKey !== undefined ? platformKey : "";
-    const meta = getPlatformMeta(selectedPlatform);
+    selectedStatus = statusFilter !== undefined ? statusFilter : "";
 
-    if (sheetPlatformDot) sheetPlatformDot.style.background = meta.color;
-    if (sheetPlatformTitle) sheetPlatformTitle.innerText = selectedPlatform === "" ? "Toutes les candidatures" : `Candidatures • ${meta.name}`;
+    const workbench = document.getElementById("steady-workbench");
+    const calmState = document.getElementById("zen-calm-state");
+    const activeTitle = document.getElementById("workbench-active-title");
 
-    // Update sheet tabs
-    document.querySelectorAll(".sheet-plat-btn").forEach(b => {
-      const p = b.getAttribute("data-sheet-platform");
-      b.classList.toggle("active", p === selectedPlatform);
-    });
-
-    // Sync segmented platform buttons inside toolbar
-    document.querySelectorAll(".segmented-item[data-platform]").forEach(btn => {
-      if (btn.getAttribute("data-platform") === selectedPlatform) {
-        btn.classList.add("active");
-      } else {
-        btn.classList.remove("active");
-      }
-    });
-
+    // Close cards and drawers
     closeArovaCard();
     closeStudioDrawer();
 
-    if (sheetOverlay) sheetOverlay.classList.add("open");
+    // Show workbench with smooth appearance
+    if (workbench) {
+      workbench.style.display = "flex";
+      workbench.classList.remove("zen-appear");
+      void workbench.offsetWidth;
+      workbench.classList.add("zen-appear");
+    }
+    if (calmState) {
+      calmState.style.display = "none";
+    }
+
+    // Update active pill styling
+    document.querySelectorAll(".zen-plat-pill").forEach(pill => {
+      const pillPlat = pill.getAttribute("data-platform");
+      const pillStatus = pill.getAttribute("data-status-filter");
+
+      if (pillStatus === "applied") {
+        pill.classList.toggle("active", selectedStatus === "applied");
+      } else if (pillPlat !== null) {
+        pill.classList.toggle("active", pillPlat === selectedPlatform && selectedStatus === "");
+      }
+    });
+
+    // Set friendly dynamic title
+    if (activeTitle) {
+      if (selectedStatus === "applied") {
+        activeTitle.innerHTML = `<i class="fa-solid fa-circle-check" style="color:#059669;margin-right:8px;"></i> Candidatures transmises`;
+      } else if (selectedPlatform === "francetravail") {
+        activeTitle.innerHTML = `<span class="steady-dot ft" style="display:inline-block;margin-right:8px;"></span> France Travail`;
+      } else if (selectedPlatform === "linkedin") {
+        activeTitle.innerHTML = `<span class="steady-dot li" style="display:inline-block;margin-right:8px;"></span> LinkedIn`;
+      } else if (selectedPlatform === "indeed") {
+        activeTitle.innerHTML = `<span class="steady-dot ind" style="display:inline-block;margin-right:8px;"></span> Indeed`;
+      } else {
+        activeTitle.innerHTML = `<i class="fa-solid fa-layer-group" style="color:#0f172a;margin-right:8px;"></i> Toutes les opportunités`;
+      }
+    }
+
     renderJobsTable();
+
+    // Scroll smoothly down to the workbench
+    if (workbench) {
+      setTimeout(() => {
+        workbench.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 40);
+    }
+  };
+
+  window.closeZenTable = function() {
+    const workbench = document.getElementById("steady-workbench");
+    const calmState = document.getElementById("zen-calm-state");
+
+    if (workbench) {
+      workbench.style.display = "none";
+    }
+    if (calmState) {
+      calmState.style.display = "flex";
+    }
+
+    // Reset active platform/status selection
+    selectedPlatform = "";
+    selectedStatus = "";
+
+    // Deactivate all pills
+    document.querySelectorAll(".zen-plat-pill").forEach(pill => {
+      pill.classList.remove("active");
+    });
+
+    // Smooth scroll back up to platform tabs
+    const hub = document.getElementById("zen-platform-hub");
+    if (hub) {
+      hub.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  };
+
+  // Helper: Open full table / focus Steady workbench
+  window.openCandidaturesSheet = function(platformKey) {
+    openZenTable(platformKey, "");
   };
 
   window.closeCandidaturesSheet = function() {
+    closeZenTable();
     if (sheetOverlay) sheetOverlay.classList.remove("open");
   };
 
@@ -3203,14 +3252,25 @@ function setupArovaExperience() {
     closeCandidaturesSheet();
     if (drawerBackdrop) drawerBackdrop.classList.add("open");
     if (drawerEl) drawerEl.classList.add("open");
+    if (btnTopMenu) btnTopMenu.classList.add("active");
   };
 
   window.closeStudioDrawer = function() {
     if (drawerBackdrop) drawerBackdrop.classList.remove("open");
     if (drawerEl) drawerEl.classList.remove("open");
+    if (btnTopMenu) btnTopMenu.classList.remove("active");
   };
 
-  if (btnTopMenu) btnTopMenu.addEventListener("click", openStudioDrawer);
+  if (btnTopMenu) {
+    btnTopMenu.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (drawerEl && drawerEl.classList.contains("open")) {
+        closeStudioDrawer();
+      } else {
+        openStudioDrawer();
+      }
+    });
+  }
   if (btnDockMenu) btnDockMenu.addEventListener("click", openStudioDrawer);
   if (btnCloseDrawer) btnCloseDrawer.addEventListener("click", closeStudioDrawer);
   if (drawerBackdrop) drawerBackdrop.addEventListener("click", closeStudioDrawer);
@@ -3224,6 +3284,19 @@ function setupArovaExperience() {
     document.querySelectorAll(".notion-view-page").forEach(p => p.classList.remove("active"));
     const targetPage = document.getElementById(tabId);
     if (targetPage) targetPage.classList.add("active");
+
+    // Sync Steady Top Nav buttons
+    document.querySelectorAll(".steady-nav-btn").forEach(b => b.classList.remove("active"));
+    if (tabId === "tab-cv") {
+      const btn = document.getElementById("btn-nav-cv");
+      if (btn) btn.classList.add("active");
+    } else if (tabId === "tab-platforms") {
+      const btn = document.getElementById("btn-nav-platforms");
+      if (btn) btn.classList.add("active");
+    } else if (tabId === "tab-settings") {
+      const btn = document.getElementById("btn-nav-criteria");
+      if (btn) btn.classList.add("active");
+    }
 
     const titles = {
       "tab-cv": '<i class="fa-solid fa-file-pdf" style="color:#ef4444;"></i> <span>Visualisateur & Bibliothèque de CV</span>',
@@ -3240,6 +3313,10 @@ function setupArovaExperience() {
 
   window.closeSecondarySheet = function() {
     if (secondaryOverlay) secondaryOverlay.classList.remove("open");
+    // Restore Dashboard nav tab as active
+    document.querySelectorAll(".steady-nav-btn").forEach(b => b.classList.remove("active"));
+    const btnDash = document.getElementById("btn-nav-dashboard");
+    if (btnDash) btnDash.classList.add("active");
   };
 
   if (btnCloseSecondary) btnCloseSecondary.addEventListener("click", closeSecondarySheet);
@@ -3258,6 +3335,41 @@ function setupArovaExperience() {
 
   const btnDrawerCrit = document.getElementById("btn-drawer-open-criteria");
   if (btnDrawerCrit) btnDrawerCrit.addEventListener("click", () => openSecondarySheet("tab-settings"));
+
+  // Simplified Navigation Tiles inside Studio Drawer
+  const tileTable = document.getElementById("menu-tile-table");
+  if (tileTable) tileTable.addEventListener("click", () => {
+    closeStudioDrawer();
+    openCandidaturesSheet(selectedPlatform);
+  });
+
+  const tileCV = document.getElementById("menu-tile-cv");
+  if (tileCV) tileCV.addEventListener("click", () => openSecondarySheet("tab-cv"));
+
+  const tilePlat = document.getElementById("menu-tile-platforms");
+  if (tilePlat) tilePlat.addEventListener("click", () => openSecondarySheet("tab-platforms"));
+
+  const tileCrit = document.getElementById("menu-tile-criteria");
+  if (tileCrit) tileCrit.addEventListener("click", () => openSecondarySheet("tab-settings"));
+
+  const tileProfile = document.getElementById("menu-tile-profile");
+  if (tileProfile) tileProfile.addEventListener("click", () => {
+    closeStudioDrawer();
+    const modalProfile = document.getElementById("profile-analyze-modal");
+    if (modalProfile) modalProfile.style.display = "flex";
+  });
+
+  const tileApplied = document.getElementById("menu-tile-applied");
+  if (tileApplied) tileApplied.addEventListener("click", () => {
+    closeStudioDrawer();
+    openArovaCard("", "applied");
+  });
+
+  const btnKillDrawer = document.getElementById("btn-kill-all-browsers-drawer");
+  const btnKillMain = document.getElementById("btn-kill-all-browsers");
+  if (btnKillDrawer && btnKillMain) {
+    btnKillDrawer.addEventListener("click", () => btnKillMain.click());
+  }
 
   // Drawer & Dock Scan Action
   const btnDockScan = document.getElementById("btn-dock-scan");
@@ -3610,9 +3722,19 @@ function setupBatchApplyExperience() {
         p.classList.toggle("active", (p.getAttribute("data-batch-plat") || "") === currentBatchPlatform);
       });
 
-      // Update start button text with specific platform name
+      // Show/hide execution mode selector depending on platform selection
+      const modeField = document.getElementById("batch-execution-mode-field");
+      if (modeField) {
+        modeField.style.display = (!currentBatchPlatform || currentBatchPlatform === "all") ? "block" : "none";
+      }
+
+      // Update start button text with specific platform name and mode
       if (btnStart) {
-        btnStart.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Lancer les candidatures ${currentBatchPlatform ? (meta ? meta.name : currentBatchPlatform) : 'groupées'} (${stats.total_unapplied || 0})`;
+        if (!currentBatchPlatform || currentBatchPlatform === "all") {
+          btnStart.innerHTML = `<i class="fa-solid fa-bolt"></i> Lancer en simultané (Toutes plateformes : ${stats.total_unapplied || 0})`;
+        } else {
+          btnStart.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Lancer les candidatures ${meta ? meta.name : currentBatchPlatform} (${stats.total_unapplied || 0})`;
+        }
       }
 
       // Update pill badge counts from breakdown if available
@@ -3626,10 +3748,21 @@ function setupBatchApplyExperience() {
         if (pLi && stats.breakdown.linkedin) pLi.innerText = stats.breakdown.linkedin.unapplied || 0;
         if (pInd && stats.breakdown.indeed) pInd.innerText = stats.breakdown.indeed.unapplied || 0;
       }
+      await checkLinkedInSessionNotice();
     } catch (e) {
       console.warn("Error refreshing batch modal stats:", e);
     }
   }
+
+  // Wire execution mode cards
+  document.querySelectorAll(".batch-mode-card").forEach(card => {
+    card.addEventListener("click", () => {
+      document.querySelectorAll(".batch-mode-card").forEach(c => c.classList.remove("active"));
+      card.classList.add("active");
+      const radio = card.querySelector("input[name='batch-execution-mode']");
+      if (radio) radio.checked = true;
+    });
+  });
 
   // Wire platform selector pills in batch modal
   document.querySelectorAll(".batch-plat-pill").forEach(pill => {
@@ -3656,6 +3789,24 @@ function setupBatchApplyExperience() {
     btnArovaHead.addEventListener("click", (e) => {
       e.stopPropagation();
       openBatchApplyModal(selectedPlatform);
+    });
+  }
+
+  // Main Screen Header 1-Click Apply Button
+  const btnMainQuick = document.getElementById("btn-main-quick-apply");
+  if (btnMainQuick) {
+    btnMainQuick.addEventListener("click", (e) => {
+      e.stopPropagation();
+      openBatchApplyModal(selectedPlatform);
+    });
+  }
+
+  // Floating Bottom Dock 1-Click Apply Button
+  const btnDockQuick = document.getElementById("btn-dock-quick-apply");
+  if (btnDockQuick) {
+    btnDockQuick.addEventListener("click", (e) => {
+      e.stopPropagation();
+      openBatchApplyModal(selectedPlatform || "");
     });
   }
 
@@ -3687,6 +3838,89 @@ function setupBatchApplyExperience() {
     }
   }
 
+  function renderPlatformWorkersProgress(platformsData) {
+    const container = document.getElementById("batch-platform-workers-list");
+    if (!container || !platformsData) return;
+
+    const platformKeys = ["francetravail", "linkedin", "indeed"];
+    let html = "";
+
+    platformKeys.forEach(plat => {
+      const w = platformsData[plat];
+      if (!w || (w.total === 0 && !w.is_running)) return;
+
+      const meta = getPlatformMeta(plat);
+      const platName = meta ? meta.name : plat.toUpperCase();
+      const tagClass = (plat === "francetravail") ? "worker-tag-ft" : (plat === "linkedin" ? "worker-tag-li" : "worker-tag-ind");
+      const barClass = (plat === "francetravail") ? "bar-ft" : (plat === "linkedin" ? "bar-li" : "bar-ind");
+      const p = w.percent || 0;
+      const isRunning = w.is_running;
+      const isFinished = !isRunning && w.total > 0 && w.current_index >= w.total;
+
+      let statusBadge = "";
+      if (isRunning) {
+        statusBadge = `<span style="font-size:10.5px; color:#38bdf8; font-weight:700;"><i class="fa-solid fa-circle-notch fa-spin"></i> Actif (${p}%)</span>`;
+      } else if (isFinished) {
+        statusBadge = `<span style="font-size:10.5px; color:#34d399; font-weight:700;"><i class="fa-solid fa-circle-check"></i> Terminé</span>`;
+      } else {
+        statusBadge = `<span style="font-size:10.5px; color:#94a3b8;">${p}%</span>`;
+      }
+
+      const currentTask = w.current_task || (isRunning ? "Traitement..." : "En attente");
+      const successCount = w.success_count || 0;
+      const skippedCount = w.skipped_count || 0;
+      const failedCount = w.failed_count || 0;
+
+      html += `
+        <div class="batch-worker-card ${isRunning ? 'worker-active' : (isFinished ? 'worker-finished' : '')}" data-worker-platform="${plat}">
+          <div class="batch-worker-head">
+            <div class="batch-worker-plat-title">
+              <span class="batch-worker-pill-tag ${tagClass}">${platName}</span>
+              <span style="font-size:11px; color:#94a3b8;">${w.current_index || 0}/${w.total || 0} offres</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              ${statusBadge}
+              ${isRunning ? `<button type="button" class="btn-worker-stop" data-stop-platform="${plat}" title="Interrompre ce worker"><i class="fa-solid fa-stop"></i> Arrêter</button>` : ''}
+            </div>
+          </div>
+          <div class="batch-worker-bar-wrap">
+            <div class="batch-worker-bar-fill ${barClass}" style="width: ${p}%;"></div>
+          </div>
+          <div class="batch-worker-details">
+            <span class="batch-worker-task-text" title="${currentTask}">${currentTask}</span>
+            <div class="batch-worker-stats-row">
+              <span style="color:#34d399;" title="Succès"><i class="fa-solid fa-check"></i> ${successCount}</span>
+              <span style="color:#fbbf24;" title="Ignorées"><i class="fa-solid fa-forward"></i> ${skippedCount}</span>
+              <span style="color:#f87171;" title="Erreurs"><i class="fa-solid fa-xmark"></i> ${failedCount}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+
+    container.innerHTML = html;
+
+    // Wire per-platform stop buttons
+    container.querySelectorAll(".btn-worker-stop").forEach(btn => {
+      btn.addEventListener("click", async (e) => {
+        e.stopPropagation();
+        const p = btn.getAttribute("data-stop-platform");
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+        try {
+          await fetch("/api/jobs/stop-batch", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ platform: p })
+          });
+          showToast(`Arrêt demandé pour ${p.toUpperCase()}`, "info");
+        } catch (err) {
+          showToast("Erreur arrêt worker: " + err.message, "error");
+        }
+      });
+    });
+  }
+
   function updateBatchUIState(status) {
     const liveSection = document.getElementById("batch-live-progress");
     const bar = document.getElementById("batch-progress-bar");
@@ -3700,6 +3934,11 @@ function setupBatchApplyExperience() {
     const statTip = document.getElementById("batch-stat-tip");
     const statTipText = document.getElementById("batch-stat-tip-text");
 
+    // Render per-platform workers
+    if (status.platforms) {
+      renderPlatformWorkersProgress(status.platforms);
+    }
+
     if (status.is_running) {
       if (liveSection) liveSection.style.display = "flex";
       if (btnStart) btnStart.style.display = "none";
@@ -3708,9 +3947,20 @@ function setupBatchApplyExperience() {
       const p = status.percent || 0;
       if (bar) bar.style.width = `${p}%`;
       if (pct) pct.innerText = `${p}%`;
-      if (title) title.innerText = status.current_task || "Candidature en cours...";
+      if (title) title.innerText = status.current_task || "Candidatures simultanées en cours...";
       if (currJob) {
-        currJob.innerText = status.current_job_title ? `${status.current_job_title} chez ${status.current_company} (${(status.current_platform || '').toUpperCase()})` : "En attente...";
+        if (status.active_platforms && status.active_platforms.length > 1) {
+          currJob.innerText = `⚡ ${status.active_platforms.length} plateformes actives (${status.active_platforms.join(', ')})`;
+        } else if (status.current_job_title) {
+          currJob.innerText = `${status.current_job_title} chez ${status.current_company} (${(status.current_platform || '').toUpperCase()})`;
+        } else {
+          currJob.innerText = "Initialisation des workers...";
+        }
+      }
+
+      // Sync with 3D Particle Progress Bar on the main screen
+      if (window.ParticleProgress3D) {
+        window.ParticleProgress3D.setProgress(p, status.current_task || "Postulation simultanée en cours...");
       }
 
       if (statSuccess) statSuccess.innerText = status.success_count || 0;
@@ -3723,7 +3973,7 @@ function setupBatchApplyExperience() {
         const reason = status.last_reason || "";
         if (reason.includes("Session") || reason.includes("Authwall")) {
           statTip.style.display = "block";
-          statTipText.innerHTML = "<strong>Session LinkedIn requise :</strong> Connectez-vous dans le tiroir <em>Menu &gt; Plateformes &amp; Sessions</em> ou collez votre cookie <code>li_at</code> pour débloquer l'envoi direct.";
+          statTipText.innerHTML = "<strong>Session requise :</strong> Connectez-vous dans le tiroir <em>Menu &gt; Plateformes &amp; Sessions</em> pour débloquer l'envoi direct.";
         } else if (reason.includes("externe")) {
           statTip.style.display = "block";
           statTipText.innerHTML = "<strong>Redirection externe détectée :</strong> Cette offre redirige vers le portail RH de l'entreprise (non éligible au 1 Clic direct).";
@@ -3737,8 +3987,11 @@ function setupBatchApplyExperience() {
         btnStart.style.display = "inline-flex";
         btnStart.disabled = false;
         const meta = getPlatformMeta(currentBatchPlatform);
-        const name = currentBatchPlatform ? (meta ? meta.name : currentBatchPlatform) : 'groupées';
-        btnStart.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Lancer les candidatures ${name}`;
+        if (!currentBatchPlatform || currentBatchPlatform === "all") {
+          btnStart.innerHTML = `<i class="fa-solid fa-bolt"></i> Lancer en simultané (Toutes plateformes)`;
+        } else {
+          btnStart.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Lancer les candidatures ${meta ? meta.name : currentBatchPlatform}`;
+        }
       }
       if (btnStop) btnStop.style.display = "none";
 
@@ -3746,6 +3999,9 @@ function setupBatchApplyExperience() {
         if (title) title.innerText = status.current_task || "Session terminée avec succès !";
         if (bar) bar.style.width = "100%";
         if (pct) pct.innerText = "100%";
+        if (window.ParticleProgress3D) {
+          window.ParticleProgress3D.complete(true, `Session terminée : ${status.success_count || 0} candidature(s) validée(s) !`);
+        }
       } else if (!status.is_running && status.total === 0) {
         if (liveSection) liveSection.style.display = "none";
       }
@@ -3763,6 +4019,9 @@ function setupBatchApplyExperience() {
           clearInterval(batchPollInterval);
           batchPollInterval = null;
         }
+        if (window.ParticleProgress3D) {
+          window.ParticleProgress3D.complete(true, `🎉 Session terminée : ${status.success_count || 0} offre(s) postulée(s) avec succès !`);
+        }
         showToast(`🎉 Session terminée : ${status.success_count || 0} offre(s) postulée(s) avec succès !`, "success");
         await loadJobs();
       }
@@ -3778,13 +4037,26 @@ function setupBatchApplyExperience() {
       const scopeVal = scopeRadio ? scopeRadio.value : "all";
       const isHighOnly = scopeVal === "high";
 
+      const modeRadio = document.querySelector("input[name='batch-execution-mode']:checked");
+      const execMode = modeRadio ? modeRadio.value : "parallel";
+
       btnStart.disabled = true;
-      btnStart.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Initialisation...';
+      btnStart.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Initialisation des workers...';
+
+      if (window.ParticleProgress3D) {
+        window.ParticleProgress3D.open({
+          title: "Candidatures Simultanées par Plateforme",
+          company: currentBatchPlatform ? `Plateforme ${currentBatchPlatform}` : "Workers Parallèles Multi-Plateformes",
+          platform: currentBatchPlatform || "Simultané",
+          mode: "batch"
+        });
+      }
 
       try {
         const payload = {
           platform: currentBatchPlatform || null,
           min_score: isHighOnly ? 80 : null,
+          mode: execMode,
         };
 
         const res = await fetch("/api/jobs/apply-all", {
@@ -3796,7 +4068,7 @@ function setupBatchApplyExperience() {
         const data = await res.json();
         if (!res.ok) throw new Error(data.message || "Erreur au lancement");
 
-        showToast(data.message || "Postulations automatiques 1 Clic lancées !", "success");
+        showToast(data.message || "Candidatures simultanées par plateforme lancées !", "success");
 
         // Start polling
         await checkCurrentBatchStatus();
@@ -3807,7 +4079,7 @@ function setupBatchApplyExperience() {
       } catch (err) {
         showToast("Erreur lancement candidatures : " + err.message, "error");
         btnStart.disabled = false;
-        btnStart.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Lancer les candidatures groupées';
+        btnStart.innerHTML = '<i class="fa-solid fa-bolt"></i> Lancer les candidatures';
       }
     });
   }
@@ -3820,12 +4092,89 @@ function setupBatchApplyExperience() {
       try {
         const res = await fetch("/api/jobs/stop-batch", { method: "POST" });
         const data = await res.json();
-        showToast("Arrêt des candidatures demandé.", "info");
+        showToast("Arrêt de tous les workers demandé.", "info");
       } catch (err) {
         showToast("Erreur arrêt : " + err.message, "error");
       } finally {
         btnStop.disabled = false;
-        btnStop.innerHTML = '<i class="fa-solid fa-hand"></i> Interrompre';
+        btnStop.innerHTML = '<i class="fa-solid fa-hand"></i> Interrompre tout';
+      }
+    });
+  }
+
+  // LinkedIn session notice check
+  const authWarning = document.getElementById("batch-auth-warning-linkedin");
+  const btnSaveLiAt = document.getElementById("btn-batch-save-li-at");
+  const inputQuickLiAt = document.getElementById("input-batch-quick-li-at");
+  const btnResetSkipped = document.getElementById("btn-reset-skipped-jobs");
+
+  async function checkLinkedInSessionNotice() {
+    if (!authWarning) return;
+    try {
+      const res = await fetch("/api/platforms/status");
+      const data = await res.json();
+      const isLiLogged = data.linkedin && data.linkedin.logged_in;
+      if (!isLiLogged && (currentBatchPlatform === "linkedin" || !currentBatchPlatform)) {
+        authWarning.style.display = "block";
+      } else {
+        authWarning.style.display = "none";
+      }
+    } catch (e) {
+      authWarning.style.display = "none";
+    }
+  }
+
+  if (btnSaveLiAt && inputQuickLiAt) {
+    btnSaveLiAt.addEventListener("click", async () => {
+      const val = inputQuickLiAt.value.trim();
+      if (!val) {
+        showToast("Veuillez coller votre cookie li_at", "error");
+        return;
+      }
+      btnSaveLiAt.disabled = true;
+      btnSaveLiAt.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+      try {
+        const res = await fetch("/api/platforms/linkedin/set-cookie", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ li_at: val })
+        });
+        const data = await res.json();
+        if (data.status === "connected") {
+          showToast("✓ Connecté à LinkedIn avec succès !", "success");
+          if (authWarning) authWarning.style.display = "none";
+          inputQuickLiAt.value = "";
+        } else {
+          showToast(data.message || "Erreur de connexion", "error");
+        }
+      } catch (err) {
+        showToast("Erreur injection cookie : " + err.message, "error");
+      } finally {
+        btnSaveLiAt.disabled = false;
+        btnSaveLiAt.innerHTML = '<i class="fa-solid fa-key"></i> Connecter';
+      }
+    });
+  }
+
+  if (btnResetSkipped) {
+    btnResetSkipped.addEventListener("click", async () => {
+      btnResetSkipped.disabled = true;
+      btnResetSkipped.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Réinitialisation...';
+      try {
+        const res = await fetch("/api/jobs/reset-skipped", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ platform: currentBatchPlatform || null })
+        });
+        const data = await res.json();
+        showToast(data.message || "Offres réinitialisées avec succès !", "success");
+        await refreshBatchModalStats(currentBatchPlatform);
+        await loadJobs();
+      } catch (err) {
+        showToast("Erreur réinitialisation : " + err.message, "error");
+      } finally {
+        btnResetSkipped.disabled = false;
+        btnResetSkipped.innerHTML = '<i class="fa-solid fa-rotate-left"></i> Réinitialiser ignorées';
       }
     });
   }
