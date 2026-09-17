@@ -977,6 +977,14 @@ function setupFilters() {
     });
   }
 
+  const kpiPlatformsCard = document.getElementById("steady-kpi-card-platforms");
+  if (kpiPlatformsCard) {
+    kpiPlatformsCard.style.cursor = "pointer";
+    kpiPlatformsCard.addEventListener("click", () => {
+      openZenTable("francetravail", "");
+    });
+  }
+
   // KPI platform chip indicators (France Travail, LinkedIn, Indeed)
   document.querySelectorAll(".steady-plat-chip").forEach(chip => {
     chip.style.cursor = "pointer";

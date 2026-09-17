@@ -4403,66 +4403,113 @@ body.notion-dark-clean {
   gap: 24px;
 }
 
-/* 3. KPI Summary Cards Row (White & Grey Modern SaaS) */
+/* 3. KPI Summary Cards Row (Modern Executive Design System) */
 .steady-kpi-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 18px;
+  gap: 16px;
   width: 100%;
 }
 
 .steady-kpi-card {
   background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  padding: 20px 22px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 18px 22px 16px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 130px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03), 0 4px 6px -1px rgba(0, 0, 0, 0.02);
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  min-height: 124px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02), 0 4px 10px -2px rgba(0, 0, 0, 0.03);
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1),
+              border-color 0.22s ease,
+              box-shadow 0.26s ease,
+              background 0.22s ease;
   position: relative;
   overflow: hidden;
-  cursor: default;
+  cursor: pointer;
+  transform-origin: center center;
 }
 
-.steady-kpi-card:hover {
-  transform: translateY(-4px);
-  border-color: #cbd5e1;
-  box-shadow: 0 14px 28px -4px rgba(0, 0, 0, 0.08), 0 4px 8px -2px rgba(0, 0, 0, 0.03);
+/* Tactile tilt on hover: odd left, even right */
+.steady-kpi-card:nth-child(odd):hover {
+  transform: translateY(-5px) rotate(-1.5deg) scale(1.02);
+}
+
+.steady-kpi-card:nth-child(even):hover {
+  transform: translateY(-5px) rotate(1.5deg) scale(1.02);
+}
+
+.steady-kpi-card:active {
+  transform: translateY(-1px) scale(0.99);
+}
+
+/* Card Themes & Color Shifts on Hover */
+/* Card 1: Opportunités */
+.steady-kpi-card.steady-card-total:hover {
+  border-color: #94a3b8;
+  box-shadow: 0 14px 28px -6px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(15, 23, 42, 0.06);
+}
+
+/* Card 2: Postulées (Emerald) */
+.steady-kpi-card.steady-card-applied {
+  border-color: #d1fae5;
+}
+.steady-kpi-card.steady-card-applied:hover {
+  border-color: #10b981;
+  box-shadow: 0 14px 28px -6px rgba(16, 185, 129, 0.2), 0 0 0 1px rgba(16, 185, 129, 0.15);
+}
+
+/* Card 3: 1 Clic (Sky) */
+.steady-kpi-card.steady-card-1click {
+  border-color: #e0f2fe;
+}
+.steady-kpi-card.steady-card-1click:hover {
+  border-color: #0284c7;
+  box-shadow: 0 14px 28px -6px rgba(2, 132, 199, 0.2), 0 0 0 1px rgba(2, 132, 199, 0.15);
+}
+
+/* Card 4: Plateformes Actives */
+.steady-kpi-card.steady-card-platforms:hover {
+  border-color: #6366f1;
+  box-shadow: 0 14px 28px -6px rgba(99, 102, 241, 0.2), 0 0 0 1px rgba(99, 102, 241, 0.15);
 }
 
 .steady-kpi-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .steady-kpi-label {
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
   color: #64748b;
+  transition: color 0.2s ease;
+}
+
+.steady-kpi-card:hover .steady-kpi-label {
+  color: #0f172a;
 }
 
 .steady-kpi-icon-wrap {
   width: 32px;
   height: 32px;
-  border-radius: 8px;
+  border-radius: 9px;
   background: #f1f5f9;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #475569;
   font-size: 13px;
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s ease;
 }
 
 .steady-kpi-card:hover .steady-kpi-icon-wrap {
-  transform: scale(1.12);
+  transform: scale(1.15) rotate(4deg);
 }
 
 .steady-kpi-icon-wrap.emerald {
@@ -4475,17 +4522,29 @@ body.notion-dark-clean {
   color: #0284c7;
 }
 
-.steady-kpi-body {
-  margin-bottom: 8px;
+.steady-kpi-icon-wrap.platforms {
+  background: #eef2ff;
+  color: #4f46e5;
 }
 
+.steady-kpi-body {
+  margin: 4px 0 2px 0;
+}
+
+/* Big highlighted numbers */
 .steady-kpi-value {
-  font-size: 34px;
+  font-size: 40px;
   font-weight: 800;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.04em;
   color: #0f172a;
-  line-height: 1.1;
+  line-height: 1;
   font-variant-numeric: tabular-nums;
+  transition: transform 0.22s ease;
+}
+
+.steady-kpi-card:hover .steady-kpi-value {
+  transform: scale(1.02);
+  transform-origin: left center;
 }
 
 .steady-kpi-value.emerald {
@@ -4496,11 +4555,24 @@ body.notion-dark-clean {
   color: #0284c7;
 }
 
+/* Footer Tag: smoothly appears on hover (zero resting noise) */
 .steady-kpi-foot {
   display: flex;
   align-items: center;
   gap: 8px;
-  flex-wrap: wrap;
+  margin-top: 6px;
+  min-height: 22px;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.steady-kpi-card:hover .steady-kpi-foot {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
 }
 
 .steady-kpi-tag {
@@ -4529,11 +4601,6 @@ body.notion-dark-clean {
   background: #f0f9ff;
   color: #0284c7;
   border: 1px solid #bae6fd;
-}
-
-.steady-kpi-sub {
-  font-size: 11.5px;
-  color: #64748b;
 }
 
 .steady-kpi-platform-pills {
@@ -4632,33 +4699,17 @@ body.notion-dark-clean {
   transform: translateY(0) scale(0.97);
 }
 
-/* Text label collapsed in resting state for clean ADHD-friendly serenity */
+/* Text label always clearly visible as requested */
 .zen-plat-pill .zen-plat-label,
 .zen-plat-pill > span:not(.zen-plat-badge) {
   display: inline-block;
-  max-width: 0;
-  opacity: 0;
-  overflow: hidden;
-  white-space: nowrap;
-  transform: translateX(-6px);
-  transition: max-width 0.28s cubic-bezier(0.16, 1, 0.3, 1),
-              opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.24s cubic-bezier(0.16, 1, 0.3, 1),
-              margin 0.24s ease;
-  margin: 0;
-  vertical-align: middle;
-  pointer-events: none;
-}
-
-/* Text appears smoothly on hover, or stays visible when active tab */
-.zen-plat-pill:hover .zen-plat-label,
-.zen-plat-pill:hover > span:not(.zen-plat-badge),
-.zen-plat-pill.active .zen-plat-label,
-.zen-plat-pill.active > span:not(.zen-plat-badge) {
-  max-width: 140px;
   opacity: 1;
-  transform: translateX(0);
+  white-space: nowrap;
   margin: 0 4px 0 2px;
+  vertical-align: middle;
+  font-weight: 600;
+  font-size: 13.5px;
+  pointer-events: auto;
 }
 
 .zen-plat-badge {
@@ -5940,9 +5991,28 @@ body.theme-dark .steady-kpi-card {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2), 0 6px 16px -4px rgba(0, 0, 0, 0.25) !important;
 }
 
-body.theme-dark .steady-kpi-card:hover {
-  border-color: #334155 !important;
-  box-shadow: 0 14px 28px -4px rgba(0, 0, 0, 0.4) !important;
+body.theme-dark .steady-kpi-card:hover .steady-kpi-label {
+  color: #f8fafc !important;
+}
+
+body.theme-dark .steady-kpi-card.steady-card-total:hover {
+  border-color: #475569 !important;
+  box-shadow: 0 16px 32px -6px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(148, 163, 184, 0.25) !important;
+}
+
+body.theme-dark .steady-kpi-card.steady-card-applied:hover {
+  border-color: #10b981 !important;
+  box-shadow: 0 16px 32px -6px rgba(16, 185, 129, 0.28), 0 0 0 1px rgba(16, 185, 129, 0.3) !important;
+}
+
+body.theme-dark .steady-kpi-card.steady-card-1click:hover {
+  border-color: #38bdf8 !important;
+  box-shadow: 0 16px 32px -6px rgba(56, 189, 248, 0.28), 0 0 0 1px rgba(56, 189, 248, 0.3) !important;
+}
+
+body.theme-dark .steady-kpi-card.steady-card-platforms:hover {
+  border-color: #818cf8 !important;
+  box-shadow: 0 16px 32px -6px rgba(129, 140, 248, 0.28), 0 0 0 1px rgba(129, 140, 248, 0.3) !important;
 }
 
 body.theme-dark .steady-kpi-label {
@@ -5950,11 +6020,17 @@ body.theme-dark .steady-kpi-label {
 }
 
 body.theme-dark .steady-kpi-value {
-  color: #f8fafc !important;
+  color: #ffffff !important;
 }
 
-body.theme-dark .steady-kpi-sub {
-  color: #64748b !important;
+body.theme-dark .steady-kpi-value.emerald {
+  color: #34d399 !important;
+  text-shadow: 0 0 24px rgba(52, 211, 153, 0.25);
+}
+
+body.theme-dark .steady-kpi-value.sky {
+  color: #38bdf8 !important;
+  text-shadow: 0 0 24px rgba(56, 189, 248, 0.25);
 }
 
 body.theme-dark .steady-plat-chip {

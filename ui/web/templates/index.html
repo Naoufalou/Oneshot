@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/style.css?v=3.5">
+  <link rel="stylesheet" href="/static/style.css?v=3.6">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body class="notion-dark-clean">
@@ -100,25 +100,24 @@
   <main class="steady-workspace">
     <!-- ROW 1: KPI SUMMARY CARDS (Exact Steady Invoicing SaaS Metric Cards) -->
     <section class="steady-kpi-grid">
-      <!-- Card 1: Opportunités Détectées -->
-      <div class="steady-kpi-card" id="steady-kpi-card-total">
+      <!-- Card 1: Opportunités Totales -->
+      <div class="steady-kpi-card steady-card-total" id="steady-kpi-card-total" title="Cliquer pour afficher toutes les opportunités">
         <div class="steady-kpi-top">
-          <span class="steady-kpi-label">OPPORTUNITÉS DÉTECTÉES</span>
-          <span class="steady-kpi-icon-wrap"><i class="fa-solid fa-briefcase"></i></span>
+          <span class="steady-kpi-label">Opportunités</span>
+          <span class="steady-kpi-icon-wrap total"><i class="fa-solid fa-briefcase"></i></span>
         </div>
         <div class="steady-kpi-body">
           <div class="steady-kpi-value" id="steady-kpi-total">0</div>
         </div>
         <div class="steady-kpi-foot">
-          <span class="steady-kpi-tag positive"><i class="fa-solid fa-arrow-trend-up"></i> Temps Réel</span>
-          <span class="steady-kpi-sub">Paris, IDF & Télétravail</span>
+          <span class="steady-kpi-tag positive"><i class="fa-solid fa-arrow-trend-up"></i> Temps réel</span>
         </div>
       </div>
 
       <!-- Card 2: Candidatures Envoyées (Postulées) -->
-      <div class="steady-kpi-card steady-card-emerald" id="steady-kpi-card-applied">
+      <div class="steady-kpi-card steady-card-applied" id="steady-kpi-card-applied" title="Cliquer pour afficher les candidatures postulées">
         <div class="steady-kpi-top">
-          <span class="steady-kpi-label">CANDIDATURES POSTULÉES</span>
+          <span class="steady-kpi-label">Postulées</span>
           <span class="steady-kpi-icon-wrap emerald"><i class="fa-solid fa-circle-check"></i></span>
         </div>
         <div class="steady-kpi-body">
@@ -126,14 +125,13 @@
         </div>
         <div class="steady-kpi-foot">
           <span class="steady-kpi-tag emerald"><i class="fa-solid fa-check"></i> Transmises</span>
-          <span class="steady-kpi-sub">Preuves de transmission validées</span>
         </div>
       </div>
 
       <!-- Card 3: Formulaires 1-Clic -->
-      <div class="steady-kpi-card steady-card-sky" id="steady-kpi-card-1click">
+      <div class="steady-kpi-card steady-card-1click" id="steady-kpi-card-1click" title="Cliquer pour filtrer les offres 1 Clic">
         <div class="steady-kpi-top">
-          <span class="steady-kpi-label">ÉLIGIBLES 1 CLIC</span>
+          <span class="steady-kpi-label">Éligibles 1 Clic</span>
           <span class="steady-kpi-icon-wrap sky"><i class="fa-solid fa-bolt"></i></span>
         </div>
         <div class="steady-kpi-body">
@@ -141,15 +139,14 @@
         </div>
         <div class="steady-kpi-foot">
           <span class="steady-kpi-tag sky"><i class="fa-solid fa-bolt"></i> Prêtes</span>
-          <span class="steady-kpi-sub">Sans redirection externe</span>
         </div>
       </div>
 
       <!-- Card 4: Plateformes Actives -->
-      <div class="steady-kpi-card" id="steady-kpi-card-platforms">
+      <div class="steady-kpi-card steady-card-platforms" id="steady-kpi-card-platforms" title="Cliquer pour voir les plateformes">
         <div class="steady-kpi-top">
-          <span class="steady-kpi-label">PLATEFORMES ACTIVES</span>
-          <span class="steady-kpi-icon-wrap"><i class="fa-solid fa-shield-halved"></i></span>
+          <span class="steady-kpi-label">Plateformes Actives</span>
+          <span class="steady-kpi-icon-wrap platforms"><i class="fa-solid fa-shield-halved"></i></span>
         </div>
         <div class="steady-kpi-body">
           <div class="steady-kpi-value" id="steady-kpi-platforms-count">3 / 3</div>
