@@ -7,10 +7,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/style.css?v=3.6">
+  <link rel="stylesheet" href="/static/style.css?v=3.7">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-</head>
 <body class="notion-dark-clean">
+
+  <!-- Fixed Wallpaper Layers (Fond d'écran plein écran personnalisé) -->
+  <div class="oneshot-wallpaper-layer" id="oneshot-wallpaper-layer"></div>
+  <div class="oneshot-wallpaper-overlay" id="oneshot-wallpaper-overlay"></div>
 
   <!-- ==========================================================
        STEADY INVOICING EXECUTIVE HEADER (SAAS COMMAND BAR)
@@ -1445,8 +1448,8 @@
             <i class="fa-solid fa-wand-magic-sparkles"></i>
           </div>
           <div>
-            <h3 class="profile-modal-title">Personnaliser la bannière Oneshot</h3>
-            <p class="profile-modal-sub">Choisissez un thème visuel, un dégradé zen ou importez votre propre image</p>
+            <h3 class="profile-modal-title">Personnaliser la bannière ou le fond d'écran</h3>
+            <p class="profile-modal-sub">Choisissez un thème, importez votre image ou appliquez-la en fond d'écran plein écran</p>
           </div>
         </div>
         <button class="btn-sheet-close" id="btn-close-banner-modal" title="Fermer (Echap)">
@@ -1455,6 +1458,22 @@
       </div>
 
       <div class="profile-modal-body oneshot-banner-modal-body">
+        <!-- Section 0: Mode d'affichage (Bannière ou Fond d'écran) -->
+        <div class="banner-modal-group">
+          <div class="banner-group-title"><i class="fa-solid fa-display"></i> Destination d'affichage</div>
+          <div class="banner-display-mode-row">
+            <button type="button" class="banner-mode-chip active" data-mode="banner" id="btn-mode-banner">
+              <i class="fa-solid fa-window-maximize"></i> <span>Bannière seule (Haut)</span>
+            </button>
+            <button type="button" class="banner-mode-chip" data-mode="wallpaper" id="btn-mode-wallpaper">
+              <i class="fa-solid fa-desktop"></i> <span>Fond d'écran (Plein écran)</span>
+            </button>
+            <button type="button" class="banner-mode-chip" data-mode="both" id="btn-mode-both">
+              <i class="fa-solid fa-layer-group"></i> <span>Bannière &amp; Fond d'écran</span>
+            </button>
+          </div>
+        </div>
+
         <!-- Section 1: Thèmes & Dégradés Artistiques -->
         <div class="banner-modal-group">
           <div class="banner-group-title"><i class="fa-solid fa-palette"></i> Dégradés &amp; Thèmes Zen</div>
@@ -1509,20 +1528,50 @@
           </div>
         </div>
 
-        <!-- Section 3: Image Personnalisée (URL ou Upload local) -->
+        <!-- Section 3: Importer votre propre image (Fichier local ou URL) -->
         <div class="banner-modal-group">
-          <div class="banner-group-title"><i class="fa-solid fa-link"></i> Image Personnalisée (URL ou Fichier)</div>
-          <div class="banner-custom-row">
+          <div class="banner-group-title"><i class="fa-solid fa-cloud-arrow-up"></i> Importer votre image (Bannière ou Fond d'écran)</div>
+          
+          <!-- Modern Drag & Drop Upload Zone -->
+          <div class="banner-dropzone" id="banner-dropzone">
+            <input type="file" id="input-banner-file-upload" accept="image/jpeg,image/png,image/webp,image/gif" style="display:none;">
+            <div class="banner-drop-content">
+              <div class="banner-drop-icon-wrap">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+              </div>
+              <div class="banner-drop-text-group">
+                <div class="banner-drop-title"><strong>Cliquez pour importer</strong> ou glissez-déposez votre image ici</div>
+                <div class="banner-drop-sub">JPG, PNG, WebP • Taille illimitée (import direct et optimisé)</div>
+              </div>
+              <button type="button" class="banner-browse-btn" id="btn-banner-browse">
+                <i class="fa-solid fa-folder-open"></i> Parcourir
+              </button>
+            </div>
+            <div class="banner-upload-progress" id="banner-upload-progress" style="display:none;">
+              <div class="banner-spinner"><i class="fa-solid fa-circle-notch fa-spin"></i></div>
+              <span>Téléversement et application de votre image en cours...</span>
+            </div>
+          </div>
+
+          <!-- Web URL Fallback -->
+          <div class="banner-custom-row" style="margin-top: 12px;">
             <div class="banner-url-input-wrap">
               <i class="fa-solid fa-globe"></i>
-              <input type="text" id="input-banner-custom-url" placeholder="Coller une URL d'image (https://...)">
-              <button type="button" id="btn-apply-banner-custom-url" class="banner-url-submit-btn">OK</button>
+              <input type="text" id="input-banner-custom-url" placeholder="Ou coller une URL d'image web (https://...)">
+              <button type="button" id="btn-apply-banner-custom-url" class="banner-url-submit-btn">Appliquer</button>
             </div>
-            <label class="banner-file-btn" for="input-banner-file-upload" title="Importer une image depuis votre ordinateur">
-              <i class="fa-solid fa-arrow-up-from-bracket"></i>
-              <span>Fichier local</span>
-              <input type="file" id="input-banner-file-upload" accept="image/*" style="display:none;">
-            </label>
+          </div>
+
+          <!-- Active Preview Bar -->
+          <div class="banner-active-preview-bar" id="banner-active-preview-bar">
+            <div class="banner-active-thumb" id="banner-active-thumb"></div>
+            <div class="banner-active-info">
+              <span class="banner-active-name" id="banner-active-name">Visuel actif</span>
+              <span class="banner-active-mode-tag" id="banner-active-mode-tag">Bannière</span>
+            </div>
+            <button type="button" class="banner-reset-btn" id="btn-reset-banner-default" title="Rétablir le thème par défaut">
+              <i class="fa-solid fa-rotate-left"></i> Rétablir défaut
+            </button>
           </div>
         </div>
 
@@ -1562,6 +1611,6 @@
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  <script src="/static/app.js?v=4.6"></script>
+  <script src="/static/app.js?v=4.7"></script>
 </body>
 </html>

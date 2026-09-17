@@ -4275,9 +4275,15 @@ function setupThemeEngine() {
 /* ==========================================================
    ONESHOT WORKSPACE BANNER CUSTOMIZER
 ========================================================== */
+/* ==========================================================
+   ONESHOT WORKSPACE BANNER & WALLPAPER CUSTOMIZER
+========================================================== */
 function setupBannerCustomizer() {
   const bannerWrapper = document.getElementById("oneshot-banner-wrapper");
   const bannerImage = document.getElementById("oneshot-banner-image");
+  const wallpaperLayer = document.getElementById("oneshot-wallpaper-layer");
+  const wallpaperOverlay = document.getElementById("oneshot-wallpaper-overlay");
+
   const modal = document.getElementById("modal-banner-customizer");
   const btnCloseModal = document.getElementById("btn-close-banner-modal");
   const btnCloseModalFoot = document.getElementById("btn-close-banner-modal-foot");
@@ -4291,68 +4297,271 @@ function setupBannerCustomizer() {
   const inputCustomUrl = document.getElementById("input-banner-custom-url");
   const btnApplyCustomUrl = document.getElementById("btn-apply-banner-custom-url");
   const inputUpload = document.getElementById("input-banner-file-upload");
-  const btnToggleVisModal = document.getElementById("btn-modal-toggle-banner-vis");
+  const dropzone = document.getElementById("banner-dropzone");
+  const btnBrowse = document.getElementById("btn-banner-browse");
+  const uploadProgress = document.getElementById("banner-upload-progress");
 
-  // Banner State
+  const btnToggleVisModal = document.getElementById("btn-modal-toggle-banner-vis");
+  const btnResetDefault = document.getElementById("btn-reset-banner-default");
+
+  const activeThumb = document.getElementById("banner-active-thumb");
+  const activeName = document.getElementById("banner-active-name");
+  const activeModeTag = document.getElementById("banner-active-mode-tag");
+
+  // Default state: banner mode, Cyber Obsidian gradient
   const defaultBanner = {
     type: "gradient",
     value: "linear-gradient(135deg, #090d16 0%, #1e1b4b 50%, #312e81 100%)",
+    name: "Cyber Obsidian",
     height: 160,
-    visible: true
+    visible: true,
+    mode: "banner" // "banner" | "wallpaper" | "both"
   };
 
-  let bannerConfig = defaultBanner;
+  let bannerConfig = { ...defaultBanner };
   try {
     const saved = localStorage.getItem("oneshot_banner_config");
     if (saved) {
-      bannerConfig = { ...defaultBanner, ...JSON.parse(saved) };
+      const parsed = JSON.parse(saved);
+      bannerConfig = { ...defaultBanner, ...parsed };
     }
   } catch (e) {
-    bannerConfig = defaultBanner;
+    console.warn("Could not load banner config from localStorage:", e);
+    bannerConfig = { ...defaultBanner };
+  }
+
+  // Safe localStorage saving
+  function saveConfig() {
+    try {
+      localStorage.setItem("oneshot_banner_config", JSON.stringify(bannerConfig));
+    } catch (e) {
+      console.warn("localStorage quota exceeded, storing lightweight reference only:", e);
+      if (bannerConfig.value && bannerConfig.value.length > 500) {
+        // If it's a huge base64, don't store it in localStorage to prevent crashing
+        const safeConfig = { ...bannerConfig, value: "" };
+        try {
+          localStorage.setItem("oneshot_banner_config", JSON.stringify(safeConfig));
+        } catch (_) {}
+      }
+    }
+    renderBanner();
   }
 
   function renderBanner() {
-    if (!bannerWrapper || !bannerImage) return;
+    const isVisible = !!bannerConfig.visible;
+    const mode = bannerConfig.mode || "banner";
+    const isWallpaper = mode === "wallpaper" || mode === "both";
+    const isBanner = mode === "banner" || mode === "both";
 
-    if (!bannerConfig.visible) {
-      bannerWrapper.classList.add("hidden");
-    } else {
-      bannerWrapper.classList.remove("hidden");
-      bannerWrapper.style.height = `${bannerConfig.height}px`;
+    // 1. Wallpaper Layer & Overlay
+    if (wallpaperLayer && wallpaperOverlay) {
+      if (isVisible && isWallpaper && bannerConfig.value) {
+        wallpaperLayer.classList.add("active");
+        wallpaperOverlay.classList.add("active");
+        document.body.classList.add("has-custom-wallpaper");
 
-      if (bannerConfig.type === "gradient") {
-        bannerImage.style.backgroundImage = bannerConfig.value;
+        if (bannerConfig.type === "gradient") {
+          wallpaperLayer.style.background = bannerConfig.value;
+          wallpaperLayer.style.backgroundImage = bannerConfig.value;
+        } else {
+          wallpaperLayer.style.background = "";
+          wallpaperLayer.style.backgroundImage = `url("${bannerConfig.value}")`;
+        }
       } else {
-        bannerImage.style.backgroundImage = `url("${bannerConfig.value}")`;
+        wallpaperLayer.classList.remove("active");
+        wallpaperOverlay.classList.remove("active");
+        wallpaperLayer.style.backgroundImage = "none";
+        wallpaperLayer.style.background = "none";
+        document.body.classList.remove("has-custom-wallpaper");
       }
     }
 
-    // Sync modal controls
+    // 2. Banner Wrapper (Top Notion-style cover)
+    if (bannerWrapper && bannerImage) {
+      if (isVisible && isBanner && bannerConfig.value) {
+        bannerWrapper.classList.remove("hidden");
+        bannerWrapper.style.height = `${bannerConfig.height || 160}px`;
+
+        if (bannerConfig.type === "gradient") {
+          bannerImage.style.background = bannerConfig.value;
+          bannerImage.style.backgroundImage = bannerConfig.value;
+        } else {
+          bannerImage.style.background = "";
+          bannerImage.style.backgroundImage = `url("${bannerConfig.value}")`;
+        }
+      } else {
+        bannerWrapper.classList.add("hidden");
+      }
+    }
+
+    // 3. Quick Toggle button on banner
+    if (btnBannerToggleVis) {
+      btnBannerToggleVis.innerHTML = isVisible
+        ? '<i class="fa-solid fa-eye-slash"></i> <span>Masquer</span>'
+        : '<i class="fa-solid fa-eye"></i> <span>Afficher</span>';
+    }
+
+    // 4. Modal Controls Sync
     if (btnToggleVisModal) {
-      btnToggleVisModal.classList.toggle("active", bannerConfig.visible);
-      btnToggleVisModal.innerHTML = bannerConfig.visible
+      btnToggleVisModal.classList.toggle("active", isVisible);
+      btnToggleVisModal.innerHTML = isVisible
         ? '<i class="fa-solid fa-eye"></i> <span>Bannière Visible</span>'
         : '<i class="fa-solid fa-eye-slash"></i> <span>Bannière Masquée</span>';
     }
 
+    // Mode chips (Banner / Wallpaper / Both)
+    document.querySelectorAll(".banner-mode-chip").forEach(chip => {
+      const chipMode = chip.getAttribute("data-mode");
+      chip.classList.toggle("active", chipMode === mode);
+    });
+
+    // Height chips
     document.querySelectorAll(".banner-size-chip").forEach(chip => {
       const h = parseInt(chip.getAttribute("data-size"), 10);
       chip.classList.toggle("active", h === bannerConfig.height);
     });
 
+    // Preset cards
     document.querySelectorAll(".banner-preset-card").forEach(card => {
       const val = card.getAttribute("data-banner-val");
       card.classList.toggle("active", val === bannerConfig.value);
     });
+
+    // Active visual preview bar
+    if (activeThumb) {
+      if (bannerConfig.type === "gradient") {
+        activeThumb.style.background = bannerConfig.value;
+        activeThumb.style.backgroundImage = bannerConfig.value;
+      } else {
+        activeThumb.style.background = "";
+        activeThumb.style.backgroundImage = `url("${bannerConfig.value}")`;
+      }
+    }
+    if (activeName) {
+      let displayName = bannerConfig.name || "Visuel personnalisé";
+      if (bannerConfig.type === "image" && !bannerConfig.name) {
+        displayName = bannerConfig.value.includes("/custom_banner") ? "Image importée" : "Image personnalisée";
+      }
+      activeName.textContent = displayName;
+    }
+    if (activeModeTag) {
+      let modeText = "Bannière (Haut)";
+      if (mode === "wallpaper") modeText = "Fond d'écran";
+      else if (mode === "both") modeText = "Bannière & Fond";
+      activeModeTag.textContent = modeText;
+    }
   }
 
-  function saveConfig() {
-    localStorage.setItem("oneshot_banner_config", JSON.stringify(bannerConfig));
-    renderBanner();
+  // Upload handler with API and Canvas compression fallback
+  async function handleBannerFileUpload(file) {
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      showToast("Veuillez sélectionner un fichier image valide (JPG, PNG, WebP, GIF)", "error");
+      return;
+    }
+
+    if (uploadProgress) uploadProgress.style.display = "flex";
+
+    try {
+      // 1. First try direct server upload via FormData
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/banner/upload", {
+        method: "POST",
+        body: formData
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.status === "success" && data.url) {
+          bannerConfig.type = "image";
+          bannerConfig.value = data.url;
+          bannerConfig.name = file.name || "Image importée";
+          bannerConfig.visible = true;
+          saveConfig();
+          showToast("✓ Image importée et appliquée avec succès !", "success");
+          return;
+        }
+      }
+      throw new Error("API upload returned non-success");
+    } catch (err) {
+      console.warn("Direct upload to /api/banner/upload failed, using compressed canvas fallback:", err);
+
+      // 2. Client-side fallback: compress image on canvas to avoid quota errors
+      try {
+        const compressedDataUrl = await compressImageFile(file, 1920, 0.82);
+        bannerConfig.type = "image";
+        bannerConfig.value = compressedDataUrl;
+        bannerConfig.name = file.name || "Image importée (local)";
+        bannerConfig.visible = true;
+        saveConfig();
+        showToast("✓ Image optimisée et appliquée avec succès !", "success");
+      } catch (compressionErr) {
+        console.error("Compression failed:", compressionErr);
+        showToast("Erreur lors de l'import de l'image. Veuillez réessayer.", "error");
+      }
+    } finally {
+      if (uploadProgress) uploadProgress.style.display = "none";
+      if (inputUpload) inputUpload.value = "";
+    }
+  }
+
+  // Helper: compress image file using canvas
+  function compressImageFile(file, maxDimension, quality) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          let width = img.width;
+          let height = img.height;
+
+          if (width > maxDimension || height > maxDimension) {
+            if (width > height) {
+              height = Math.round((height * maxDimension) / width);
+              width = maxDimension;
+            } else {
+              width = Math.round((width * maxDimension) / height);
+              height = maxDimension;
+            }
+          }
+
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, width, height);
+
+          resolve(canvas.toDataURL("image/jpeg", quality));
+        };
+        img.onerror = reject;
+        img.src = e.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
   }
 
   // Initial apply
   renderBanner();
+
+  // Check if server already has a custom banner previously uploaded
+  fetch("/api/banner")
+    .then(res => res.json())
+    .then(data => {
+      if (data && data.has_custom && data.url) {
+        // If current config is default or points to a custom banner, update url
+        if (!bannerConfig.value || bannerConfig.value.includes("custom_banner")) {
+          bannerConfig.type = "image";
+          bannerConfig.value = data.url;
+          bannerConfig.name = "Image importée";
+          renderBanner();
+        }
+      }
+    })
+    .catch(() => {});
 
   function openBannerModal() {
     if (modal) {
@@ -4381,7 +4590,7 @@ function setupBannerCustomizer() {
       e.stopPropagation();
       bannerConfig.visible = !bannerConfig.visible;
       saveConfig();
-      showToast(bannerConfig.visible ? "Bannière affichée" : "Bannière masquée (Mode ultra-zen)", "info");
+      showToast(bannerConfig.visible ? "Bannière affichée" : "Bannière masquée (Mode zen)", "info");
     });
   }
 
@@ -4392,7 +4601,7 @@ function setupBannerCustomizer() {
     btnSaveModal.addEventListener("click", () => {
       saveConfig();
       closeBannerModal();
-      showToast("✓ Thème de bannière enregistré !", "success");
+      showToast("✓ Thème et affichage enregistrés !", "success");
     });
   }
 
@@ -4402,20 +4611,41 @@ function setupBannerCustomizer() {
     });
   }
 
+  // Mode Selection (Bannière / Fond d'écran / Les deux)
+  document.querySelectorAll(".banner-mode-chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      const selectedMode = chip.getAttribute("data-mode");
+      if (selectedMode) {
+        bannerConfig.mode = selectedMode;
+        bannerConfig.visible = true;
+        saveConfig();
+        const modeLabels = {
+          banner: "Bannière seule (Haut de page)",
+          wallpaper: "Fond d'écran plein écran",
+          both: "Bannière et Fond d'écran"
+        };
+        showToast(`✓ Mode actif : ${modeLabels[selectedMode] || selectedMode}`, "info");
+      }
+    });
+  });
+
   // Preset click handlers (Gradients & Photos)
   document.querySelectorAll(".banner-preset-card").forEach(card => {
     card.addEventListener("click", () => {
       const type = card.getAttribute("data-banner-type") || "gradient";
       const val = card.getAttribute("data-banner-val") || "";
+      const name = card.querySelector("span") ? card.querySelector("span").textContent.trim() : "Préréglage";
+
       bannerConfig.type = type;
       bannerConfig.value = val;
+      bannerConfig.name = name;
       bannerConfig.visible = true;
       saveConfig();
-      renderBanner();
+      showToast(`✓ Thème appliqué : ${name}`, "info");
     });
   });
 
-  // Custom URL handler
+  // Custom Web URL handler
   if (btnApplyCustomUrl && inputCustomUrl) {
     btnApplyCustomUrl.addEventListener("click", () => {
       const url = inputCustomUrl.value.trim();
@@ -4425,34 +4655,71 @@ function setupBannerCustomizer() {
       }
       bannerConfig.type = "image";
       bannerConfig.value = url;
+      bannerConfig.name = "Image Web personnalisée";
       bannerConfig.visible = true;
       saveConfig();
-      renderBanner();
-      showToast("Bannière personnalisée appliquée !", "success");
+      showToast("✓ Image web appliquée !", "success");
     });
   }
 
-  // Local File Upload
+  // Drag & Drop and Browse Trigger
+  if (dropzone) {
+    // Clicking on dropzone triggers file picker (except if clicking directly on a button or input)
+    dropzone.addEventListener("click", (e) => {
+      if (e.target !== inputUpload && inputUpload) {
+        inputUpload.click();
+      }
+    });
+
+    dropzone.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropzone.classList.add("dragover");
+    });
+
+    dropzone.addEventListener("dragleave", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropzone.classList.remove("dragover");
+    });
+
+    dropzone.addEventListener("drop", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropzone.classList.remove("dragover");
+      const dt = e.dataTransfer;
+      if (dt && dt.files && dt.files.length > 0) {
+        handleBannerFileUpload(dt.files[0]);
+      }
+    });
+  }
+
+  if (btnBrowse && inputUpload) {
+    btnBrowse.addEventListener("click", (e) => {
+      e.stopPropagation();
+      inputUpload.click();
+    });
+  }
+
   if (inputUpload) {
     inputUpload.addEventListener("change", (e) => {
       const file = e.target.files && e.target.files[0];
-      if (!file) return;
-
-      if (!file.type.startsWith("image/")) {
-        showToast("Veuillez sélectionner un fichier image valide", "error");
-        return;
+      if (file) {
+        handleBannerFileUpload(file);
       }
+    });
+  }
 
-      const reader = new FileReader();
-      reader.onload = function(event) {
-        bannerConfig.type = "image";
-        bannerConfig.value = event.target.result;
-        bannerConfig.visible = true;
-        saveConfig();
-        renderBanner();
-        showToast("✓ Image locale appliquée comme bannière !", "success");
-      };
-      reader.readAsDataURL(file);
+  // Reset to default button
+  if (btnResetDefault) {
+    btnResetDefault.addEventListener("click", async () => {
+      try {
+        await fetch("/api/banner/reset", { method: "POST" });
+      } catch (_) {}
+
+      bannerConfig = { ...defaultBanner };
+      saveConfig();
+      showToast("✓ Thème par défaut rétabli !", "info");
     });
   }
 
@@ -4461,7 +4728,7 @@ function setupBannerCustomizer() {
     btnToggleVisModal.addEventListener("click", () => {
       bannerConfig.visible = !bannerConfig.visible;
       saveConfig();
-      renderBanner();
+      showToast(bannerConfig.visible ? "Visuel activé" : "Visuel masqué", "info");
     });
   }
 
@@ -4472,7 +4739,6 @@ function setupBannerCustomizer() {
       if (h) {
         bannerConfig.height = h;
         saveConfig();
-        renderBanner();
       }
     });
   });
