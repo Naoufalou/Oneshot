@@ -267,7 +267,10 @@ function initLudiqueProgress() {
         resumeNameElem.innerText = options.resume || activeResumeFilename || "CV Actif";
       }
 
-      if (mascotIcon) mascotIcon.innerText = "🚀";
+      if (mascotIcon) {
+        mascotIcon.style.display = "none";
+        mascotIcon.innerText = "🚀";
+      }
       if (victoryRow) victoryRow.style.display = "none";
 
       // Reset circular SVG gauge & rocket
@@ -368,7 +371,10 @@ function initLudiqueProgress() {
       if (rocketRotator) rocketRotator.style.transform = "rotate(360deg)";
       if (giantPct) giantPct.innerText = "100%";
       if (gaugeLabel) gaugeLabel.innerText = isSuccess ? "VICTOIRE !" : "ARRÊT";
-      if (mascotIcon) mascotIcon.innerText = isSuccess ? "🎉" : "⚠️";
+      if (mascotIcon) {
+        mascotIcon.innerText = isSuccess ? "🎉" : "⚠️";
+        mascotIcon.style.display = "block";
+      }
 
       const msg = finalMsg || (isSuccess ? "Session terminée avec succès !" : "Session interrompue");
       if (stepText) stepText.innerText = msg;

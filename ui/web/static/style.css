@@ -7905,41 +7905,27 @@ body:not(.theme-dark) .ludique-gauge-bg {
 
 .ludique-rocket-capsule {
   position: absolute;
-  top: -96px; /* Radius r=96 */
+  top: -88px; /* Radius r=88px (matching SVG r=96 viewBox 240 scaled to 220px) */
   left: 0;
-  transform: translate(-50%, -50%) rotate(90deg);
+  transform: translate(-50%, -50%);
   display: flex;
   align-items: center;
-  gap: 2px;
+  justify-content: center;
+  pointer-events: none;
 }
 
-.ludique-rocket-flame {
-  font-size: 18px;
-  animation: flameFlicker 0.2s infinite alternate;
+.ludique-rocket-exhaust {
+  display: flex;
+  align-items: center;
   margin-right: -3px;
-}
-
-@keyframes flameFlicker {
-  0% {
-    transform: scale(0.85) translateX(2px);
-    opacity: 0.8;
-  }
-  100% {
-    transform: scale(1.15) translateX(-2px);
-    opacity: 1;
-  }
-}
-
-.ludique-rocket-body {
-  font-size: 26px;
-  transform: rotate(45deg);
-  filter: drop-shadow(0 0 8px rgba(249, 115, 22, 0.7));
+  pointer-events: none;
 }
 
 .ludique-rocket-sparkles {
-  font-size: 14px;
+  font-size: 11px;
   animation: sparkleRotate 1.2s infinite linear;
-  margin-left: -3px;
+  margin-right: -2px;
+  opacity: 0.85;
 }
 
 @keyframes sparkleRotate {
@@ -7957,6 +7943,47 @@ body:not(.theme-dark) .ludique-gauge-bg {
   }
 }
 
+.ludique-plasma-jet {
+  width: 22px;
+  height: 9px;
+  background: linear-gradient(270deg, #ffffff 0%, #fbbf24 35%, #f97316 70%, rgba(239, 68, 68, 0) 100%);
+  border-radius: 50% 0 0 50%;
+  filter: drop-shadow(0 0 6px #f97316) drop-shadow(0 0 10px #ef4444);
+  animation: plasmaFlicker 0.14s infinite alternate ease-in-out;
+}
+
+@keyframes plasmaFlicker {
+  0% {
+    transform: scaleX(0.85) scaleY(0.9);
+    opacity: 0.85;
+  }
+  100% {
+    transform: scaleX(1.18) scaleY(1.1);
+    opacity: 1;
+  }
+}
+
+.ludique-rocket-ship {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ludique-rocket-ico {
+  font-size: 24px;
+  transform: rotate(45deg);
+  color: #ffffff;
+  filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.95)) drop-shadow(0 0 16px rgba(249, 115, 22, 0.75));
+  transition: transform 0.2s ease;
+}
+
+body:not(.theme-dark) .ludique-rocket-ico {
+  color: #0284c7;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25)) drop-shadow(0 0 8px rgba(56, 189, 248, 0.6));
+}
+
 .ludique-gauge-center {
   position: absolute;
   inset: 0;
@@ -7969,18 +7996,24 @@ body:not(.theme-dark) .ludique-gauge-bg {
 }
 
 .ludique-mascot-icon {
-  font-size: 28px;
-  display: inline-block;
-  animation: ludiqueFloat 2.2s infinite ease-in-out;
+  font-size: 32px;
+  display: none;
+  animation: ludiquePopIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   margin-bottom: 2px;
 }
 
-@keyframes ludiqueFloat {
-  0%, 100% {
-    transform: translateY(0) rotate(0deg);
+@keyframes ludiquePopIn {
+  0% {
+    transform: scale(0.3) rotate(-20deg);
+    opacity: 0;
   }
-  50% {
-    transform: translateY(-5px) rotate(5deg);
+  70% {
+    transform: scale(1.15) rotate(5deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
   }
 }
 
