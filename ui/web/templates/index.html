@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/style.css?v=3.3">
+  <link rel="stylesheet" href="/static/style.css?v=3.4">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body class="notion-dark-clean">
@@ -57,6 +57,17 @@
         <span class="steady-action-badge" id="header-batch-count">0</span>
       </button>
 
+      <!-- Day / Night Theme Toggle Button -->
+      <button type="button" class="steady-action-btn steady-btn-theme" id="btn-theme-toggle" title="Basculer entre Mode Jour et Mode Nuit">
+        <i class="fa-solid fa-moon" id="theme-toggle-icon"></i>
+        <span id="theme-toggle-text">Nuit</span>
+      </button>
+
+      <!-- Banner Customizer Quick Button -->
+      <button type="button" class="steady-action-btn steady-btn-ghost" id="btn-header-banner" title="Personnaliser la bannière">
+        <i class="fa-solid fa-image"></i>
+      </button>
+
       <!-- Sleek Menu Trigger (Ouvre / Ferme le menu complet) -->
       <button type="button" class="steady-action-btn steady-btn-menu" id="btn-top-menu" title="Ouvrir le menu de navigation">
         <i class="fa-solid fa-bars-staggered"></i>
@@ -64,6 +75,24 @@
       </button>
     </div>
   </header>
+
+  <!-- ==========================================================
+       ONESHOT WORKSPACE COVER BANNER (NOTION-STYLE)
+  ========================================================== -->
+  <div class="oneshot-banner-wrapper" id="oneshot-banner-wrapper">
+    <div class="oneshot-banner-image" id="oneshot-banner-image"></div>
+    <div class="oneshot-banner-overlay"></div>
+    <div class="oneshot-banner-controls">
+      <button type="button" class="oneshot-banner-btn" id="btn-banner-edit" title="Personnaliser la bannière">
+        <i class="fa-solid fa-wand-magic-sparkles"></i>
+        <span>Changer la bannière</span>
+      </button>
+      <button type="button" class="oneshot-banner-btn" id="btn-banner-toggle-vis" title="Masquer la bannière">
+        <i class="fa-solid fa-eye-slash"></i>
+        <span>Masquer</span>
+      </button>
+    </div>
+  </div>
 
   <!-- ==========================================================
        STEADY INVOICING MAIN SAAS WORKSPACE
@@ -340,7 +369,7 @@
       <div class="drawer-title-row">
         <span class="drawer-logo-dot"></span>
         <div>
-          <h3 style="font-size:16px; font-weight:700; color:#fff; margin:0;">Studio Navigation</h3>
+          <h3 style="font-size:16px; font-weight:700; color:#fff; margin:0;">Oneshot Studio</h3>
           <p style="font-size:11.5px; color:#94a3b8; margin:2px 0 0 0;">Agent IA & Candidatures Automatiques</p>
         </div>
       </div>
@@ -484,6 +513,18 @@
             <div class="nav-tile-sub">Preuves de transmission et suivi des envois</div>
           </div>
           <span class="nav-tile-badge emerald" id="drawer-count-applied-badge">0</span>
+          <i class="fa-solid fa-chevron-right nav-tile-arrow"></i>
+        </div>
+
+        <!-- Tile 7: Bannière & Thème -->
+        <div class="studio-nav-tile" id="menu-tile-banner" role="button" tabindex="0">
+          <div class="nav-tile-icon pink" style="background:rgba(236, 72, 153, 0.15); color:#ec4899; border-color:rgba(236, 72, 153, 0.3);">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+          </div>
+          <div class="nav-tile-text">
+            <div class="nav-tile-title">Bannière &amp; Thème</div>
+            <div class="nav-tile-sub">Mode Nuit/Jour &amp; couverture personnalisée</div>
+          </div>
           <i class="fa-solid fa-chevron-right nav-tile-arrow"></i>
         </div>
       </div>
@@ -1396,6 +1437,123 @@
           </button>
         </div>
       </div>
+  <!-- ==========================================================
+       MODAL: ONESHOT BANNER CUSTOMIZER
+  ========================================================== -->
+  <div class="profile-modal-overlay" id="modal-banner-customizer" style="display:none;">
+    <div class="profile-modal-card oneshot-banner-modal" style="max-width: 680px;">
+      <div class="profile-modal-head">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div class="profile-modal-icon-badge" style="background:linear-gradient(135deg, rgba(14,165,233,0.2), rgba(99,102,241,0.2)); color:#38bdf8; border-color:rgba(56,189,248,0.4);">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+          </div>
+          <div>
+            <h3 class="profile-modal-title">Personnaliser la bannière Oneshot</h3>
+            <p class="profile-modal-sub">Choisissez un thème visuel, un dégradé zen ou importez votre propre image</p>
+          </div>
+        </div>
+        <button class="btn-sheet-close" id="btn-close-banner-modal" title="Fermer (Echap)">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="profile-modal-body oneshot-banner-modal-body">
+        <!-- Section 1: Thèmes & Dégradés Artistiques -->
+        <div class="banner-modal-group">
+          <div class="banner-group-title"><i class="fa-solid fa-palette"></i> Dégradés &amp; Thèmes Zen</div>
+          <div class="banner-presets-grid" id="banner-presets-grid">
+            <button type="button" class="banner-preset-card active" data-banner-type="gradient" data-banner-val="linear-gradient(135deg, #090d16 0%, #1e1b4b 50%, #312e81 100%)">
+              <div class="banner-preset-preview" style="background:linear-gradient(135deg, #090d16 0%, #1e1b4b 50%, #312e81 100%);"></div>
+              <span>Cyber Obsidian</span>
+            </button>
+            <button type="button" class="banner-preset-card" data-banner-type="gradient" data-banner-val="linear-gradient(135deg, #0b132b 0%, #1c2541 40%, #5bc0be 100%)">
+              <div class="banner-preset-preview" style="background:linear-gradient(135deg, #0b132b 0%, #1c2541 40%, #5bc0be 100%);"></div>
+              <span>Nordic Aurora</span>
+            </button>
+            <button type="button" class="banner-preset-card" data-banner-type="gradient" data-banner-val="linear-gradient(135deg, #312e81 0%, #4f46e5 40%, #ec4899 100%)">
+              <div class="banner-preset-preview" style="background:linear-gradient(135deg, #312e81 0%, #4f46e5 40%, #ec4899 100%);"></div>
+              <span>Zen Sunset</span>
+            </button>
+            <button type="button" class="banner-preset-card" data-banner-type="gradient" data-banner-val="linear-gradient(135deg, #064e3b 0%, #059669 50%, #10b981 100%)">
+              <div class="banner-preset-preview" style="background:linear-gradient(135deg, #064e3b 0%, #059669 50%, #10b981 100%);"></div>
+              <span>Emerald Calm</span>
+            </button>
+            <button type="button" class="banner-preset-card" data-banner-type="gradient" data-banner-val="linear-gradient(135deg, #180033 0%, #4c0519 50%, #db2777 100%)">
+              <div class="banner-preset-preview" style="background:linear-gradient(135deg, #180033 0%, #4c0519 50%, #db2777 100%);"></div>
+              <span>Tokyo Neon</span>
+            </button>
+            <button type="button" class="banner-preset-card" data-banner-type="gradient" data-banner-val="linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)">
+              <div class="banner-preset-preview" style="background:linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);"></div>
+              <span>Minimal Slate</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Section 2: Photos d'Art & Paysages -->
+        <div class="banner-modal-group">
+          <div class="banner-group-title"><i class="fa-solid fa-mountain-sun"></i> Photographies &amp; Paysages</div>
+          <div class="banner-presets-grid" id="banner-photos-grid">
+            <button type="button" class="banner-preset-card" data-banner-type="image" data-banner-val="https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1600&q=80">
+              <div class="banner-preset-preview" style="background-image:url('https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=300&q=80'); background-size:cover; background-position:center;"></div>
+              <span>Architecture Zen</span>
+            </button>
+            <button type="button" class="banner-preset-card" data-banner-type="image" data-banner-val="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1600&q=80">
+              <div class="banner-preset-preview" style="background-image:url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=300&q=80'); background-size:cover; background-position:center;"></div>
+              <span>Montagne &amp; Brume</span>
+            </button>
+            <button type="button" class="banner-preset-card" data-banner-type="image" data-banner-val="https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=1600&q=80">
+              <div class="banner-preset-preview" style="background-image:url('https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=300&q=80'); background-size:cover; background-position:center;"></div>
+              <span>Nuit Métropole</span>
+            </button>
+            <button type="button" class="banner-preset-card" data-banner-type="image" data-banner-val="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=80">
+              <div class="banner-preset-preview" style="background-image:url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=300&q=80'); background-size:cover; background-position:center;"></div>
+              <span>Rivage Calme</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Section 3: Image Personnalisée (URL ou Upload local) -->
+        <div class="banner-modal-group">
+          <div class="banner-group-title"><i class="fa-solid fa-link"></i> Image Personnalisée (URL ou Fichier)</div>
+          <div class="banner-custom-row">
+            <div class="banner-url-input-wrap">
+              <i class="fa-solid fa-globe"></i>
+              <input type="text" id="input-banner-custom-url" placeholder="Coller une URL d'image (https://...)">
+              <button type="button" id="btn-apply-banner-custom-url" class="banner-url-submit-btn">OK</button>
+            </div>
+            <label class="banner-file-btn" for="input-banner-file-upload" title="Importer une image depuis votre ordinateur">
+              <i class="fa-solid fa-arrow-up-from-bracket"></i>
+              <span>Fichier local</span>
+              <input type="file" id="input-banner-file-upload" accept="image/*" style="display:none;">
+            </label>
+          </div>
+        </div>
+
+        <!-- Section 4: Réglages d'affichage & Hauteur -->
+        <div class="banner-modal-group banner-controls-flex">
+          <div class="banner-control-col">
+            <label class="banner-sublabel">Visibilité</label>
+            <button type="button" class="banner-toggle-btn active" id="btn-modal-toggle-banner-vis">
+              <i class="fa-solid fa-eye"></i> <span>Bannière Visible</span>
+            </button>
+          </div>
+          <div class="banner-control-col">
+            <label class="banner-sublabel">Hauteur</label>
+            <div class="banner-height-row">
+              <button type="button" class="banner-size-chip" data-size="110">Compacte</button>
+              <button type="button" class="banner-size-chip active" data-size="160">Moyenne</button>
+              <button type="button" class="banner-size-chip" data-size="220">Grande</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-modal-actions" style="margin-top:14px; border-top:1px solid rgba(255,255,255,0.08); padding-top:14px;">
+        <button type="button" class="drawer-ghost-btn" id="btn-close-banner-modal-foot">Fermer</button>
+        <button type="button" class="btn-primary" id="btn-save-banner-modal" style="background:linear-gradient(135deg, #0284c7, #0369a1);">
+          <i class="fa-solid fa-check"></i> Enregistrer
+        </button>
+      </div>
     </div>
   </div>
 
@@ -1407,6 +1565,6 @@
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  <script src="/static/app.js?v=4.4"></script>
+  <script src="/static/app.js?v=4.5"></script>
 </body>
 </html>

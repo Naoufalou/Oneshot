@@ -33,6 +33,8 @@ function formatRelativeTime(dateStr) {
 
 document.addEventListener("DOMContentLoaded", () => {
   init3DMotionBanner();
+  setupThemeEngine();
+  setupBannerCustomizer();
   setupTabs();
   setupFilters();
   setupResumeManager();
@@ -751,8 +753,24 @@ function setupBatchApply() {
     }
   };
 
-  if (btnHeaderBatch) btnHeaderBatch.addEventListener("click", runBatch);
-  if (btnStripBatch) btnStripBatch.addEventListener("click", runBatch);
+  if (btnHeaderBatch) {
+    btnHeaderBatch.addEventListener("click", () => {
+      if (typeof window.openBatchApplyModal === "function") {
+        window.openBatchApplyModal(selectedPlatform || "");
+      } else {
+        runBatch();
+      }
+    });
+  }
+  if (btnStripBatch) {
+    btnStripBatch.addEventListener("click", () => {
+      if (typeof window.openBatchApplyModal === "function") {
+        window.openBatchApplyModal(selectedPlatform || "");
+      } else {
+        runBatch();
+      }
+    });
+  }
 }
 
 function updateBatchCounts() {
@@ -4179,5 +4197,264 @@ function setupBatchApplyExperience() {
     });
   }
 }
+
+/* ==========================================================
+   ONESHOT DAY / NIGHT DUAL THEME ENGINE
+========================================================== */
+function setupThemeEngine() {
+  const btnThemeToggle = document.getElementById("btn-theme-toggle");
+  const themeIcon = document.getElementById("theme-toggle-icon");
+  const themeText = document.getElementById("theme-toggle-text");
+
+  // Load saved theme or detect system preference
+  const savedTheme = localStorage.getItem("oneshot_theme");
+  const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const initialTheme = savedTheme || (prefersDark ? "dark" : "light");
+
+  applyTheme(initialTheme);
+
+  function applyTheme(theme) {
+    if (theme === "dark") {
+      document.body.classList.remove("theme-light");
+      document.body.classList.add("theme-dark");
+      if (themeIcon) {
+        themeIcon.className = "fa-solid fa-sun";
+        themeIcon.style.color = "#38bdf8";
+      }
+      if (themeText) themeText.innerText = "Jour";
+      if (btnThemeToggle) btnThemeToggle.title = "Passer en Mode Jour (Clarté)";
+    } else {
+      document.body.classList.remove("theme-dark");
+      document.body.classList.add("theme-light");
+      if (themeIcon) {
+        themeIcon.className = "fa-solid fa-moon";
+        themeIcon.style.color = "#f59e0b";
+      }
+      if (themeText) themeText.innerText = "Nuit";
+      if (btnThemeToggle) btnThemeToggle.title = "Passer en Mode Nuit (Obsidian Zen)";
+    }
+    localStorage.setItem("oneshot_theme", theme);
+  }
+
+  window.toggleOneShotTheme = function() {
+    const isDark = document.body.classList.contains("theme-dark");
+    const nextTheme = isDark ? "light" : "dark";
+    applyTheme(nextTheme);
+    showToast(nextTheme === "dark" ? "Mode Nuit activé (Obsidian Zen)" : "Mode Jour activé (Clarté)", "info");
+  };
+
+  if (btnThemeToggle) {
+    btnThemeToggle.addEventListener("click", () => {
+      window.toggleOneShotTheme();
+    });
+  }
+}
+
+/* ==========================================================
+   ONESHOT WORKSPACE BANNER CUSTOMIZER
+========================================================== */
+function setupBannerCustomizer() {
+  const bannerWrapper = document.getElementById("oneshot-banner-wrapper");
+  const bannerImage = document.getElementById("oneshot-banner-image");
+  const modal = document.getElementById("modal-banner-customizer");
+  const btnCloseModal = document.getElementById("btn-close-banner-modal");
+  const btnCloseModalFoot = document.getElementById("btn-close-banner-modal-foot");
+  const btnSaveModal = document.getElementById("btn-save-banner-modal");
+
+  const btnHeaderBanner = document.getElementById("btn-header-banner");
+  const btnBannerEdit = document.getElementById("btn-banner-edit");
+  const btnBannerToggleVis = document.getElementById("btn-banner-toggle-vis");
+  const menuTileBanner = document.getElementById("menu-tile-banner");
+
+  const inputCustomUrl = document.getElementById("input-banner-custom-url");
+  const btnApplyCustomUrl = document.getElementById("btn-apply-banner-custom-url");
+  const inputUpload = document.getElementById("input-banner-file-upload");
+  const btnToggleVisModal = document.getElementById("btn-modal-toggle-banner-vis");
+
+  // Banner State
+  const defaultBanner = {
+    type: "gradient",
+    value: "linear-gradient(135deg, #090d16 0%, #1e1b4b 50%, #312e81 100%)",
+    height: 160,
+    visible: true
+  };
+
+  let bannerConfig = defaultBanner;
+  try {
+    const saved = localStorage.getItem("oneshot_banner_config");
+    if (saved) {
+      bannerConfig = { ...defaultBanner, ...JSON.parse(saved) };
+    }
+  } catch (e) {
+    bannerConfig = defaultBanner;
+  }
+
+  function renderBanner() {
+    if (!bannerWrapper || !bannerImage) return;
+
+    if (!bannerConfig.visible) {
+      bannerWrapper.classList.add("hidden");
+    } else {
+      bannerWrapper.classList.remove("hidden");
+      bannerWrapper.style.height = `${bannerConfig.height}px`;
+
+      if (bannerConfig.type === "gradient") {
+        bannerImage.style.backgroundImage = bannerConfig.value;
+      } else {
+        bannerImage.style.backgroundImage = `url("${bannerConfig.value}")`;
+      }
+    }
+
+    // Sync modal controls
+    if (btnToggleVisModal) {
+      btnToggleVisModal.classList.toggle("active", bannerConfig.visible);
+      btnToggleVisModal.innerHTML = bannerConfig.visible
+        ? '<i class="fa-solid fa-eye"></i> <span>Bannière Visible</span>'
+        : '<i class="fa-solid fa-eye-slash"></i> <span>Bannière Masquée</span>';
+    }
+
+    document.querySelectorAll(".banner-size-chip").forEach(chip => {
+      const h = parseInt(chip.getAttribute("data-size"), 10);
+      chip.classList.toggle("active", h === bannerConfig.height);
+    });
+
+    document.querySelectorAll(".banner-preset-card").forEach(card => {
+      const val = card.getAttribute("data-banner-val");
+      card.classList.toggle("active", val === bannerConfig.value);
+    });
+  }
+
+  function saveConfig() {
+    localStorage.setItem("oneshot_banner_config", JSON.stringify(bannerConfig));
+    renderBanner();
+  }
+
+  // Initial apply
+  renderBanner();
+
+  function openBannerModal() {
+    if (modal) {
+      modal.style.display = "flex";
+      renderBanner();
+    }
+  }
+
+  function closeBannerModal() {
+    if (modal) modal.style.display = "none";
+  }
+
+  // Open modal triggers
+  if (btnHeaderBanner) btnHeaderBanner.addEventListener("click", openBannerModal);
+  if (btnBannerEdit) btnBannerEdit.addEventListener("click", openBannerModal);
+  if (menuTileBanner) {
+    menuTileBanner.addEventListener("click", () => {
+      if (typeof closeStudioDrawer === "function") closeStudioDrawer();
+      openBannerModal();
+    });
+  }
+
+  // Quick toggle on banner
+  if (btnBannerToggleVis) {
+    btnBannerToggleVis.addEventListener("click", (e) => {
+      e.stopPropagation();
+      bannerConfig.visible = !bannerConfig.visible;
+      saveConfig();
+      showToast(bannerConfig.visible ? "Bannière affichée" : "Bannière masquée (Mode ultra-zen)", "info");
+    });
+  }
+
+  // Close triggers
+  if (btnCloseModal) btnCloseModal.addEventListener("click", closeBannerModal);
+  if (btnCloseModalFoot) btnCloseModalFoot.addEventListener("click", closeBannerModal);
+  if (btnSaveModal) {
+    btnSaveModal.addEventListener("click", () => {
+      saveConfig();
+      closeBannerModal();
+      showToast("✓ Thème de bannière enregistré !", "success");
+    });
+  }
+
+  if (modal) {
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) closeBannerModal();
+    });
+  }
+
+  // Preset click handlers (Gradients & Photos)
+  document.querySelectorAll(".banner-preset-card").forEach(card => {
+    card.addEventListener("click", () => {
+      const type = card.getAttribute("data-banner-type") || "gradient";
+      const val = card.getAttribute("data-banner-val") || "";
+      bannerConfig.type = type;
+      bannerConfig.value = val;
+      bannerConfig.visible = true;
+      saveConfig();
+      renderBanner();
+    });
+  });
+
+  // Custom URL handler
+  if (btnApplyCustomUrl && inputCustomUrl) {
+    btnApplyCustomUrl.addEventListener("click", () => {
+      const url = inputCustomUrl.value.trim();
+      if (!url) {
+        showToast("Veuillez saisir une URL d'image valide", "error");
+        return;
+      }
+      bannerConfig.type = "image";
+      bannerConfig.value = url;
+      bannerConfig.visible = true;
+      saveConfig();
+      renderBanner();
+      showToast("Bannière personnalisée appliquée !", "success");
+    });
+  }
+
+  // Local File Upload
+  if (inputUpload) {
+    inputUpload.addEventListener("change", (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+
+      if (!file.type.startsWith("image/")) {
+        showToast("Veuillez sélectionner un fichier image valide", "error");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        bannerConfig.type = "image";
+        bannerConfig.value = event.target.result;
+        bannerConfig.visible = true;
+        saveConfig();
+        renderBanner();
+        showToast("✓ Image locale appliquée comme bannière !", "success");
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // Modal Visibility toggle
+  if (btnToggleVisModal) {
+    btnToggleVisModal.addEventListener("click", () => {
+      bannerConfig.visible = !bannerConfig.visible;
+      saveConfig();
+      renderBanner();
+    });
+  }
+
+  // Height chips
+  document.querySelectorAll(".banner-size-chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      const h = parseInt(chip.getAttribute("data-size"), 10);
+      if (h) {
+        bannerConfig.height = h;
+        saveConfig();
+        renderBanner();
+      }
+    });
+  });
+}
+
 
 
