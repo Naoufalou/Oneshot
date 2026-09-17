@@ -2056,9 +2056,11 @@ async function loadPlatformsStatus() {
     const countConnectedEl = document.getElementById("count-platforms-connected");
     if (countConnectedEl) countConnectedEl.innerText = countConnected;
 
-    // Steady Invoicing Platform KPI Updates
+    // Steady Invoicing Platform KPI Updates (Plateformes Actives: FT, LinkedIn, Indeed)
     const steadyPlatCount = document.getElementById("steady-kpi-platforms-count");
-    if (steadyPlatCount) steadyPlatCount.innerText = `${countConnected} / 3`;
+    const corePlatforms = ["francetravail", "linkedin", "indeed"];
+    const activeCore = corePlatforms.filter(id => Boolean(data[id]?.logged_in)).length;
+    if (steadyPlatCount) steadyPlatCount.innerText = `${activeCore} / 3`;
 
     const ftChip = document.querySelector(".steady-dot.ft")?.closest(".steady-plat-chip");
     const liChip = document.querySelector(".steady-dot.li")?.closest(".steady-plat-chip");
@@ -3119,10 +3121,21 @@ function setupArovaExperience() {
     closeArovaCard();
     closeStudioDrawer();
 
-    // Show workbench with smooth appearance
+    // Show workbench with smooth appearance and platform-specific color theme
     if (workbench) {
       workbench.style.display = "flex";
-      workbench.classList.remove("zen-appear");
+      workbench.classList.remove("zen-appear", "theme-ft", "theme-li", "theme-ind", "theme-applied", "theme-all");
+      if (selectedStatus === "applied") {
+        workbench.classList.add("theme-applied");
+      } else if (selectedPlatform === "francetravail") {
+        workbench.classList.add("theme-ft");
+      } else if (selectedPlatform === "linkedin") {
+        workbench.classList.add("theme-li");
+      } else if (selectedPlatform === "indeed") {
+        workbench.classList.add("theme-ind");
+      } else {
+        workbench.classList.add("theme-all");
+      }
       void workbench.offsetWidth;
       workbench.classList.add("zen-appear");
     }
@@ -3173,6 +3186,7 @@ function setupArovaExperience() {
 
     if (workbench) {
       workbench.style.display = "none";
+      workbench.classList.remove("theme-ft", "theme-li", "theme-ind", "theme-applied", "theme-all");
     }
     if (calmState) {
       calmState.style.display = "flex";

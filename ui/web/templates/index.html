@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/style.css?v=3.4">
+  <link rel="stylesheet" href="/static/style.css?v=3.5">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body class="notion-dark-clean">
@@ -145,10 +145,10 @@
         </div>
       </div>
 
-      <!-- Card 4: Plateformes & Connecteurs -->
+      <!-- Card 4: Plateformes Actives -->
       <div class="steady-kpi-card" id="steady-kpi-card-platforms">
         <div class="steady-kpi-top">
-          <span class="steady-kpi-label">CONNECTEURS & SESSIONS</span>
+          <span class="steady-kpi-label">PLATEFORMES ACTIVES</span>
           <span class="steady-kpi-icon-wrap"><i class="fa-solid fa-shield-halved"></i></span>
         </div>
         <div class="steady-kpi-body">
@@ -170,35 +170,35 @@
         <!-- Toutes -->
         <button type="button" class="zen-plat-pill zen-pill-all" data-platform="" id="btn-plat-all" title="Afficher toutes les candidatures">
           <i class="fa-solid fa-layer-group"></i>
-          <span>Toutes</span>
+          <span class="zen-plat-label">Toutes</span>
           <span class="zen-plat-badge" id="plat-count-all">0</span>
         </button>
 
         <!-- France Travail (Rouge) -->
         <button type="button" class="zen-plat-pill zen-pill-ft" data-platform="francetravail" id="btn-plat-ft" title="Afficher les candidatures France Travail">
           <i class="fa-solid fa-briefcase"></i>
-          <span>France Travail</span>
+          <span class="zen-plat-label">France Travail</span>
           <span class="zen-plat-badge" id="plat-count-ft">0</span>
         </button>
 
         <!-- LinkedIn (Bleu) -->
         <button type="button" class="zen-plat-pill zen-pill-li" data-platform="linkedin" id="btn-plat-li" title="Afficher les candidatures LinkedIn">
           <i class="fa-brands fa-linkedin"></i>
-          <span>LinkedIn</span>
+          <span class="zen-plat-label">LinkedIn</span>
           <span class="zen-plat-badge" id="plat-count-li">0</span>
         </button>
 
         <!-- Indeed (Vert) -->
         <button type="button" class="zen-plat-pill zen-pill-ind" data-platform="indeed" id="btn-plat-ind" title="Afficher les candidatures Indeed">
           <i class="fa-solid fa-circle-nodes"></i>
-          <span>Indeed</span>
+          <span class="zen-plat-label">Indeed</span>
           <span class="zen-plat-badge" id="plat-count-ind">0</span>
         </button>
 
         <!-- Postulées (Émeraude) -->
         <button type="button" class="zen-plat-pill zen-pill-applied" data-status-filter="applied" id="btn-plat-applied" title="Afficher les candidatures déjà transmises">
           <i class="fa-solid fa-circle-check"></i>
-          <span>Postulées</span>
+          <span class="zen-plat-label">Postulées</span>
           <span class="zen-plat-badge" id="plat-count-applied">0</span>
         </button>
       </div>
@@ -1565,6 +1565,6 @@
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  <script src="/static/app.js?v=4.5"></script>
+  <script src="/static/app.js?v=4.6"></script>
 </body>
 </html>

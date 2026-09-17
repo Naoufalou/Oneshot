@@ -4588,8 +4588,8 @@ body.notion-dark-clean {
 .zen-plat-pill {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 18px;
+  gap: 8px;
+  padding: 9px 15px;
   border-radius: 12px;
   font-size: 13.5px;
   font-weight: 600;
@@ -4598,24 +4598,67 @@ body.notion-dark-clean {
   background: #ffffff;
   color: #334155;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.26s cubic-bezier(0.34, 1.56, 0.64, 1),
+              background 0.2s ease,
+              border-color 0.2s ease,
+              box-shadow 0.24s ease,
+              color 0.2s ease;
   user-select: none;
   position: relative;
   outline: none;
+  transform-origin: center center;
 }
 
 .zen-plat-pill i {
   font-size: 15px;
-  transition: transform 0.2s ease;
+  transition: transform 0.22s ease;
+  flex-shrink: 0;
 }
 
-.zen-plat-pill:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+/* Playful tactile tilt on hover: odd left, even right */
+.zen-plat-pill:nth-child(odd):hover {
+  transform: translateY(-3px) rotate(-2.5deg) scale(1.03);
+}
+
+.zen-plat-pill:nth-child(even):hover {
+  transform: translateY(-3px) rotate(2deg) scale(1.03);
 }
 
 .zen-plat-pill:hover i {
-  transform: scale(1.12);
+  transform: scale(1.15);
+}
+
+.zen-plat-pill:active {
+  transform: translateY(0) scale(0.97);
+}
+
+/* Text label collapsed in resting state for clean ADHD-friendly serenity */
+.zen-plat-pill .zen-plat-label,
+.zen-plat-pill > span:not(.zen-plat-badge) {
+  display: inline-block;
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  transform: translateX(-6px);
+  transition: max-width 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.24s cubic-bezier(0.16, 1, 0.3, 1),
+              margin 0.24s ease;
+  margin: 0;
+  vertical-align: middle;
+  pointer-events: none;
+}
+
+/* Text appears smoothly on hover, or stays visible when active tab */
+.zen-plat-pill:hover .zen-plat-label,
+.zen-plat-pill:hover > span:not(.zen-plat-badge),
+.zen-plat-pill.active .zen-plat-label,
+.zen-plat-pill.active > span:not(.zen-plat-badge) {
+  max-width: 140px;
+  opacity: 1;
+  transform: translateX(0);
+  margin: 0 4px 0 2px;
 }
 
 .zen-plat-badge {
@@ -4624,6 +4667,7 @@ body.notion-dark-clean {
   font-size: 11px;
   font-weight: 700;
   transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
 /* 1. Toutes (Graphite / Slate) */
@@ -4640,9 +4684,10 @@ body.notion-dark-clean {
   color: #334155;
 }
 .zen-pill-all:hover {
-  background: #f1f5f9;
-  border-color: #94a3b8;
+  background: #edf2f7;
+  border-color: #64748b;
   color: #0f172a;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
 }
 .zen-pill-all.active {
   background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
@@ -4672,16 +4717,19 @@ body.notion-dark-clean {
   color: #b91c1c;
 }
 .zen-pill-ft:hover {
-  background: #fee2e2;
-  border-color: #f87171;
-  color: #7f1d1d;
-  box-shadow: 0 6px 16px rgba(220, 38, 38, 0.18);
+  background: #ffe4e6;
+  border-color: #f43f5e;
+  color: #9f1239;
+  box-shadow: 0 8px 20px rgba(220, 38, 38, 0.22);
+}
+.zen-pill-ft:hover i {
+  color: #e11d48;
 }
 .zen-pill-ft.active {
   background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
   color: #ffffff;
   border-color: #dc2626;
-  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.35), 0 0 0 3px rgba(239, 68, 68, 0.2);
+  box-shadow: 0 4px 18px rgba(220, 38, 38, 0.35), 0 0 0 3px rgba(239, 68, 68, 0.2);
 }
 .zen-pill-ft.active i {
   color: #ffffff;
@@ -4706,15 +4754,18 @@ body.notion-dark-clean {
 }
 .zen-pill-li:hover {
   background: #e0f2fe;
-  border-color: #38bdf8;
-  color: #0c4a6e;
-  box-shadow: 0 6px 16px rgba(2, 132, 199, 0.18);
+  border-color: #0284c7;
+  color: #075985;
+  box-shadow: 0 8px 20px rgba(2, 132, 199, 0.22);
+}
+.zen-pill-li:hover i {
+  color: #0284c7;
 }
 .zen-pill-li.active {
   background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
   color: #ffffff;
   border-color: #0369a1;
-  box-shadow: 0 4px 16px rgba(2, 132, 199, 0.35), 0 0 0 3px rgba(2, 132, 199, 0.2);
+  box-shadow: 0 4px 18px rgba(2, 132, 199, 0.35), 0 0 0 3px rgba(2, 132, 199, 0.2);
 }
 .zen-pill-li.active i {
   color: #ffffff;
@@ -4739,15 +4790,18 @@ body.notion-dark-clean {
 }
 .zen-pill-ind:hover {
   background: #dcfce7;
-  border-color: #4ade80;
-  color: #14532d;
-  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.18);
+  border-color: #10b981;
+  color: #166534;
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.22);
+}
+.zen-pill-ind:hover i {
+  color: #059669;
 }
 .zen-pill-ind.active {
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: #ffffff;
   border-color: #059669;
-  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35), 0 0 0 3px rgba(16, 185, 129, 0.2);
+  box-shadow: 0 4px 18px rgba(16, 185, 129, 0.35), 0 0 0 3px rgba(16, 185, 129, 0.2);
 }
 .zen-pill-ind.active i {
   color: #ffffff;
@@ -4772,15 +4826,18 @@ body.notion-dark-clean {
 }
 .zen-pill-applied:hover {
   background: #d1fae5;
-  border-color: #34d399;
+  border-color: #059669;
   color: #064e3b;
-  box-shadow: 0 6px 16px rgba(5, 150, 105, 0.18);
+  box-shadow: 0 8px 20px rgba(5, 150, 105, 0.22);
+}
+.zen-pill-applied:hover i {
+  color: #047857;
 }
 .zen-pill-applied.active {
   background: linear-gradient(135deg, #059669 0%, #047857 100%);
   color: #ffffff;
   border-color: #047857;
-  box-shadow: 0 4px 16px rgba(4, 120, 87, 0.35), 0 0 0 3px rgba(5, 150, 105, 0.2);
+  box-shadow: 0 4px 18px rgba(4, 120, 87, 0.35), 0 0 0 3px rgba(5, 150, 105, 0.2);
 }
 .zen-pill-applied.active i {
   color: #ffffff;
@@ -4901,6 +4958,160 @@ body.notion-dark-clean {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+}
+
+/* ==========================================================
+   DYNAMIC PLATFORM THEMED WORKBENCH TABLE
+========================================================== */
+/* France Travail Theme (Rouge Vibrant) */
+.steady-workbench-card.theme-ft {
+  border-top: 4px solid #ef4444 !important;
+  border-color: #fca5a5 !important;
+  box-shadow: 0 10px 30px -8px rgba(239, 68, 68, 0.18), 0 2px 6px rgba(0, 0, 0, 0.04) !important;
+}
+.steady-workbench-card.theme-ft .steady-workbench-header {
+  background: linear-gradient(180deg, #fff5f5 0%, #ffffff 100%) !important;
+  border-bottom-color: #fee2e2 !important;
+}
+.steady-workbench-card.theme-ft .steady-workbench-title {
+  color: #b91c1c !important;
+}
+.steady-workbench-card.theme-ft .steady-count-pill {
+  background: #fee2e2 !important;
+  color: #991b1b !important;
+  border-color: #fca5a5 !important;
+}
+.steady-workbench-card.theme-ft .steady-toolbar {
+  background: #fffafa !important;
+  border-bottom-color: #fee2e2 !important;
+}
+.steady-workbench-card.theme-ft .steady-search-box:focus-within {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
+}
+.steady-workbench-card.theme-ft .notion-db-table th {
+  background: #fff5f5 !important;
+  color: #9f1239 !important;
+  border-bottom: 2px solid #fecdd3 !important;
+}
+.steady-workbench-card.theme-ft .notion-db-table tr:hover td {
+  background-color: #fff1f2 !important;
+}
+
+/* LinkedIn Theme (Bleu LinkedIn) */
+.steady-workbench-card.theme-li {
+  border-top: 4px solid #0284c7 !important;
+  border-color: #7dd3fc !important;
+  box-shadow: 0 10px 30px -8px rgba(2, 132, 199, 0.18), 0 2px 6px rgba(0, 0, 0, 0.04) !important;
+}
+.steady-workbench-card.theme-li .steady-workbench-header {
+  background: linear-gradient(180deg, #f0f9ff 0%, #ffffff 100%) !important;
+  border-bottom-color: #e0f2fe !important;
+}
+.steady-workbench-card.theme-li .steady-workbench-title {
+  color: #0369a1 !important;
+}
+.steady-workbench-card.theme-li .steady-count-pill {
+  background: #e0f2fe !important;
+  color: #075985 !important;
+  border-color: #7dd3fc !important;
+}
+.steady-workbench-card.theme-li .steady-toolbar {
+  background: #f8fbfe !important;
+  border-bottom-color: #e0f2fe !important;
+}
+.steady-workbench-card.theme-li .steady-search-box:focus-within {
+  border-color: #0284c7 !important;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15) !important;
+}
+.steady-workbench-card.theme-li .notion-db-table th {
+  background: #f0f9ff !important;
+  color: #0c4a6e !important;
+  border-bottom: 2px solid #bae6fd !important;
+}
+.steady-workbench-card.theme-li .notion-db-table tr:hover td {
+  background-color: #f0f9ff !important;
+}
+
+/* Indeed Theme (Vert Indeed) */
+.steady-workbench-card.theme-ind {
+  border-top: 4px solid #10b981 !important;
+  border-color: #86efac !important;
+  box-shadow: 0 10px 30px -8px rgba(16, 185, 129, 0.18), 0 2px 6px rgba(0, 0, 0, 0.04) !important;
+}
+.steady-workbench-card.theme-ind .steady-workbench-header {
+  background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%) !important;
+  border-bottom-color: #dcfce7 !important;
+}
+.steady-workbench-card.theme-ind .steady-workbench-title {
+  color: #047857 !important;
+}
+.steady-workbench-card.theme-ind .steady-count-pill {
+  background: #dcfce7 !important;
+  color: #166534 !important;
+  border-color: #86efac !important;
+}
+.steady-workbench-card.theme-ind .steady-toolbar {
+  background: #f8fef9 !important;
+  border-bottom-color: #dcfce7 !important;
+}
+.steady-workbench-card.theme-ind .steady-search-box:focus-within {
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15) !important;
+}
+.steady-workbench-card.theme-ind .notion-db-table th {
+  background: #f0fdf4 !important;
+  color: #14532d !important;
+  border-bottom: 2px solid #bbf7d0 !important;
+}
+.steady-workbench-card.theme-ind .notion-db-table tr:hover td {
+  background-color: #f0fdf4 !important;
+}
+
+/* Postulées Theme (Émeraude) */
+.steady-workbench-card.theme-applied {
+  border-top: 4px solid #059669 !important;
+  border-color: #6ee7b7 !important;
+  box-shadow: 0 10px 30px -8px rgba(5, 150, 105, 0.18), 0 2px 6px rgba(0, 0, 0, 0.04) !important;
+}
+.steady-workbench-card.theme-applied .steady-workbench-header {
+  background: linear-gradient(180deg, #ecfdf5 0%, #ffffff 100%) !important;
+  border-bottom-color: #d1fae5 !important;
+}
+.steady-workbench-card.theme-applied .steady-workbench-title {
+  color: #065f46 !important;
+}
+.steady-workbench-card.theme-applied .steady-count-pill {
+  background: #d1fae5 !important;
+  color: #064e3b !important;
+  border-color: #6ee7b7 !important;
+}
+.steady-workbench-card.theme-applied .steady-toolbar {
+  background: #f7fefb !important;
+  border-bottom-color: #d1fae5 !important;
+}
+.steady-workbench-card.theme-applied .notion-db-table th {
+  background: #ecfdf5 !important;
+  color: #064e3b !important;
+  border-bottom: 2px solid #a7f3d0 !important;
+}
+.steady-workbench-card.theme-applied .notion-db-table tr:hover td {
+  background-color: #ecfdf5 !important;
+}
+
+/* Toutes Theme (Graphite Élégant) */
+.steady-workbench-card.theme-all {
+  border-top: 4px solid #0f172a !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 10px 30px -8px rgba(15, 23, 42, 0.1), 0 2px 6px rgba(0, 0, 0, 0.04) !important;
+}
+.steady-workbench-card.theme-all .steady-workbench-title {
+  color: #0f172a !important;
+}
+.steady-workbench-card.theme-all .steady-count-pill {
+  background: #f1f5f9 !important;
+  color: #334155 !important;
+  border-color: #cbd5e1 !important;
 }
 
 .steady-workbench-header {
@@ -5940,6 +6151,12 @@ body.theme-dark .zen-pill-ft {
   color: #fca5a5;
   border-color: rgba(239, 68, 68, 0.35);
 }
+body.theme-dark .zen-pill-ft:hover {
+  background: rgba(239, 68, 68, 0.24);
+  border-color: #ef4444;
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+}
 body.theme-dark .zen-pill-ft .zen-plat-badge {
   background: rgba(239, 68, 68, 0.22);
   color: #fecaca;
@@ -5949,6 +6166,12 @@ body.theme-dark .zen-pill-li {
   background: rgba(2, 132, 199, 0.12);
   color: #7dd3fc;
   border-color: rgba(2, 132, 199, 0.35);
+}
+body.theme-dark .zen-pill-li:hover {
+  background: rgba(2, 132, 199, 0.24);
+  border-color: #38bdf8;
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(2, 132, 199, 0.3);
 }
 body.theme-dark .zen-pill-li .zen-plat-badge {
   background: rgba(2, 132, 199, 0.22);
@@ -5960,6 +6183,12 @@ body.theme-dark .zen-pill-ind {
   color: #86efac;
   border-color: rgba(16, 185, 129, 0.35);
 }
+body.theme-dark .zen-pill-ind:hover {
+  background: rgba(16, 185, 129, 0.24);
+  border-color: #34d399;
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+}
 body.theme-dark .zen-pill-ind .zen-plat-badge {
   background: rgba(16, 185, 129, 0.22);
   color: #bbf7d0;
@@ -5970,9 +6199,144 @@ body.theme-dark .zen-pill-applied {
   color: #6ee7b7;
   border-color: rgba(5, 150, 105, 0.38);
 }
+body.theme-dark .zen-pill-applied:hover {
+  background: rgba(5, 150, 105, 0.26);
+  border-color: #10b981;
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(5, 150, 105, 0.3);
+}
 body.theme-dark .zen-pill-applied .zen-plat-badge {
   background: rgba(5, 150, 105, 0.25);
   color: #a7f3d0;
+}
+
+/* Dark Mode: Dynamic Platform Themed Workbench Table */
+body.theme-dark .steady-workbench-card.theme-ft {
+  background: #171012 !important;
+  border-top: 4px solid #ef4444 !important;
+  border-color: rgba(239, 68, 68, 0.45) !important;
+  box-shadow: 0 10px 30px -8px rgba(239, 68, 68, 0.25) !important;
+}
+body.theme-dark .steady-workbench-card.theme-ft .steady-workbench-header {
+  background: linear-gradient(180deg, rgba(239, 68, 68, 0.16) 0%, #171012 100%) !important;
+  border-bottom-color: rgba(239, 68, 68, 0.25) !important;
+}
+body.theme-dark .steady-workbench-card.theme-ft .steady-workbench-title {
+  color: #fca5a5 !important;
+}
+body.theme-dark .steady-workbench-card.theme-ft .steady-count-pill {
+  background: rgba(239, 68, 68, 0.2) !important;
+  color: #fca5a5 !important;
+  border-color: rgba(239, 68, 68, 0.45) !important;
+}
+body.theme-dark .steady-workbench-card.theme-ft .steady-toolbar {
+  background: #120c0e !important;
+  border-bottom-color: rgba(239, 68, 68, 0.2) !important;
+}
+body.theme-dark .steady-workbench-card.theme-ft .notion-db-table th {
+  background: rgba(239, 68, 68, 0.12) !important;
+  color: #fecaca !important;
+  border-bottom-color: rgba(239, 68, 68, 0.3) !important;
+}
+body.theme-dark .steady-workbench-card.theme-ft .notion-db-table tr:hover td {
+  background-color: rgba(239, 68, 68, 0.08) !important;
+}
+
+body.theme-dark .steady-workbench-card.theme-li {
+  background: #0c141d !important;
+  border-top: 4px solid #38bdf8 !important;
+  border-color: rgba(56, 189, 248, 0.45) !important;
+  box-shadow: 0 10px 30px -8px rgba(2, 132, 199, 0.25) !important;
+}
+body.theme-dark .steady-workbench-card.theme-li .steady-workbench-header {
+  background: linear-gradient(180deg, rgba(2, 132, 199, 0.18) 0%, #0c141d 100%) !important;
+  border-bottom-color: rgba(2, 132, 199, 0.25) !important;
+}
+body.theme-dark .steady-workbench-card.theme-li .steady-workbench-title {
+  color: #7dd3fc !important;
+}
+body.theme-dark .steady-workbench-card.theme-li .steady-count-pill {
+  background: rgba(2, 132, 199, 0.2) !important;
+  color: #7dd3fc !important;
+  border-color: rgba(56, 189, 248, 0.45) !important;
+}
+body.theme-dark .steady-workbench-card.theme-li .steady-toolbar {
+  background: #090f16 !important;
+  border-bottom-color: rgba(2, 132, 199, 0.2) !important;
+}
+body.theme-dark .steady-workbench-card.theme-li .notion-db-table th {
+  background: rgba(2, 132, 199, 0.12) !important;
+  color: #bae6fd !important;
+  border-bottom-color: rgba(2, 132, 199, 0.3) !important;
+}
+body.theme-dark .steady-workbench-card.theme-li .notion-db-table tr:hover td {
+  background-color: rgba(2, 132, 199, 0.08) !important;
+}
+
+body.theme-dark .steady-workbench-card.theme-ind {
+  background: #0c1713 !important;
+  border-top: 4px solid #34d399 !important;
+  border-color: rgba(52, 211, 153, 0.45) !important;
+  box-shadow: 0 10px 30px -8px rgba(16, 185, 129, 0.25) !important;
+}
+body.theme-dark .steady-workbench-card.theme-ind .steady-workbench-header {
+  background: linear-gradient(180deg, rgba(16, 185, 129, 0.18) 0%, #0c1713 100%) !important;
+  border-bottom-color: rgba(16, 185, 129, 0.25) !important;
+}
+body.theme-dark .steady-workbench-card.theme-ind .steady-workbench-title {
+  color: #6ee7b7 !important;
+}
+body.theme-dark .steady-workbench-card.theme-ind .steady-count-pill {
+  background: rgba(16, 185, 129, 0.2) !important;
+  color: #6ee7b7 !important;
+  border-color: rgba(52, 211, 153, 0.45) !important;
+}
+body.theme-dark .steady-workbench-card.theme-ind .steady-toolbar {
+  background: #08120e !important;
+  border-bottom-color: rgba(16, 185, 129, 0.2) !important;
+}
+body.theme-dark .steady-workbench-card.theme-ind .notion-db-table th {
+  background: rgba(16, 185, 129, 0.12) !important;
+  color: #a7f3d0 !important;
+  border-bottom-color: rgba(16, 185, 129, 0.3) !important;
+}
+body.theme-dark .steady-workbench-card.theme-ind .notion-db-table tr:hover td {
+  background-color: rgba(16, 185, 129, 0.08) !important;
+}
+
+body.theme-dark .steady-workbench-card.theme-applied {
+  background: #0c1713 !important;
+  border-top: 4px solid #34d399 !important;
+  border-color: rgba(52, 211, 153, 0.45) !important;
+  box-shadow: 0 10px 30px -8px rgba(5, 150, 105, 0.25) !important;
+}
+body.theme-dark .steady-workbench-card.theme-applied .steady-workbench-header {
+  background: linear-gradient(180deg, rgba(5, 150, 105, 0.18) 0%, #0d1713 100%) !important;
+  border-bottom-color: rgba(5, 150, 105, 0.25) !important;
+}
+body.theme-dark .steady-workbench-card.theme-applied .steady-workbench-title {
+  color: #6ee7b7 !important;
+}
+body.theme-dark .steady-workbench-card.theme-applied .steady-count-pill {
+  background: rgba(5, 150, 105, 0.2) !important;
+  color: #6ee7b7 !important;
+  border-color: rgba(52, 211, 153, 0.45) !important;
+}
+body.theme-dark .steady-workbench-card.theme-applied .steady-toolbar {
+  background: #08120e !important;
+  border-bottom-color: rgba(5, 150, 105, 0.2) !important;
+}
+body.theme-dark .steady-workbench-card.theme-applied .notion-db-table th {
+  background: rgba(5, 150, 105, 0.12) !important;
+  color: #a7f3d0 !important;
+  border-bottom-color: rgba(5, 150, 105, 0.3) !important;
+}
+body.theme-dark .steady-workbench-card.theme-applied .notion-db-table tr:hover td {
+  background-color: rgba(5, 150, 105, 0.08) !important;
+}
+
+body.theme-dark .steady-workbench-card.theme-all {
+  border-top: 4px solid #94a3b8 !important;
 }
 
 /* ==========================================================
