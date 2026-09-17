@@ -59,17 +59,232 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* ==========================================================
-   ZEN MODE ENGINE (LIGHTWEIGHT PROGRESS HOOKS)
-   Replaces the legacy 3D particle neural network with clean,
-   silent, zero-CPU hooks for application progress tracking.
+   LUDIQUE 1-CLICK PROGRESS HERO ENGINE
+   Large, playful, gamified progress bar on the main dashboard
+   with flying rocket mascot, stars particle stream, live counters & victory fireworks.
 ========================================================== */
+function initLudiqueProgress() {
+  const hero = document.getElementById("ludique-progress-hero");
+  const canvas = document.getElementById("ludique-stars-canvas");
+  const trackFill = document.getElementById("ludique-track-fill");
+  const rocketSlider = document.getElementById("ludique-rocket-slider");
+  const giantPct = document.getElementById("ludique-giant-pct");
+  const stepText = document.getElementById("ludique-step-text");
+  const titleElem = document.getElementById("ludique-main-title");
+  const subElem = document.getElementById("ludique-subtitle");
+  const mascotIcon = document.getElementById("ludique-mascot-icon");
+  const xpBadge = document.getElementById("ludique-xp-badge");
+  const victoryRow = document.getElementById("ludique-victory-row");
+  const victoryMsg = document.getElementById("ludique-victory-msg");
+  const countSuccess = document.getElementById("ludique-count-success");
+  const countRemaining = document.getElementById("ludique-count-remaining");
+  const countSkipped = document.getElementById("ludique-count-skipped");
+  const btnStop = document.getElementById("btn-ludique-stop");
+  const btnClose = document.getElementById("btn-ludique-close");
+  const btnViewApplied = document.getElementById("btn-ludique-view-applied");
+
+  let animFrameId = null;
+  let particles = [];
+  let currentPct = 0;
+  let isRunning = false;
+
+  function initCanvas() {
+    if (!canvas || !canvas.parentElement) return;
+    const ctx = canvas.getContext("2d");
+    let w = (canvas.width = canvas.parentElement.offsetWidth || 900);
+    let h = (canvas.height = canvas.parentElement.offsetHeight || 240);
+
+    const resize = () => {
+      if (canvas.parentElement) {
+        w = canvas.width = canvas.parentElement.offsetWidth || 900;
+        h = canvas.height = canvas.parentElement.offsetHeight || 240;
+      }
+    };
+    window.removeEventListener("resize", resize);
+    window.addEventListener("resize", resize);
+
+    particles = [];
+    const colors = ["#38bdf8", "#818cf8", "#c084fc", "#10b981", "#fbbf24"];
+    for (let i = 0; i < 50; i++) {
+      particles.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        radius: Math.random() * 2.2 + 0.8,
+        vx: Math.random() * 1.8 + 0.6,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        alpha: Math.random() * 0.75 + 0.25,
+      });
+    }
+
+    function loop() {
+      if (!ctx) return;
+      ctx.clearRect(0, 0, w, h);
+      const speedMult = 1 + (currentPct / 20);
+
+      particles.forEach((p) => {
+        p.x += p.vx * speedMult;
+        if (p.x > w) {
+          p.x = 0;
+          p.y = Math.random() * h;
+        }
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = p.alpha;
+        ctx.fill();
+      });
+
+      ctx.globalAlpha = 1;
+      if (isRunning) {
+        animFrameId = requestAnimationFrame(loop);
+      }
+    }
+
+    if (animFrameId) cancelAnimationFrame(animFrameId);
+    animFrameId = requestAnimationFrame(loop);
+  }
+
+  // Buttons
+  if (btnStop) {
+    btnStop.addEventListener("click", async () => {
+      btnStop.disabled = true;
+      btnStop.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Arrêt...';
+      try {
+        await fetch("/api/jobs/stop-batch", { method: "POST" });
+        showToast("Arrêt des candidatures demandé.", "info");
+      } catch (err) {
+        showToast("Erreur arrêt : " + err.message, "error");
+      } finally {
+        setTimeout(() => {
+          btnStop.disabled = false;
+          btnStop.innerHTML = '<i class="fa-solid fa-hand"></i> <span>Arrêter</span>';
+        }, 1200);
+      }
+    });
+  }
+
+  if (btnClose) {
+    btnClose.addEventListener("click", () => {
+      if (hero) hero.style.display = "none";
+    });
+  }
+
+  if (btnViewApplied) {
+    btnViewApplied.addEventListener("click", () => {
+      if (typeof window.openZenTable === "function") {
+        window.openZenTable("", "applied");
+      }
+    });
+  }
+
+  window.LudiqueProgress = {
+    open: function (options = {}) {
+      isRunning = true;
+      currentPct = 0;
+
+      if (hero) {
+        hero.style.display = "flex";
+        setTimeout(() => {
+          hero.scrollIntoView({ behavior: "smooth", block: "center" });
+        }, 60);
+      }
+
+      initCanvas();
+
+      if (titleElem) {
+        titleElem.innerText = options.title || "Turbo-Postulation en 1 Clic";
+      }
+      if (subElem) {
+        if (options.company) {
+          subElem.innerHTML = `Mission en direct vers <strong style="color:#38bdf8;">${escapeHtml(options.company)}</strong> via l'agent IA biométrique.`;
+        } else {
+          subElem.innerText = "L'agent IA pilote Playwright en navigation biométrique pour postuler à vos offres sans blocage.";
+        }
+      }
+      if (mascotIcon) mascotIcon.innerText = "🚀";
+      if (victoryRow) victoryRow.style.display = "none";
+      if (trackFill) trackFill.style.width = "0%";
+      if (rocketSlider) rocketSlider.style.left = "0%";
+      if (giantPct) giantPct.innerText = "0%";
+      if (stepText) stepText.innerText = "Initialisation des propulseurs Playwright...";
+      if (xpBadge) xpBadge.innerHTML = '<i class="fa-solid fa-bolt"></i> +50 XP';
+
+      if (countSuccess) countSuccess.innerText = "0";
+      if (countRemaining) countRemaining.innerText = options.totalCount || "-";
+      if (countSkipped) countSkipped.innerText = "0";
+    },
+
+    setProgress: function (pct, stepMsg, stats = null) {
+      currentPct = Math.min(100, Math.max(0, Math.round(pct)));
+
+      if (hero && hero.style.display === "none") {
+        hero.style.display = "flex";
+      }
+
+      if (trackFill) trackFill.style.width = `${currentPct}%`;
+      if (rocketSlider) rocketSlider.style.left = `${currentPct}%`;
+      if (giantPct) giantPct.innerText = `${currentPct}%`;
+      if (stepMsg && stepText) stepText.innerText = stepMsg;
+
+      if (xpBadge) {
+        const gainedXp = Math.max(50, Math.round(currentPct * 5));
+        xpBadge.innerHTML = `<i class="fa-solid fa-bolt"></i> +${gainedXp} XP`;
+      }
+
+      if (stats) {
+        if (countSuccess && stats.success_count !== undefined) {
+          countSuccess.innerText = stats.success_count;
+        }
+        if (countRemaining) {
+          if (stats.remaining !== undefined) {
+            countRemaining.innerText = stats.remaining;
+          } else if (stats.total !== undefined && stats.current_index !== undefined) {
+            countRemaining.innerText = Math.max(0, stats.total - stats.current_index);
+          }
+        }
+        if (countSkipped && stats.skipped_count !== undefined) {
+          countSkipped.innerText = stats.skipped_count;
+        }
+      }
+    },
+
+    complete: function (isSuccess, finalMsg) {
+      currentPct = 100;
+      if (trackFill) trackFill.style.width = "100%";
+      if (rocketSlider) rocketSlider.style.left = "100%";
+      if (giantPct) giantPct.innerText = "100%";
+      if (mascotIcon) mascotIcon.innerText = isSuccess ? "🎉" : "⚠️";
+
+      if (stepText) {
+        stepText.innerText = finalMsg || (isSuccess ? "Session terminée avec succès !" : "Session interrompue");
+      }
+
+      if (isSuccess && victoryRow) {
+        victoryRow.style.display = "flex";
+        if (victoryMsg && finalMsg) victoryMsg.innerText = finalMsg;
+      }
+
+      if (xpBadge) {
+        xpBadge.innerHTML = '<i class="fa-solid fa-trophy"></i> +500 XP MAX';
+      }
+
+      if (typeof loadJobs === "function") loadJobs();
+      if (typeof updateBatchCounts === "function") updateBatchCounts();
+    },
+
+    close: function () {
+      isRunning = false;
+      if (animFrameId) cancelAnimationFrame(animFrameId);
+      if (hero) hero.style.display = "none";
+    },
+  };
+
+  // Backward-compatible hook alias for existing calls
+  window.ParticleProgress3D = window.LudiqueProgress;
+}
+
 function init3DMotionBanner() {
-  window.__updateNeuralProgress = function(pct, stepName) {
-    // Zen silent progress hook
-  };
-  window.__completeNeuralProgress = function(isSuccess, finalMsg) {
-    // Zen silent completion hook
-  };
+  initLudiqueProgress();
 }
 
 /* ==========================================================
@@ -4066,7 +4281,13 @@ function setupBatchApplyExperience() {
 
       // Sync with 3D Particle Progress Bar on the main screen
       if (window.ParticleProgress3D) {
-        window.ParticleProgress3D.setProgress(p, status.current_task || "Postulation simultanée en cours...");
+        window.ParticleProgress3D.setProgress(p, status.current_task || "Postulation simultanée en cours...", {
+          success_count: status.success_count || 0,
+          remaining: Math.max(0, (status.total || 0) - (status.current_index || 0)),
+          skipped_count: status.skipped_count || 0,
+          total: status.total || 0,
+          current_index: status.current_index || 0
+        });
       }
 
       if (statSuccess) statSuccess.innerText = status.success_count || 0;
@@ -4175,6 +4396,7 @@ function setupBatchApplyExperience() {
         if (!res.ok) throw new Error(data.message || "Erreur au lancement");
 
         showToast(data.message || "Candidatures simultanées par plateforme lancées !", "success");
+        closeModal();
 
         // Start polling
         await checkCurrentBatchStatus();

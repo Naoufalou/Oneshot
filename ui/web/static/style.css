@@ -7380,6 +7380,508 @@ body.theme-light #modal-banner-customizer .banner-toggle-btn.active {
   color: #059669;
 }
 
+/* ==========================================================
+   LUDIQUE 1-CLICK PROGRESS HERO (GAMIFIED MISSION CENTER)
+========================================================== */
+.ludique-progress-hero {
+  position: relative;
+  width: 100%;
+  margin: 0 0 24px 0;
+  border-radius: 22px;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(30, 41, 59, 0.94));
+  border: 1.5px solid rgba(56, 189, 248, 0.4);
+  box-shadow: 0 20px 50px -10px rgba(56, 189, 248, 0.22), 0 0 0 1px rgba(56, 189, 248, 0.2);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: ludiquePopIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes ludiquePopIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-16px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+body:not(.theme-dark) .ludique-progress-hero {
+  background: linear-gradient(135deg, #ffffff, #f8fafc);
+  border-color: rgba(59, 130, 246, 0.35);
+  box-shadow: 0 20px 50px -10px rgba(59, 130, 246, 0.16), 0 0 0 1px rgba(59, 130, 246, 0.12);
+}
+
+.ludique-hero-canvas-wrap {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: 22px;
+  overflow: hidden;
+  opacity: 0.4;
+  z-index: 1;
+}
+
+.ludique-hero-canvas-wrap canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.ludique-hero-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Header Row & Mission Badges */
+.ludique-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.ludique-mission-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ludique-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(56, 189, 248, 0.12);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.ludique-tag.pulse {
+  animation: ludiqueGlowPulse 2s infinite alternate;
+}
+
+@keyframes ludiqueGlowPulse {
+  0% {
+    box-shadow: 0 0 0 rgba(56, 189, 248, 0);
+  }
+  100% {
+    box-shadow: 0 0 14px rgba(56, 189, 248, 0.45);
+  }
+}
+
+.ludique-tag.xp {
+  background: rgba(251, 191, 36, 0.12);
+  color: #fbbf24;
+  border-color: rgba(251, 191, 36, 0.35);
+}
+
+.ludique-tag.speed {
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+  border-color: rgba(16, 185, 129, 0.35);
+}
+
+.ludique-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ludique-btn-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: #94a3b8;
+  transition: all 0.2s ease;
+}
+
+body:not(.theme-dark) .ludique-btn-action {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #475569;
+}
+
+.ludique-btn-action:hover {
+  transform: translateY(-1px);
+}
+
+.ludique-btn-action.stop:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #ef4444;
+}
+
+.ludique-btn-action.close:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #f8fafc;
+}
+
+/* Title Block */
+.ludique-title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ludique-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ludique-mascot-icon {
+  font-size: 32px;
+  display: inline-block;
+  animation: ludiqueFloat 2.2s infinite ease-in-out;
+  transform-origin: center bottom;
+}
+
+@keyframes ludiqueFloat {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(6deg);
+  }
+}
+
+.ludique-main-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  background: linear-gradient(90deg, #38bdf8, #818cf8, #c084fc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+body:not(.theme-dark) .ludique-main-title {
+  background: linear-gradient(90deg, #0284c7, #6366f1, #9333ea);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.ludique-subtitle {
+  margin: 0;
+  font-size: 13px;
+  color: #94a3b8;
+  line-height: 1.5;
+}
+
+body:not(.theme-dark) .ludique-subtitle {
+  color: #64748b;
+}
+
+/* Gamified Giant Progress Track with Flying Rocket Slider */
+.ludique-track-container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 10px 0 4px 0;
+  position: relative;
+}
+
+.ludique-track-bg {
+  flex: 1;
+  height: 32px;
+  background: rgba(0, 0, 0, 0.45);
+  border-radius: 999px;
+  position: relative;
+  border: 1.5px solid rgba(56, 189, 248, 0.35);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+body:not(.theme-dark) .ludique-track-bg {
+  background: #e2e8f0;
+  border-color: rgba(59, 130, 246, 0.4);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.ludique-track-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #0284c7, #38bdf8, #818cf8, #a855f7, #10b981);
+  background-size: 200% 100%;
+  position: relative;
+  transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 0 22px rgba(56, 189, 248, 0.6);
+  overflow: hidden;
+}
+
+.ludique-liquid-sheen {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.35) 50%, transparent 100%);
+  animation: liquidSheen 2.2s linear infinite;
+}
+
+@keyframes liquidSheen {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Rocket gliding along the tip */
+.ludique-rocket-slider {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  transition: left 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: flex;
+  align-items: center;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.ludique-rocket-flame {
+  font-size: 20px;
+  animation: flameFlicker 0.2s infinite alternate;
+  margin-right: -4px;
+}
+
+@keyframes flameFlicker {
+  0% {
+    transform: scale(0.85) translateX(2px);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.15) translateX(-2px);
+    opacity: 1;
+  }
+}
+
+.ludique-rocket-body {
+  font-size: 32px;
+  transform: rotate(45deg);
+  filter: drop-shadow(0 0 10px rgba(249, 115, 22, 0.7));
+}
+
+.ludique-rocket-sparkles {
+  font-size: 16px;
+  animation: sparkleRotate 1.2s infinite linear;
+  margin-left: -4px;
+}
+
+@keyframes sparkleRotate {
+  0% {
+    transform: rotate(0deg) scale(0.8);
+    opacity: 0.6;
+  }
+  50% {
+    transform: rotate(180deg) scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(360deg) scale(0.8);
+    opacity: 0.6;
+  }
+}
+
+.ludique-finish-flag {
+  font-size: 30px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 12px rgba(234, 179, 8, 0.6));
+  animation: trophyBounce 2s infinite ease-in-out;
+}
+
+@keyframes trophyBounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.18) rotate(6deg);
+  }
+}
+
+/* Stats & Level Row */
+.ludique-stats-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.ludique-stat-pct-group {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.ludique-giant-pct {
+  font-size: 38px;
+  font-weight: 900;
+  letter-spacing: -1px;
+  color: #38bdf8;
+  line-height: 1;
+  text-shadow: 0 0 25px rgba(56, 189, 248, 0.55);
+}
+
+body:not(.theme-dark) .ludique-giant-pct {
+  color: #0284c7;
+  text-shadow: none;
+}
+
+.ludique-step-text {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #e2e8f0;
+  max-width: 480px;
+}
+
+body:not(.theme-dark) .ludique-step-text {
+  color: #334155;
+}
+
+/* Gamified Counter Cards */
+.ludique-pills-cluster {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.ludique-counter-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.2s ease;
+}
+
+body:not(.theme-dark) .ludique-counter-card {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.ludique-counter-card.success {
+  border-color: rgba(16, 185, 129, 0.35);
+  color: #10b981;
+}
+
+.ludique-counter-card.remaining {
+  border-color: rgba(56, 189, 248, 0.35);
+  color: #38bdf8;
+}
+
+.ludique-counter-card.skipped {
+  border-color: rgba(251, 191, 36, 0.35);
+  color: #fbbf24;
+}
+
+.ludique-counter-val {
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.ludique-counter-lbl {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+}
+
+/* Victory Row */
+.ludique-victory-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 16px 20px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(6, 182, 212, 0.15));
+  border: 1.5px solid rgba(16, 185, 129, 0.45);
+  animation: victorySlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes victorySlideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ludique-victory-text {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ludique-victory-emoji {
+  font-size: 28px;
+  animation: trophyBounce 1.5s infinite;
+}
+
+.ludique-victory-text strong {
+  display: block;
+  font-size: 14px;
+  color: #34d399;
+}
+
+.ludique-victory-text p {
+  margin: 2px 0 0 0;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.ludique-victory-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 10px;
+  background: #10b981;
+  color: #ffffff;
+  border: none;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+  transition: all 0.2s ease;
+}
+
+.ludique-victory-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+}
+
+
 
 
 

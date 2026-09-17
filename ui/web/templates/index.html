@@ -109,6 +109,103 @@
        STEADY INVOICING MAIN SAAS WORKSPACE
   ========================================================== -->
   <main class="steady-workspace">
+    <!-- ==========================================================
+         LUDIQUE 1-CLICK PROGRESS HERO (GAMIFIED MISSION CENTER)
+    ========================================================== -->
+    <section class="ludique-progress-hero" id="ludique-progress-hero" style="display: none;">
+      <div class="ludique-hero-canvas-wrap">
+        <canvas id="ludique-stars-canvas"></canvas>
+      </div>
+
+      <div class="ludique-hero-content">
+        <!-- Top Mission Header Badges & Controls -->
+        <div class="ludique-header-row">
+          <div class="ludique-mission-badges">
+            <span class="ludique-tag pulse"><i class="fa-solid fa-gamepad"></i> MISSION 1-CLIC</span>
+            <span class="ludique-tag xp" id="ludique-xp-badge"><i class="fa-solid fa-bolt"></i> +100 XP</span>
+            <span class="ludique-tag speed"><i class="fa-solid fa-gauge-high"></i> Mode Humain Indétectable</span>
+          </div>
+
+          <div class="ludique-header-actions">
+            <button type="button" class="ludique-btn-action stop" id="btn-ludique-stop" title="Interrompre la postulation">
+              <i class="fa-solid fa-hand"></i> <span>Arrêter</span>
+            </button>
+            <button type="button" class="ludique-btn-action close" id="btn-ludique-close" title="Réduire ce panneau">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Big Playful Title -->
+        <div class="ludique-title-block">
+          <div class="ludique-title-wrap">
+            <span class="ludique-mascot-icon" id="ludique-mascot-icon">🚀</span>
+            <h2 class="ludique-main-title" id="ludique-main-title">Turbo-Postulation en 1 Clic</h2>
+          </div>
+          <p class="ludique-subtitle" id="ludique-subtitle">
+            L'agent IA pilote Playwright en navigation biométrique pour postuler à vos offres sans blocage.
+          </p>
+        </div>
+
+        <!-- Giant Gamified Progress Track with Rocket Slider -->
+        <div class="ludique-track-container">
+          <div class="ludique-track-bg">
+            <div class="ludique-track-fill" id="ludique-track-fill" style="width: 0%;">
+              <div class="ludique-liquid-sheen"></div>
+            </div>
+            <!-- The gliding rocket along the tip of the bar -->
+            <div class="ludique-rocket-slider" id="ludique-rocket-slider" style="left: 0%;">
+              <span class="ludique-rocket-flame">🔥</span>
+              <span class="ludique-rocket-body">🚀</span>
+              <span class="ludique-rocket-sparkles">✨</span>
+            </div>
+          </div>
+          <!-- Finish Trophy -->
+          <div class="ludique-finish-flag" id="ludique-finish-flag" title="Objectif">🏆</div>
+        </div>
+
+        <!-- Stats & Level Progress Row -->
+        <div class="ludique-stats-row">
+          <div class="ludique-stat-pct-group">
+            <div class="ludique-giant-pct" id="ludique-giant-pct">0%</div>
+            <div class="ludique-step-text" id="ludique-step-text">Initialisation du propulseur Playwright...</div>
+          </div>
+
+          <div class="ludique-pills-cluster">
+            <div class="ludique-counter-card success" title="Candidatures transmises avec succès">
+              <i class="fa-solid fa-circle-check"></i>
+              <span class="ludique-counter-val" id="ludique-count-success">0</span>
+              <span class="ludique-counter-lbl">Envoyées</span>
+            </div>
+            <div class="ludique-counter-card remaining" title="Candidatures restantes dans la file">
+              <i class="fa-solid fa-hourglass-half"></i>
+              <span class="ludique-counter-val" id="ludique-count-remaining">0</span>
+              <span class="ludique-counter-lbl">En file</span>
+            </div>
+            <div class="ludique-counter-card skipped" title="Offres nécessitant une redirection">
+              <i class="fa-solid fa-forward"></i>
+              <span class="ludique-counter-val" id="ludique-count-skipped">0</span>
+              <span class="ludique-counter-lbl">Passées</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Victory Banner (Shown on complete) -->
+        <div class="ludique-victory-row" id="ludique-victory-row" style="display: none;">
+          <div class="ludique-victory-text">
+            <span class="ludique-victory-emoji">🎉</span>
+            <div>
+              <strong>Victoire ! Candidatures envoyées avec succès !</strong>
+              <p id="ludique-victory-msg">Vos offres ont été transmises directement aux recruteurs.</p>
+            </div>
+          </div>
+          <button type="button" class="ludique-victory-btn" id="btn-ludique-view-applied">
+            <i class="fa-solid fa-circle-check"></i> Voir mes candidatures postulées
+          </button>
+        </div>
+      </div>
+    </section>
+
     <!-- ROW 1: KPI SUMMARY CARDS (Exact Steady Invoicing SaaS Metric Cards) -->
     <section class="steady-kpi-grid">
       <!-- Card 1: Opportunités Totales -->
