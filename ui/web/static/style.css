@@ -4637,6 +4637,56 @@ body.notion-dark-clean {
 .steady-dot.li { background: #0284c7; }
 .steady-dot.ind { background: #10b981; }
 
+.steady-table-plat-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: rgba(241, 245, 249, 0.8);
+  border: 1px solid rgba(203, 213, 225, 0.6);
+  color: #64748b;
+  letter-spacing: 0.2px;
+  flex-shrink: 0;
+}
+.steady-table-plat-badge.ft {
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #dc2626;
+  background: rgba(239, 68, 68, 0.08);
+}
+.steady-table-plat-badge.li {
+  border-color: rgba(2, 132, 199, 0.3);
+  color: #0284c7;
+  background: rgba(2, 132, 199, 0.08);
+}
+.steady-table-plat-badge.ind {
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #059669;
+  background: rgba(16, 185, 129, 0.08);
+}
+body.theme-dark .steady-table-plat-badge {
+  background: rgba(30, 41, 59, 0.7);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+}
+body.theme-dark .steady-table-plat-badge.ft {
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.15);
+}
+body.theme-dark .steady-table-plat-badge.li {
+  border-color: rgba(2, 132, 199, 0.4);
+  color: #7dd3fc;
+  background: rgba(2, 132, 199, 0.15);
+}
+body.theme-dark .steady-table-plat-badge.ind {
+  border-color: rgba(16, 185, 129, 0.4);
+  color: #6ee7b7;
+  background: rgba(16, 185, 129, 0.15);
+}
+
 /* ==========================================================
    ZEN COLORED PLATFORM TABS & CALM ADHD STATE
 ========================================================== */

@@ -1298,6 +1298,12 @@ async def apply_all_jobs_endpoint(req: ApplyAllRequest, background_tasks: Backgr
                 min_score=req.min_score,
                 limit=req.limit,
             )
+            if not unapplied:
+                unapplied = db.get_unapplied_jobs(
+                    platform=target_plat,
+                    min_score=None,
+                    limit=req.limit,
+                )
             target_ids = [j["id"] for j in unapplied]
 
         if not target_ids:
@@ -1319,6 +1325,7 @@ async def apply_all_jobs_endpoint(req: ApplyAllRequest, background_tasks: Backgr
     if req.job_ids and len(req.job_ids) > 0:
         all_candidates = [db.get_application_by_id(jid) for jid in req.job_ids]
         all_candidates = [c for c in all_candidates if c]
+    else:
         # Smart targeting: by default only apply to offers at/above the profile's
         # minimum match score, ordered highest-match first
         criteria = settings.load_search_criteria()
@@ -1328,6 +1335,13 @@ async def apply_all_jobs_endpoint(req: ApplyAllRequest, background_tasks: Backgr
             min_score=floor,
             limit=req.limit,
         )
+        if not all_candidates:
+            # Fallback to all unapplied jobs without strict score floor
+            all_candidates = db.get_unapplied_jobs(
+                platform=None,
+                min_score=None,
+                limit=req.limit,
+            )
 
     if not all_candidates:
         raise HTTPException(status_code=400, detail="Aucune offre non postulée trouvée pour ces critères")

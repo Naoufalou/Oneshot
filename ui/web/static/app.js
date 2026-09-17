@@ -797,9 +797,11 @@ function updateBatchCounts() {
   const pillLi = document.getElementById("batch-pill-count-li");
   const pillInd = document.getElementById("batch-pill-count-ind");
 
+  const workbenchCount = document.getElementById("workbench-count-unapplied");
   if (headerCount) headerCount.innerText = unappliedTotal;
   if (stripCount) stripCount.innerText = unappliedTotal;
   if (drawerCount) drawerCount.innerText = unappliedTotal;
+  if (workbenchCount) workbenchCount.innerText = unappliedTotal;
   if (dockAppliedCount) dockAppliedCount.innerText = appliedTotal;
   if (drawerAppliedCount) drawerAppliedCount.innerText = appliedTotal;
 
@@ -924,9 +926,10 @@ function setupFilters() {
 
   // Zen Platform Hub Pills (Toggle Table on click)
   document.querySelectorAll(".zen-plat-pill").forEach(pill => {
-    pill.addEventListener("click", () => {
-      const isApplied = pill.getAttribute("data-status-filter") === "applied";
-      const targetPlat = pill.getAttribute("data-platform") || "";
+    pill.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isApplied = pill.getAttribute("data-status-filter") === "applied" || pill.id === "btn-plat-applied";
+      const targetPlat = isApplied ? "" : (pill.getAttribute("data-platform") || "");
       const targetStatus = isApplied ? "applied" : "";
 
       const workbench = document.getElementById("steady-workbench");
@@ -977,24 +980,25 @@ function setupFilters() {
     });
   }
 
+  // Card 4: Plateformes Actives -> Open Connexions & Sessions des Plateformes
   const kpiPlatformsCard = document.getElementById("steady-kpi-card-platforms");
   if (kpiPlatformsCard) {
     kpiPlatformsCard.style.cursor = "pointer";
     kpiPlatformsCard.addEventListener("click", () => {
-      openZenTable("francetravail", "");
+      if (typeof window.openSecondarySheet === "function") {
+        window.openSecondarySheet("tab-platforms");
+      }
     });
   }
 
-  // KPI platform chip indicators (France Travail, LinkedIn, Indeed)
+  // KPI platform chip indicators (France Travail, LinkedIn, Indeed) inside Card 4
   document.querySelectorAll(".steady-plat-chip").forEach(chip => {
     chip.style.cursor = "pointer";
     chip.addEventListener("click", (e) => {
       e.stopPropagation();
-      const dot = chip.querySelector(".steady-dot");
-      if (dot && dot.classList.contains("ft")) openZenTable("francetravail", "");
-      else if (dot && dot.classList.contains("li")) openZenTable("linkedin", "");
-      else if (dot && dot.classList.contains("ind")) openZenTable("indeed", "");
-      else openZenTable("", "");
+      if (typeof window.openSecondarySheet === "function") {
+        window.openSecondarySheet("tab-platforms");
+      }
     });
   });
 
@@ -1136,10 +1140,10 @@ function setupFilters() {
     });
   });
 
-  // Status chips (Tous, Postulés, Redirection, Échecs)
-  document.querySelectorAll("[data-status-filter]").forEach(chip => {
+  // Status chips (Tous, Postulés, Redirection, Échecs) - only for toolbar chips if present
+  document.querySelectorAll(".toolbar-status-filter:not(.zen-plat-pill)").forEach(chip => {
     chip.addEventListener("click", () => {
-      document.querySelectorAll("[data-status-filter]").forEach(p => p.classList.remove("active"));
+      document.querySelectorAll(".toolbar-status-filter").forEach(p => p.classList.remove("active"));
       chip.classList.add("active");
       selectedStatus = chip.getAttribute("data-status-filter") || "";
       renderJobsTable();
@@ -1241,7 +1245,7 @@ async function saveOption1Click(enabled) {
 async function loadJobs(showLoading = true) {
   try {
     const sortParam = (typeof arovaSortMode !== "undefined") ? arovaSortMode : "relevance";
-    const res = await fetch(`/api/applications?limit=300&sort_by=${sortParam}`);
+    const res = await fetch(`/api/applications?limit=1000&sort_by=${sortParam}`);
     allJobs = await res.json();
     renderJobsTable();
     updateBatchCounts();
@@ -1277,7 +1281,6 @@ function renderJobsTable() {
   if (steadyKpiApplied) steadyKpiApplied.innerText = countApplied;
   if (steadyKpi1Click) steadyKpi1Click.innerText = count1Click;
 
-  // Live counts on Dock CTAs and Top Brand
   // Dynamic counts on Dock CTAs and Top Brand
   const countAll = allJobs.length;
   const elDockAll = document.getElementById("dock-count-all");
@@ -1304,6 +1307,17 @@ function renderJobsTable() {
   }
 
   const filtered = allJobs.filter(job => {
+    // When inspecting applied candidatures, show all applied jobs without strict 1-click or location restrictions
+    if (selectedStatus === "applied") {
+      if (job.status !== "applied") return false;
+      if (selectedPlatform && job.platform.toLowerCase() !== selectedPlatform.toLowerCase()) return false;
+      if (searchQuery) {
+        const matchText = `${job.job_title} ${job.company} ${job.location || ""} ${job.match_reason || ""}`.toLowerCase();
+        if (!matchText.includes(searchQuery)) return false;
+      }
+      return true;
+    }
+
     // 1-Click only filter
     if (filterOnly1Click && (job.is_easy_apply === 0 || job.is_easy_apply === false)) {
       return false;
@@ -1346,17 +1360,26 @@ function renderJobsTable() {
 
   if (tabCount) tabCount.innerText = filtered.length;
   const elSheetCount = document.getElementById("sheet-current-count");
-  if (elSheetCount) elSheetCount.innerText = `${filtered.length} offres`;
+  if (elSheetCount) {
+    elSheetCount.innerText = (selectedStatus === "applied") ? `${filtered.length} candidatures postulées` : `${filtered.length} offres`;
+  }
   if (countText) {
-    const modeLabel = filterOnly1Click ? " • Filtre 1 Clic actif" : " • Affichage de toutes les offres";
-    countText.innerText = `Nombre d'offres : ${filtered.length}${modeLabel}`;
+    if (selectedStatus === "applied") {
+      countText.innerText = `Candidatures transmises : ${filtered.length}`;
+    } else {
+      const modeLabel = filterOnly1Click ? " • Filtre 1 Clic actif" : " • Affichage de toutes les offres";
+      countText.innerText = `Nombre d'offres : ${filtered.length}${modeLabel}`;
+    }
   }
 
   if (filtered.length === 0) {
+    const emptyMsg = (selectedStatus === "applied")
+      ? "Aucune candidature postulée pour l'instant. Choisissez des offres et cliquez sur 'Postuler en 1 Clic' !"
+      : 'Aucune offre ne correspond à cette recherche. Cliquez sur "Toutes" ou lancez "Scanner en Direct".';
     tbody.innerHTML = `
       <tr>
         <td colspan="9" style="text-align:center; padding: 40px 12px; color: var(--text-muted);">
-          Aucune offre ne correspond à cette recherche. Cliquez sur "Toutes" ou lancez "Scanner en Direct".
+          ${emptyMsg}
         </td>
       </tr>
     `;
@@ -1507,6 +1530,13 @@ function renderTableRow(job) {
     </span>
   `;
 
+  const platKey = (job.platform || "francetravail").toLowerCase();
+  const platBadge = platKey === "francetravail"
+    ? `<span class="steady-table-plat-badge ft" title="Plateforme : France Travail"><span class="steady-dot ft"></span> FT</span>`
+    : platKey === "linkedin"
+    ? `<span class="steady-table-plat-badge li" title="Plateforme : LinkedIn"><span class="steady-dot li"></span> LI</span>`
+    : `<span class="steady-table-plat-badge ind" title="Plateforme : Indeed"><span class="steady-dot ind"></span> Indeed</span>`;
+
   return `
     <tr id="job-row-${job.id}" data-id="${job.id}" style="cursor:pointer;" title="Cliquez pour ouvrir la fiche détaillée ou le bouton d'action">
       <td>
@@ -1517,7 +1547,10 @@ function renderTableRow(job) {
         </div>
       </td>
       <td class="row-dim-text">
-        <span title="${companyClean}">${companyClean}</span>
+        <div style="display:inline-flex; align-items:center; gap:6px;">
+          ${platBadge}
+          <span title="${companyClean}">${companyClean}</span>
+        </div>
       </td>
       <td class="row-dim-text">
         <span title="${loc}">${loc}</span>
@@ -3099,7 +3132,7 @@ function setupArovaExperience() {
   const btnDockApplied = document.getElementById("btn-dock-applied");
   if (btnDockApplied) {
     btnDockApplied.addEventListener("click", () => {
-      openArovaCard("", "applied");
+      openZenTable("", "applied");
     });
   }
 
@@ -3107,7 +3140,8 @@ function setupArovaExperience() {
   const btnDrawerViewApplied = document.getElementById("btn-drawer-view-applied");
   if (btnDrawerViewApplied) {
     btnDrawerViewApplied.addEventListener("click", () => {
-      openArovaCard("", "applied");
+      closeStudioDrawer();
+      openZenTable("", "applied");
     });
   }
 
@@ -3117,9 +3151,35 @@ function setupArovaExperience() {
   };
 
   // Helper: Open / close Zen table workbench
-  window.openZenTable = function(platformKey, statusFilter) {
+  window.openZenTable = async function(platformKey, statusFilter) {
     selectedPlatform = platformKey !== undefined ? platformKey : "";
     selectedStatus = statusFilter !== undefined ? statusFilter : "";
+
+    // When viewing applied candidatures, ensure clean display without conflicting 1-click or search filters
+    if (selectedStatus === "applied") {
+      selectedPlatform = platformKey || "";
+      filterOnly1Click = false;
+      const chip1Click = document.getElementById("filter-chip-1click");
+      if (chip1Click) chip1Click.classList.remove("active");
+
+      // Verify all applied jobs are in memory; fetch if missing
+      const inMemApplied = allJobs.filter(j => j.status === "applied");
+      if (inMemApplied.length === 0) {
+        try {
+          const r = await fetch('/api/applications?status=applied&limit=500');
+          const data = await r.json();
+          if (data && data.length > 0) {
+            data.forEach(aj => {
+              const idx = allJobs.findIndex(j => j.id === aj.id);
+              if (idx >= 0) allJobs[idx] = aj;
+              else allJobs.push(aj);
+            });
+          }
+        } catch (err) {
+          console.warn("Could not fetch applied applications:", err);
+        }
+      }
+    }
 
     const workbench = document.getElementById("steady-workbench");
     const calmState = document.getElementById("zen-calm-state");
@@ -3156,7 +3216,7 @@ function setupArovaExperience() {
       const pillPlat = pill.getAttribute("data-platform");
       const pillStatus = pill.getAttribute("data-status-filter");
 
-      if (pillStatus === "applied") {
+      if (pillStatus === "applied" || pill.id === "btn-plat-applied") {
         pill.classList.toggle("active", selectedStatus === "applied");
       } else if (pillPlat !== null) {
         pill.classList.toggle("active", pillPlat === selectedPlatform && selectedStatus === "");
@@ -3166,7 +3226,8 @@ function setupArovaExperience() {
     // Set friendly dynamic title
     if (activeTitle) {
       if (selectedStatus === "applied") {
-        activeTitle.innerHTML = `<i class="fa-solid fa-circle-check" style="color:#059669;margin-right:8px;"></i> Candidatures transmises`;
+        const countApplied = allJobs.filter(j => j.status === "applied").length;
+        activeTitle.innerHTML = `<i class="fa-solid fa-circle-check" style="color:#059669;margin-right:8px;"></i> Candidatures postulées (${countApplied})`;
       } else if (selectedPlatform === "francetravail") {
         activeTitle.innerHTML = `<span class="steady-dot ft" style="display:inline-block;margin-right:8px;"></span> France Travail`;
       } else if (selectedPlatform === "linkedin") {
@@ -3402,7 +3463,7 @@ function setupArovaExperience() {
   const tileApplied = document.getElementById("menu-tile-applied");
   if (tileApplied) tileApplied.addEventListener("click", () => {
     closeStudioDrawer();
-    openArovaCard("", "applied");
+    openZenTable("", "applied");
   });
 
   const btnKillDrawer = document.getElementById("btn-kill-all-browsers-drawer");
@@ -3861,12 +3922,13 @@ function setupBatchApplyExperience() {
     });
   }
 
-  if (btnDrawerMaster) {
-    btnDrawerMaster.addEventListener("click", () => {
+  document.querySelectorAll(".arova-btn-apply-all-master").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
       closeStudioDrawer();
-      openBatchApplyModal("");
+      openBatchApplyModal(selectedPlatform || "");
     });
-  }
+  });
 
   async function checkCurrentBatchStatus() {
     try {
