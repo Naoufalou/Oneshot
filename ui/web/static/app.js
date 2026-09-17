@@ -66,14 +66,19 @@ document.addEventListener("DOMContentLoaded", () => {
 function initLudiqueProgress() {
   const hero = document.getElementById("ludique-progress-hero");
   const canvas = document.getElementById("ludique-stars-canvas");
-  const trackFill = document.getElementById("ludique-track-fill");
-  const rocketSlider = document.getElementById("ludique-rocket-slider");
+  const gaugeStroke = document.getElementById("ludique-gauge-stroke");
+  const rocketRotator = document.getElementById("ludique-rocket-rotator");
   const giantPct = document.getElementById("ludique-giant-pct");
+  const gaugeLabel = document.getElementById("ludique-gauge-label");
   const stepText = document.getElementById("ludique-step-text");
   const titleElem = document.getElementById("ludique-main-title");
   const subElem = document.getElementById("ludique-subtitle");
   const mascotIcon = document.getElementById("ludique-mascot-icon");
   const xpBadge = document.getElementById("ludique-xp-badge");
+  const currPlatform = document.getElementById("ludique-curr-platform");
+  const currPlatBadge = document.getElementById("ludique-curr-plat-badge");
+  const resumeNameElem = document.getElementById("ludique-resume-name");
+  const consoleFeed = document.getElementById("ludique-console-feed");
   const victoryRow = document.getElementById("ludique-victory-row");
   const victoryMsg = document.getElementById("ludique-victory-msg");
   const countSuccess = document.getElementById("ludique-count-success");
@@ -83,21 +88,80 @@ function initLudiqueProgress() {
   const btnClose = document.getElementById("btn-ludique-close");
   const btnViewApplied = document.getElementById("btn-ludique-view-applied");
 
+  const CIRCUMFERENCE = 603.19; // 2 * PI * 96
+
   let animFrameId = null;
   let particles = [];
   let currentPct = 0;
   let isRunning = false;
+  let lastLoggedMsg = "";
+
+  function addConsoleLog(msg, type = "info") {
+    if (!consoleFeed || !msg || msg === lastLoggedMsg) return;
+    lastLoggedMsg = msg;
+
+    const now = new Date();
+    const timeStr = now.toTimeString().split(" ")[0];
+
+    const line = document.createElement("div");
+    line.className = `ludique-log-line ${type}`;
+    line.innerHTML = `
+      <span class="ludique-log-time">${timeStr}</span>
+      <span class="ludique-log-msg">${escapeHtml(msg)}</span>
+    `;
+
+    consoleFeed.appendChild(line);
+    // Keep max 20 logs in feed
+    while (consoleFeed.children.length > 20) {
+      consoleFeed.removeChild(consoleFeed.firstChild);
+    }
+    consoleFeed.scrollTop = consoleFeed.scrollHeight;
+  }
+
+  function updateChecklist(pct, isFinished = false) {
+    let activeStepNum = 1;
+    if (isFinished || pct >= 100) {
+      activeStepNum = 6;
+    } else if (pct >= 85) {
+      activeStepNum = 5;
+    } else if (pct >= 60) {
+      activeStepNum = 4;
+    } else if (pct >= 35) {
+      activeStepNum = 3;
+    } else if (pct >= 15) {
+      activeStepNum = 2;
+    } else {
+      activeStepNum = 1;
+    }
+
+    document.querySelectorAll(".ludique-step-item").forEach((item) => {
+      const stepIdx = parseInt(item.getAttribute("data-step") || "1", 10);
+      const iconWrap = item.querySelector(".ludique-step-status");
+
+      item.classList.remove("active", "completed", "pending");
+      if (isFinished || stepIdx < activeStepNum) {
+        item.classList.add("completed");
+        if (iconWrap) iconWrap.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
+      } else if (stepIdx === activeStepNum) {
+        item.classList.add("active");
+        if (iconWrap) iconWrap.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
+      } else {
+        item.classList.add("pending");
+        if (iconWrap) iconWrap.innerHTML = '<i class="fa-regular fa-circle"></i>';
+      }
+    });
+  }
 
   function initCanvas() {
     if (!canvas || !canvas.parentElement) return;
     const ctx = canvas.getContext("2d");
     let w = (canvas.width = canvas.parentElement.offsetWidth || 900);
-    let h = (canvas.height = canvas.parentElement.offsetHeight || 240);
+    let h = (canvas.height = canvas.parentElement.offsetHeight || 280);
 
     const resize = () => {
       if (canvas.parentElement) {
         w = canvas.width = canvas.parentElement.offsetWidth || 900;
-        h = canvas.height = canvas.parentElement.offsetHeight || 240;
+        h = canvas.height = canvas.parentElement.offsetHeight || 280;
       }
     };
     window.removeEventListener("resize", resize);
@@ -119,7 +183,7 @@ function initLudiqueProgress() {
     function loop() {
       if (!ctx) return;
       ctx.clearRect(0, 0, w, h);
-      const speedMult = 1 + (currentPct / 20);
+      const speedMult = 1 + currentPct / 20;
 
       particles.forEach((p) => {
         p.x += p.vx * speedMult;
@@ -149,6 +213,7 @@ function initLudiqueProgress() {
     btnStop.addEventListener("click", async () => {
       btnStop.disabled = true;
       btnStop.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Arrêt...';
+      addConsoleLog("Arrêt d'urgence demandé par l'utilisateur...", "warning");
       try {
         await fetch("/api/jobs/stop-batch", { method: "POST" });
         showToast("Arrêt des candidatures demandé.", "info");
@@ -181,15 +246,21 @@ function initLudiqueProgress() {
     open: function (options = {}) {
       isRunning = true;
       currentPct = 0;
+      lastLoggedMsg = "";
 
       if (hero) {
-        hero.style.display = "flex";
+        hero.style.display = "block";
         setTimeout(() => {
           hero.scrollIntoView({ behavior: "smooth", block: "center" });
         }, 60);
       }
 
       initCanvas();
+
+      if (consoleFeed) {
+        consoleFeed.innerHTML = "";
+      }
+      addConsoleLog("🚀 Initialisation du propulseur Playwright furtif...", "info");
 
       if (titleElem) {
         titleElem.innerText = options.title || "Turbo-Postulation en 1 Clic";
@@ -198,39 +269,101 @@ function initLudiqueProgress() {
         if (options.company) {
           subElem.innerHTML = `Mission en direct vers <strong style="color:#38bdf8;">${escapeHtml(options.company)}</strong> via l'agent IA biométrique.`;
         } else {
-          subElem.innerText = "L'agent IA pilote Playwright en navigation biométrique pour postuler à vos offres sans blocage.";
+          subElem.innerText = "L'agent IA pilote Playwright en navigation biométrique pour postuler sans blocage.";
         }
       }
+
+      // Target platform badge
+      if (currPlatform) {
+        const pName = (options.platform || "1-Clic").toUpperCase();
+        currPlatform.innerText = pName;
+      }
+      if (currPlatBadge) {
+        const p = (options.platform || "").toLowerCase();
+        if (p.includes("linkedin")) {
+          currPlatBadge.style.color = "#38bdf8";
+          currPlatBadge.style.borderColor = "rgba(56, 189, 248, 0.4)";
+        } else if (p.includes("france") || p.includes("ft")) {
+          currPlatBadge.style.color = "#ef4444";
+          currPlatBadge.style.borderColor = "rgba(239, 68, 68, 0.4)";
+        } else if (p.includes("indeed")) {
+          currPlatBadge.style.color = "#22c55e";
+          currPlatBadge.style.borderColor = "rgba(34, 197, 94, 0.4)";
+        }
+      }
+
+      // Resume name
+      if (resumeNameElem) {
+        resumeNameElem.innerText = options.resume || activeResumeFilename || "CV Actif";
+      }
+
       if (mascotIcon) mascotIcon.innerText = "🚀";
       if (victoryRow) victoryRow.style.display = "none";
-      if (trackFill) trackFill.style.width = "0%";
-      if (rocketSlider) rocketSlider.style.left = "0%";
+
+      // Reset circular SVG gauge & rocket
+      if (gaugeStroke) gaugeStroke.style.strokeDashoffset = `${CIRCUMFERENCE}`;
+      if (rocketRotator) rocketRotator.style.transform = `rotate(0deg)`;
       if (giantPct) giantPct.innerText = "0%";
-      if (stepText) stepText.innerText = "Initialisation des propulseurs Playwright...";
+      if (gaugeLabel) gaugeLabel.innerText = "PROPULSION";
+
+      if (stepText) stepText.innerText = "Initialisation furtive des propulseurs Playwright...";
       if (xpBadge) xpBadge.innerHTML = '<i class="fa-solid fa-bolt"></i> +50 XP';
 
       if (countSuccess) countSuccess.innerText = "0";
       if (countRemaining) countRemaining.innerText = options.totalCount || "-";
       if (countSkipped) countSkipped.innerText = "0";
+
+      updateChecklist(0, false);
     },
 
     setProgress: function (pct, stepMsg, stats = null) {
       currentPct = Math.min(100, Math.max(0, Math.round(pct)));
 
       if (hero && hero.style.display === "none") {
-        hero.style.display = "flex";
+        hero.style.display = "block";
       }
 
-      if (trackFill) trackFill.style.width = `${currentPct}%`;
-      if (rocketSlider) rocketSlider.style.left = `${currentPct}%`;
-      if (giantPct) giantPct.innerText = `${currentPct}%`;
-      if (stepMsg && stepText) stepText.innerText = stepMsg;
+      // Update Circular Progress Ring (Dashoffset)
+      if (gaugeStroke) {
+        const offset = CIRCUMFERENCE * (1 - currentPct / 100);
+        gaugeStroke.style.strokeDashoffset = `${offset}`;
+      }
 
+      // Update Orbiting Rocket Rotator (360 deg)
+      if (rocketRotator) {
+        const rotDeg = currentPct * 3.6;
+        rocketRotator.style.transform = `rotate(${rotDeg}deg)`;
+      }
+
+      // Update Giant Percentage
+      if (giantPct) giantPct.innerText = `${currentPct}%`;
+
+      // Update Dynamic Gauge Label
+      if (gaugeLabel) {
+        if (currentPct >= 100) gaugeLabel.innerText = "TERMINÉ !";
+        else if (currentPct >= 85) gaugeLabel.innerText = "VALIDATION";
+        else if (currentPct >= 60) gaugeLabel.innerText = "RÉPONSES IA";
+        else if (currentPct >= 35) gaugeLabel.innerText = "INJECTION CV";
+        else if (currentPct >= 15) gaugeLabel.innerText = "ANALYSE RH";
+        else gaugeLabel.innerText = "PROPULSION";
+      }
+
+      // Update Step Description
+      if (stepMsg && stepText) {
+        stepText.innerText = stepMsg;
+        addConsoleLog(stepMsg, "info");
+      }
+
+      // Update Checklist Status
+      updateChecklist(currentPct, false);
+
+      // Update XP
       if (xpBadge) {
         const gainedXp = Math.max(50, Math.round(currentPct * 5));
         xpBadge.innerHTML = `<i class="fa-solid fa-bolt"></i> +${gainedXp} XP`;
       }
 
+      // Update Stats & Target if provided
       if (stats) {
         if (countSuccess && stats.success_count !== undefined) {
           countSuccess.innerText = stats.success_count;
@@ -245,19 +378,33 @@ function initLudiqueProgress() {
         if (countSkipped && stats.skipped_count !== undefined) {
           countSkipped.innerText = stats.skipped_count;
         }
+
+        if (stats.title && titleElem) {
+          titleElem.innerText = stats.title;
+        }
+        if (stats.company && subElem) {
+          subElem.innerHTML = `Mission en direct vers <strong style="color:#38bdf8;">${escapeHtml(stats.company)}</strong> via l'agent IA biométrique.`;
+        }
+        if (stats.platform && currPlatform) {
+          currPlatform.innerText = stats.platform.toUpperCase();
+        }
       }
     },
 
     complete: function (isSuccess, finalMsg) {
       currentPct = 100;
-      if (trackFill) trackFill.style.width = "100%";
-      if (rocketSlider) rocketSlider.style.left = "100%";
+
+      if (gaugeStroke) gaugeStroke.style.strokeDashoffset = "0";
+      if (rocketRotator) rocketRotator.style.transform = "rotate(360deg)";
       if (giantPct) giantPct.innerText = "100%";
+      if (gaugeLabel) gaugeLabel.innerText = isSuccess ? "VICTOIRE !" : "ARRÊT";
       if (mascotIcon) mascotIcon.innerText = isSuccess ? "🎉" : "⚠️";
 
-      if (stepText) {
-        stepText.innerText = finalMsg || (isSuccess ? "Session terminée avec succès !" : "Session interrompue");
-      }
+      const msg = finalMsg || (isSuccess ? "Session terminée avec succès !" : "Session interrompue");
+      if (stepText) stepText.innerText = msg;
+      addConsoleLog(msg, isSuccess ? "success" : "warning");
+
+      updateChecklist(100, isSuccess);
 
       if (isSuccess && victoryRow) {
         victoryRow.style.display = "flex";
@@ -1812,7 +1959,9 @@ async function handleApply(jobId, buttonElem) {
       title: targetJob ? targetJob.job_title : "Candidature 1-Clic",
       company: targetJob ? targetJob.company : "Entreprise",
       platform: targetJob ? targetJob.platform : "1-Clic",
-      mode: "single"
+      mode: "single",
+      totalCount: 1,
+      resume: activeResumeFilename || "CV Actif"
     });
   }
 
@@ -1840,17 +1989,26 @@ async function handleApply(jobId, buttonElem) {
 
       // Update 3D particle progress bar in real time
       const estPct = Math.min(88, 12 + attempts * 8);
-      let stepMsg = "Initialisation de la session furtive Playwright...";
+      let stepMsg = "1. Initialisation de la session furtive Playwright...";
       if (estPct >= 25 && estPct < 55) {
-        stepMsg = "Navigation biométrique vers l'offre & bypass anti-bot...";
-      } else if (estPct >= 55 && estPct < 80) {
-        stepMsg = "Analyse du formulaire & injection du CV Eliot...";
-      } else if (estPct >= 80) {
-        stepMsg = "Finalisation & validation de la candidature...";
+        stepMsg = "2. Navigation biométrique vers l'offre & bypass anti-bot...";
+      } else if (estPct >= 55 && estPct < 75) {
+        stepMsg = `3. Injection du CV (${activeResumeFilename || 'CV Eliot'}) et des coordonnées...`;
+      } else if (estPct >= 75 && estPct < 88) {
+        stepMsg = "4. Traitement intelligent des questions employeur...";
+      } else if (estPct >= 88) {
+        stepMsg = "5. Finalisation & validation de la candidature...";
       }
 
       if (window.ParticleProgress3D) {
-        window.ParticleProgress3D.setProgress(estPct, stepMsg);
+        window.ParticleProgress3D.setProgress(estPct, stepMsg, {
+          success_count: 0,
+          remaining: 1,
+          skipped_count: 0,
+          title: targetJob ? targetJob.job_title : null,
+          company: targetJob ? targetJob.company : null,
+          platform: targetJob ? targetJob.platform : null
+        });
       }
       if (window.__updateNeuralProgress) {
         window.__updateNeuralProgress(estPct, stepMsg);
@@ -1872,8 +2030,13 @@ async function handleApply(jobId, buttonElem) {
           }
 
           if (jobStatus.status === "applied") {
-            const comp = jobStatus.company || "l'employeur";
+            const comp = jobStatus.company || (targetJob ? targetJob.company : "l'employeur");
             if (window.ParticleProgress3D) {
+              window.ParticleProgress3D.setProgress(100, "Candidature transmise et confirmée !", {
+                success_count: 1,
+                remaining: 0,
+                skipped_count: 0
+              });
               window.ParticleProgress3D.complete(true, `Candidature réellement transmise avec succès à ${comp} !`);
             }
             if (window.__completeNeuralProgress) {
@@ -4286,7 +4449,10 @@ function setupBatchApplyExperience() {
           remaining: Math.max(0, (status.total || 0) - (status.current_index || 0)),
           skipped_count: status.skipped_count || 0,
           total: status.total || 0,
-          current_index: status.current_index || 0
+          current_index: status.current_index || 0,
+          title: status.current_job_title || null,
+          company: status.current_company || null,
+          platform: status.current_platform || null
         });
       }
 

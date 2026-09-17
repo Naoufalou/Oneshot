@@ -7540,130 +7540,123 @@ body:not(.theme-dark) .ludique-btn-action {
   color: #f8fafc;
 }
 
-/* Title Block */
-.ludique-title-block {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+/* Live Badge */
+.ludique-tag.live-badge {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.4);
 }
 
-.ludique-title-wrap {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.ludique-mascot-icon {
-  font-size: 32px;
+.ludique-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ef4444;
   display: inline-block;
-  animation: ludiqueFloat 2.2s infinite ease-in-out;
-  transform-origin: center bottom;
+  animation: liveDotPulse 1.2s infinite ease-in-out;
 }
 
-@keyframes ludiqueFloat {
+@keyframes liveDotPulse {
   0%, 100% {
-    transform: translateY(0) rotate(0deg);
+    transform: scale(0.8);
+    opacity: 0.5;
   }
   50% {
-    transform: translateY(-6px) rotate(6deg);
+    transform: scale(1.3);
+    opacity: 1;
+    box-shadow: 0 0 8px #ef4444;
   }
 }
 
-.ludique-main-title {
-  margin: 0;
-  font-size: 24px;
-  font-weight: 800;
-  letter-spacing: -0.5px;
-  background: linear-gradient(90deg, #38bdf8, #818cf8, #c084fc);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+/* Main Grid Layout */
+.ludique-main-grid {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 24px;
+  align-items: start;
 }
 
-body:not(.theme-dark) .ludique-main-title {
-  background: linear-gradient(90deg, #0284c7, #6366f1, #9333ea);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+@media (max-width: 960px) {
+  .ludique-main-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
-.ludique-subtitle {
-  margin: 0;
-  font-size: 13px;
-  color: #94a3b8;
-  line-height: 1.5;
+/* ==========================================================
+   LEFT COLUMN: CIRCULAR RADIAL GAUGE & ROCKET ORBIT
+========================================================== */
+.ludique-circular-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  padding: 20px 16px;
 }
 
-body:not(.theme-dark) .ludique-subtitle {
-  color: #64748b;
+body:not(.theme-dark) .ludique-circular-col {
+  background: rgba(241, 245, 249, 0.6);
+  border-color: #e2e8f0;
 }
 
-/* Gamified Giant Progress Track with Flying Rocket Slider */
-.ludique-track-container {
+.ludique-gauge-wrapper {
+  position: relative;
+  width: 220px;
+  height: 220px;
   display: flex;
   align-items: center;
-  gap: 16px;
-  margin: 10px 0 4px 0;
-  position: relative;
+  justify-content: center;
 }
 
-.ludique-track-bg {
-  flex: 1;
-  height: 32px;
-  background: rgba(0, 0, 0, 0.45);
-  border-radius: 999px;
-  position: relative;
-  border: 1.5px solid rgba(56, 189, 248, 0.35);
-  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.6);
+.ludique-gauge-svg {
+  transform: rotate(-90deg);
+  overflow: visible;
 }
 
-body:not(.theme-dark) .ludique-track-bg {
-  background: #e2e8f0;
-  border-color: rgba(59, 130, 246, 0.4);
-  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.08);
+.ludique-gauge-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.07);
 }
 
-.ludique-track-fill {
-  height: 100%;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #0284c7, #38bdf8, #818cf8, #a855f7, #10b981);
-  background-size: 200% 100%;
-  position: relative;
-  transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: 0 0 22px rgba(56, 189, 248, 0.6);
-  overflow: hidden;
+body:not(.theme-dark) .ludique-gauge-bg {
+  stroke: #e2e8f0;
 }
 
-.ludique-liquid-sheen {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.35) 50%, transparent 100%);
-  animation: liquidSheen 2.2s linear infinite;
+.ludique-gauge-stroke {
+  fill: none;
+  stroke: url(#ludique-circle-grad);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.55));
 }
 
-@keyframes liquidSheen {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-/* Rocket gliding along the tip */
-.ludique-rocket-slider {
+.ludique-rocket-rotator {
   position: absolute;
   top: 50%;
-  transform: translate(-50%, -50%);
-  transition: left 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  left: 50%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 10;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ludique-rocket-capsule {
+  position: absolute;
+  top: -96px; /* Radius r=96 */
+  left: 0;
+  transform: translate(-50%, -50%) rotate(90deg);
   display: flex;
   align-items: center;
-  z-index: 10;
-  pointer-events: none;
+  gap: 2px;
 }
 
 .ludique-rocket-flame {
-  font-size: 20px;
+  font-size: 18px;
   animation: flameFlicker 0.2s infinite alternate;
-  margin-right: -4px;
+  margin-right: -3px;
 }
 
 @keyframes flameFlicker {
@@ -7678,15 +7671,15 @@ body:not(.theme-dark) .ludique-track-bg {
 }
 
 .ludique-rocket-body {
-  font-size: 32px;
+  font-size: 26px;
   transform: rotate(45deg);
-  filter: drop-shadow(0 0 10px rgba(249, 115, 22, 0.7));
+  filter: drop-shadow(0 0 8px rgba(249, 115, 22, 0.7));
 }
 
 .ludique-rocket-sparkles {
-  font-size: 16px;
+  font-size: 14px;
   animation: sparkleRotate 1.2s infinite linear;
-  margin-left: -4px;
+  margin-left: -3px;
 }
 
 @keyframes sparkleRotate {
@@ -7704,45 +7697,40 @@ body:not(.theme-dark) .ludique-track-bg {
   }
 }
 
-.ludique-finish-flag {
-  font-size: 30px;
-  flex-shrink: 0;
-  filter: drop-shadow(0 0 12px rgba(234, 179, 8, 0.6));
-  animation: trophyBounce 2s infinite ease-in-out;
+.ludique-gauge-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 5;
 }
 
-@keyframes trophyBounce {
+.ludique-mascot-icon {
+  font-size: 28px;
+  display: inline-block;
+  animation: ludiqueFloat 2.2s infinite ease-in-out;
+  margin-bottom: 2px;
+}
+
+@keyframes ludiqueFloat {
   0%, 100% {
-    transform: scale(1);
+    transform: translateY(0) rotate(0deg);
   }
   50% {
-    transform: scale(1.18) rotate(6deg);
+    transform: translateY(-5px) rotate(5deg);
   }
-}
-
-/* Stats & Level Row */
-.ludique-stats-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-
-.ludique-stat-pct-group {
-  display: flex;
-  align-items: baseline;
-  gap: 14px;
-  flex-wrap: wrap;
 }
 
 .ludique-giant-pct {
-  font-size: 38px;
+  font-size: 40px;
   font-weight: 900;
-  letter-spacing: -1px;
-  color: #38bdf8;
+  letter-spacing: -1.5px;
   line-height: 1;
-  text-shadow: 0 0 25px rgba(56, 189, 248, 0.55);
+  color: #38bdf8;
+  text-shadow: 0 0 22px rgba(56, 189, 248, 0.6);
 }
 
 body:not(.theme-dark) .ludique-giant-pct {
@@ -7750,66 +7738,419 @@ body:not(.theme-dark) .ludique-giant-pct {
   text-shadow: none;
 }
 
-.ludique-step-text {
-  font-size: 13.5px;
-  font-weight: 600;
-  color: #e2e8f0;
-  max-width: 480px;
+.ludique-gauge-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #94a3b8;
+  margin-top: 4px;
 }
 
-body:not(.theme-dark) .ludique-step-text {
-  color: #334155;
-}
-
-/* Gamified Counter Cards */
-.ludique-pills-cluster {
+.ludique-circular-counters {
   display: flex;
   align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 14px;
+  width: 100%;
 }
 
-.ludique-counter-card {
-  display: inline-flex;
+.ludique-circular-counters .ludique-counter-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 8px 14px;
-  border-radius: 12px;
+  justify-content: center;
+  padding: 6px 4px;
+  gap: 2px;
+  min-width: 0;
+  border-radius: 10px;
   background: rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: all 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-body:not(.theme-dark) .ludique-counter-card {
+body:not(.theme-dark) .ludique-circular-counters .ludique-counter-card {
   background: #f1f5f9;
   border-color: #cbd5e1;
 }
 
-.ludique-counter-card.success {
+.ludique-circular-counters .ludique-counter-card.success {
   border-color: rgba(16, 185, 129, 0.35);
   color: #10b981;
 }
 
-.ludique-counter-card.remaining {
+.ludique-circular-counters .ludique-counter-card.remaining {
   border-color: rgba(56, 189, 248, 0.35);
   color: #38bdf8;
 }
 
-.ludique-counter-card.skipped {
+.ludique-circular-counters .ludique-counter-card.skipped {
   border-color: rgba(251, 191, 36, 0.35);
   color: #fbbf24;
 }
 
-.ludique-counter-val {
-  font-size: 15px;
+.ludique-circular-counters .ludique-counter-val {
+  font-size: 14px;
   font-weight: 800;
 }
 
-.ludique-counter-lbl {
-  font-size: 11px;
+.ludique-circular-counters .ludique-counter-lbl {
+  font-size: 9.5px;
   font-weight: 600;
-  color: #94a3b8;
   text-transform: uppercase;
+  color: #94a3b8;
+}
+
+/* ==========================================================
+   RIGHT COLUMN: REAL-TIME TASKS TELEMETRY & FEED
+========================================================== */
+.ludique-tasks-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+/* Target Header Card */
+.ludique-target-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+body:not(.theme-dark) .ludique-target-card {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+.ludique-target-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+}
+
+.ludique-plat-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  white-space: nowrap;
+}
+
+.ludique-target-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.ludique-target-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: #f8fafc;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+body:not(.theme-dark) .ludique-target-title {
+  color: #0f172a;
+}
+
+.ludique-target-sub {
+  font-size: 12px;
+  color: #94a3b8;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+body:not(.theme-dark) .ludique-target-sub {
+  color: #64748b;
+}
+
+.ludique-meta-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: rgba(16, 185, 129, 0.12);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  white-space: nowrap;
+}
+
+/* Spotlight: Active Task Box */
+.ludique-active-task-box {
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(99, 102, 241, 0.08));
+  border: 1.5px solid rgba(56, 189, 248, 0.4);
+  box-shadow: 0 4px 20px rgba(56, 189, 248, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+body:not(.theme-dark) .ludique-active-task-box {
+  background: linear-gradient(135deg, rgba(239, 246, 255, 0.9), rgba(240, 253, 250, 0.9));
+  border-color: rgba(59, 130, 246, 0.35);
+}
+
+.ludique-active-task-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ludique-task-radar {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  color: #38bdf8;
+  font-size: 12px;
+}
+
+.ludique-radar-ping {
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  border: 1.5px solid #38bdf8;
+  animation: radarPing 1.6s infinite ease-out;
+}
+
+@keyframes radarPing {
+  0% {
+    transform: scale(0.8);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+.ludique-active-task-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: #38bdf8;
+}
+
+.ludique-step-text {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #f1f5f9;
+  line-height: 1.4;
+}
+
+body:not(.theme-dark) .ludique-step-text {
+  color: #1e293b;
+}
+
+/* Checklist Steps Container */
+.ludique-checklist-container {
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+body:not(.theme-dark) .ludique-checklist-container {
+  background: #ffffff;
+  border-color: #e2e8f0;
+}
+
+.ludique-checklist-title {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #94a3b8;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ludique-steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ludique-step-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border-left: 3px solid #38bdf8;
+  transition: all 0.25s ease;
+}
+
+body:not(.theme-dark) .ludique-step-item {
+  background: #f8fafc;
+}
+
+.ludique-step-item.active {
+  background: rgba(56, 189, 248, 0.08);
+  border-left-color: #38bdf8;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.1);
+}
+
+.ludique-step-item.active .ludique-step-status {
+  color: #38bdf8;
+}
+
+.ludique-step-item.active .ludique-step-name {
+  color: #38bdf8;
+  font-weight: 800;
+}
+
+.ludique-step-item.completed {
+  border-left-color: #10b981;
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.ludique-step-item.completed .ludique-step-status {
+  color: #34d399;
+}
+
+.ludique-step-item.completed .ludique-step-name {
+  color: #34d399;
+}
+
+.ludique-step-item.pending {
+  border-left-color: rgba(255, 255, 255, 0.1);
+  opacity: 0.55;
+}
+
+body:not(.theme-dark) .ludique-step-item.pending {
+  border-left-color: #cbd5e1;
+}
+
+.ludique-step-status {
+  font-size: 12px;
+  margin-top: 2px;
+  width: 14px;
+  display: flex;
+  justify-content: center;
+}
+
+.ludique-step-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.ludique-step-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+body:not(.theme-dark) .ludique-step-name {
+  color: #334155;
+}
+
+.ludique-step-desc {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+/* Console Feed Box */
+.ludique-console-box {
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  overflow: hidden;
+}
+
+body:not(.theme-dark) .ludique-console-box {
+  background: #0f172a;
+}
+
+.ludique-console-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  background: rgba(0, 0, 0, 0.35);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.ludique-console-ping {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 6px #10b981;
+}
+
+.ludique-console-feed {
+  max-height: 85px;
+  overflow-y: auto;
+  padding: 8px 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ludique-log-line {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  line-height: 1.35;
+  color: #cbd5e1;
+}
+
+.ludique-log-time {
+  color: #64748b;
+  font-size: 10px;
+  flex-shrink: 0;
+}
+
+.ludique-log-line.info .ludique-log-msg {
+  color: #93c5fd;
+}
+
+.ludique-log-line.success .ludique-log-msg {
+  color: #6ee7b7;
+}
+
+.ludique-log-line.warning .ludique-log-msg {
+  color: #fde68a;
 }
 
 /* Victory Row */
@@ -7824,6 +8165,7 @@ body:not(.theme-dark) .ludique-counter-card {
   background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(6, 182, 212, 0.15));
   border: 1.5px solid rgba(16, 185, 129, 0.45);
   animation: victorySlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-top: 6px;
 }
 
 @keyframes victorySlideUp {
@@ -7846,6 +8188,15 @@ body:not(.theme-dark) .ludique-counter-card {
 .ludique-victory-emoji {
   font-size: 28px;
   animation: trophyBounce 1.5s infinite;
+}
+
+@keyframes trophyBounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.18) rotate(6deg);
+  }
 }
 
 .ludique-victory-text strong {

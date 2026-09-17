@@ -112,6 +112,9 @@
     <!-- ==========================================================
          LUDIQUE 1-CLICK PROGRESS HERO (GAMIFIED MISSION CENTER)
     ========================================================== -->
+    <!-- ==========================================================
+         LUDIQUE 1-CLICK CIRCULAR PROGRESS HERO & REAL-TIME TASKS
+    ========================================================== -->
     <section class="ludique-progress-hero" id="ludique-progress-hero" style="display: none;">
       <div class="ludique-hero-canvas-wrap">
         <canvas id="ludique-stars-canvas"></canvas>
@@ -121,9 +124,10 @@
         <!-- Top Mission Header Badges & Controls -->
         <div class="ludique-header-row">
           <div class="ludique-mission-badges">
-            <span class="ludique-tag pulse"><i class="fa-solid fa-gamepad"></i> MISSION 1-CLIC</span>
+            <span class="ludique-tag pulse"><i class="fa-solid fa-satellite-dish"></i> RADAR 1-CLIC</span>
             <span class="ludique-tag xp" id="ludique-xp-badge"><i class="fa-solid fa-bolt"></i> +100 XP</span>
-            <span class="ludique-tag speed"><i class="fa-solid fa-gauge-high"></i> Mode Humain Indétectable</span>
+            <span class="ludique-tag speed"><i class="fa-solid fa-shield-halved"></i> IA Furtive Indétectable</span>
+            <span class="ludique-tag live-badge"><span class="ludique-live-dot"></span> EN DIRECT</span>
           </div>
 
           <div class="ludique-header-actions">
@@ -136,57 +140,170 @@
           </div>
         </div>
 
-        <!-- Big Playful Title -->
-        <div class="ludique-title-block">
-          <div class="ludique-title-wrap">
-            <span class="ludique-mascot-icon" id="ludique-mascot-icon">🚀</span>
-            <h2 class="ludique-main-title" id="ludique-main-title">Turbo-Postulation en 1 Clic</h2>
-          </div>
-          <p class="ludique-subtitle" id="ludique-subtitle">
-            L'agent IA pilote Playwright en navigation biométrique pour postuler à vos offres sans blocage.
-          </p>
-        </div>
+        <!-- Main Circular Interactive Hub & Live Tasks Grid -->
+        <div class="ludique-main-grid">
+          
+          <!-- LEFT COLUMN: Circular Radial Gauge & Rocket Orbit -->
+          <div class="ludique-circular-col">
+            <div class="ludique-gauge-wrapper">
+              <svg class="ludique-gauge-svg" viewBox="0 0 240 240" width="220" height="220">
+                <defs>
+                  <linearGradient id="ludique-circle-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#38bdf8" />
+                    <stop offset="35%" stop-color="#818cf8" />
+                    <stop offset="70%" stop-color="#c084fc" />
+                    <stop offset="100%" stop-color="#10b981" />
+                  </linearGradient>
+                  <filter id="ludique-glow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="5" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                  </filter>
+                </defs>
+                <!-- Background track circle -->
+                <circle class="ludique-gauge-bg" cx="120" cy="120" r="96" stroke-width="14" />
+                <!-- Active glowing progress circle -->
+                <circle class="ludique-gauge-stroke" id="ludique-gauge-stroke" cx="120" cy="120" r="96" stroke-width="14"
+                  stroke-dasharray="603.19" stroke-dashoffset="603.19" />
+              </svg>
 
-        <!-- Giant Gamified Progress Track with Rocket Slider -->
-        <div class="ludique-track-container">
-          <div class="ludique-track-bg">
-            <div class="ludique-track-fill" id="ludique-track-fill" style="width: 0%;">
-              <div class="ludique-liquid-sheen"></div>
+              <!-- Rotating Rocket Anchor along the circular circumference -->
+              <div class="ludique-rocket-rotator" id="ludique-rocket-rotator" style="transform: rotate(0deg);">
+                <div class="ludique-rocket-capsule">
+                  <span class="ludique-rocket-flame">🔥</span>
+                  <span class="ludique-rocket-body">🚀</span>
+                  <span class="ludique-rocket-sparkles">✨</span>
+                </div>
+              </div>
+
+              <!-- Center of the circle: Mascot & Giant Percentage -->
+              <div class="ludique-gauge-center">
+                <span class="ludique-mascot-icon" id="ludique-mascot-icon">🚀</span>
+                <div class="ludique-giant-pct" id="ludique-giant-pct">0%</div>
+                <div class="ludique-gauge-label" id="ludique-gauge-label">PROPULSION</div>
+              </div>
             </div>
-            <!-- The gliding rocket along the tip of the bar -->
-            <div class="ludique-rocket-slider" id="ludique-rocket-slider" style="left: 0%;">
-              <span class="ludique-rocket-flame">🔥</span>
-              <span class="ludique-rocket-body">🚀</span>
-              <span class="ludique-rocket-sparkles">✨</span>
+
+            <!-- Mini stats pills directly below the circle -->
+            <div class="ludique-circular-counters">
+              <div class="ludique-counter-card success" title="Candidatures transmises avec succès">
+                <i class="fa-solid fa-circle-check"></i>
+                <span class="ludique-counter-val" id="ludique-count-success">0</span>
+                <span class="ludique-counter-lbl">Envoyées</span>
+              </div>
+              <div class="ludique-counter-card remaining" title="Candidatures restantes dans la file">
+                <i class="fa-solid fa-hourglass-half"></i>
+                <span class="ludique-counter-val" id="ludique-count-remaining">0</span>
+                <span class="ludique-counter-lbl">En file</span>
+              </div>
+              <div class="ludique-counter-card skipped" title="Offres nécessitant une redirection externe">
+                <i class="fa-solid fa-forward"></i>
+                <span class="ludique-counter-val" id="ludique-count-skipped">0</span>
+                <span class="ludique-counter-lbl">Passées</span>
+              </div>
             </div>
           </div>
-          <!-- Finish Trophy -->
-          <div class="ludique-finish-flag" id="ludique-finish-flag" title="Objectif">🏆</div>
-        </div>
 
-        <!-- Stats & Level Progress Row -->
-        <div class="ludique-stats-row">
-          <div class="ludique-stat-pct-group">
-            <div class="ludique-giant-pct" id="ludique-giant-pct">0%</div>
-            <div class="ludique-step-text" id="ludique-step-text">Initialisation du propulseur Playwright...</div>
-          </div>
+          <!-- RIGHT COLUMN: Real-Time Live Tasks Monitor & Telemetry -->
+          <div class="ludique-tasks-col">
+            
+            <!-- Target Card: What job is being handled right now -->
+            <div class="ludique-target-card">
+              <div class="ludique-target-left">
+                <span class="ludique-plat-badge" id="ludique-curr-plat-badge">
+                  <i class="fa-solid fa-layer-group"></i> <span id="ludique-curr-platform">1-Clic Direct</span>
+                </span>
+                <div class="ludique-target-info">
+                  <h3 class="ludique-target-title" id="ludique-main-title">Turbo-Postulation en 1 Clic</h3>
+                  <div class="ludique-target-sub" id="ludique-subtitle">
+                    Initialisation du moteur de navigation Playwright & injection de votre CV.
+                  </div>
+                </div>
+              </div>
+              <div class="ludique-target-right" id="ludique-target-meta">
+                <div class="ludique-meta-pill" id="ludique-active-resume-pill" title="CV injecté">
+                  <i class="fa-solid fa-file-pdf"></i> <span id="ludique-resume-name">CV Actif</span>
+                </div>
+              </div>
+            </div>
 
-          <div class="ludique-pills-cluster">
-            <div class="ludique-counter-card success" title="Candidatures transmises avec succès">
-              <i class="fa-solid fa-circle-check"></i>
-              <span class="ludique-counter-val" id="ludique-count-success">0</span>
-              <span class="ludique-counter-lbl">Envoyées</span>
+            <!-- Spotlight: Current Active Task (What is happening right now) -->
+            <div class="ludique-active-task-box">
+              <div class="ludique-active-task-header">
+                <div class="ludique-task-radar">
+                  <span class="ludique-radar-ping"></span>
+                  <i class="fa-solid fa-microchip"></i>
+                </div>
+                <div class="ludique-active-task-label">TÂCHE EN COURS D'EXÉCUTION :</div>
+              </div>
+              <div class="ludique-step-text" id="ludique-step-text">
+                Démarrage des propulseurs furtifs et analyse de l'offre...
+              </div>
             </div>
-            <div class="ludique-counter-card remaining" title="Candidatures restantes dans la file">
-              <i class="fa-solid fa-hourglass-half"></i>
-              <span class="ludique-counter-val" id="ludique-count-remaining">0</span>
-              <span class="ludique-counter-lbl">En file</span>
+
+            <!-- Detailed Real-Time Tasks Sequence (Checklist) -->
+            <div class="ludique-checklist-container">
+              <div class="ludique-checklist-title">
+                <i class="fa-solid fa-list-check" style="color:#38bdf8;"></i> Étapes de la candidature en temps réel :
+              </div>
+              <div class="ludique-steps-list">
+                
+                <div class="ludique-step-item" id="step-task-auth" data-step="1">
+                  <div class="ludique-step-status"><i class="fa-solid fa-circle-notch fa-spin"></i></div>
+                  <div class="ludique-step-details">
+                    <span class="ludique-step-name">1. Connexion & Session Furtive</span>
+                    <span class="ludique-step-desc">Vérification de la session et bypass anti-détection Playwright</span>
+                  </div>
+                </div>
+
+                <div class="ludique-step-item pending" id="step-task-form" data-step="2">
+                  <div class="ludique-step-status"><i class="fa-regular fa-circle"></i></div>
+                  <div class="ludique-step-details">
+                    <span class="ludique-step-name">2. Analyse du Formulaire RH</span>
+                    <span class="ludique-step-desc">Détection des champs recruteur et éligibilité 1 Clic</span>
+                  </div>
+                </div>
+
+                <div class="ludique-step-item pending" id="step-task-cv" data-step="3">
+                  <div class="ludique-step-status"><i class="fa-regular fa-circle"></i></div>
+                  <div class="ludique-step-details">
+                    <span class="ludique-step-name">3. Injection Profil & CV</span>
+                    <span class="ludique-step-desc">Pré-remplissage des coordonnées et rattachement de votre CV</span>
+                  </div>
+                </div>
+
+                <div class="ludique-step-item pending" id="step-task-ai" data-step="4">
+                  <div class="ludique-step-status"><i class="fa-regular fa-circle"></i></div>
+                  <div class="ludique-step-details">
+                    <span class="ludique-step-name">4. Réponses IA aux Questions</span>
+                    <span class="ludique-step-desc">Adaptation sur-mesure aux exigences de l'employeur</span>
+                  </div>
+                </div>
+
+                <div class="ludique-step-item pending" id="step-task-submit" data-step="5">
+                  <div class="ludique-step-status"><i class="fa-regular fa-circle"></i></div>
+                  <div class="ludique-step-details">
+                    <span class="ludique-step-name">5. Envoi Définitif & Récépissé</span>
+                    <span class="ludique-step-desc">Validation de transmission et archivage dans l'historique</span>
+                  </div>
+                </div>
+
+              </div>
             </div>
-            <div class="ludique-counter-card skipped" title="Offres nécessitant une redirection">
-              <i class="fa-solid fa-forward"></i>
-              <span class="ludique-counter-val" id="ludique-count-skipped">0</span>
-              <span class="ludique-counter-lbl">Passées</span>
+
+            <!-- Live Event Console Stream -->
+            <div class="ludique-console-box">
+              <div class="ludique-console-head">
+                <span><i class="fa-solid fa-terminal" style="color:#38bdf8;"></i> Journal des événements en direct</span>
+                <span class="ludique-console-ping"></span>
+              </div>
+              <div class="ludique-console-feed" id="ludique-console-feed">
+                <div class="ludique-log-line info">
+                  <span class="ludique-log-time">--:--:--</span>
+                  <span class="ludique-log-msg">Initialisation de l'agent IA OneShot...</span>
+                </div>
+              </div>
             </div>
+
           </div>
         </div>
 
