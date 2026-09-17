@@ -88,7 +88,7 @@ function initLudiqueProgress() {
   const btnClose = document.getElementById("btn-ludique-close");
   const btnViewApplied = document.getElementById("btn-ludique-view-applied");
 
-  const CIRCUMFERENCE = 603.19; // 2 * PI * 96
+  const CIRCUMFERENCE = 716.28; // 2 * PI * 114 (viewBox 280x280)
 
   let animFrameId = null;
   let particles = [];
