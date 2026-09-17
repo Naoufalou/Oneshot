@@ -723,7 +723,7 @@ async def upload_custom_banner(file: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail="Fichier invalide")
     content = await file.read()
     ext = Path(file.filename).suffix.lower()
-    if ext not in [".jpg", ".jpeg", ".png", ".webp"]:
+    if ext not in [".jpg", ".jpeg", ".png", ".webp", ".gif", ".jfif", ".avif", ".heic"]:
         ext = ".png"
 
     # Remove any existing custom banner

@@ -4489,9 +4489,18 @@ function setupBannerCustomizer() {
   async function handleBannerFileUpload(file) {
     if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-      showToast("Veuillez sélectionner un fichier image valide (JPG, PNG, WebP, GIF)", "error");
+    // Robust image check: MIME type OR file extension
+    const isImageMime = file.type && file.type.startsWith("image/");
+    const isImageExt = /\.(jpe?g|png|webp|gif|bmp|svg|avif|heic|jfif|ico)$/i.test(file.name || "");
+    if (!isImageMime && !isImageExt) {
+      showToast("Veuillez sélectionner un fichier image valide (JPG, PNG, WebP, GIF, etc.)", "error");
       return;
+    }
+
+    // Ensure banner is visible and active when user imports an image
+    bannerConfig.visible = true;
+    if (bannerConfig.mode === "wallpaper") {
+      bannerConfig.mode = "both";
     }
 
     // Instant immediate visual preview for zero-latency feedback
@@ -4500,14 +4509,14 @@ function setupBannerCustomizer() {
       bannerConfig.type = "image";
       bannerConfig.value = tempBlobUrl;
       bannerConfig.name = file.name || "Image importée";
-      bannerConfig.visible = true;
       renderBanner();
+      showToast("Application immédiate de votre image...", "info");
     } catch (_) {}
 
     if (uploadProgress) uploadProgress.style.display = "flex";
 
     try {
-      // 1. First try direct server upload via FormData
+      // 1. Direct server upload via FormData
       const formData = new FormData();
       formData.append("file", file);
 
@@ -4543,11 +4552,11 @@ function setupBannerCustomizer() {
         showToast("✓ Image optimisée et appliquée avec succès !", "success");
       } catch (compressionErr) {
         console.error("Compression failed:", compressionErr);
-        showToast("Erreur lors de l'import de l'image. Veuillez réessayer.", "error");
+        saveConfig();
+        showToast("Image appliquée localement !", "info");
       }
     } finally {
       if (uploadProgress) uploadProgress.style.display = "none";
-      if (inputUpload) inputUpload.value = "";
     }
   }
 
@@ -4602,6 +4611,12 @@ function setupBannerCustomizer() {
           bannerConfig.name = "Image importée";
           renderBanner();
         }
+      } else if (data && !data.has_custom) {
+        // If server was reset and localStorage points to an old missing file, revert to default
+        if (bannerConfig.value && bannerConfig.value.includes("custom_banner")) {
+          bannerConfig = { ...defaultBanner };
+          saveConfig();
+        }
       }
     })
     .catch(() => {});
@@ -4622,6 +4637,7 @@ function setupBannerCustomizer() {
   // Expose globally on window for 100% reliable invocation from any menu or drawer
   window.openBannerModal = openBannerModal;
   window.closeBannerModal = closeBannerModal;
+  window.handleBannerFileUpload = handleBannerFileUpload;
 
   // Open modal triggers
   if (btnHeaderBanner) btnHeaderBanner.addEventListener("click", openBannerModal);
@@ -4642,13 +4658,22 @@ function setupBannerCustomizer() {
     });
   }
 
-  const legacyInput = document.getElementById("banner-file-input");
-  if (legacyInput) {
-    legacyInput.addEventListener("change", (e) => {
+  // Attach all file input elements (global, modal, legacy) to handleBannerFileUpload
+  function bindFileInput(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener("change", (e) => {
       const file = e.target.files && e.target.files[0];
-      if (file) handleBannerFileUpload(file);
+      if (file) {
+        handleBannerFileUpload(file);
+      }
+      el.value = "";
     });
   }
+
+  bindFileInput("global-banner-file-input");
+  bindFileInput("input-banner-file-upload");
+  bindFileInput("banner-file-input");
 
   // Quick toggle on banner
   if (btnBannerToggleVis) {
@@ -4728,31 +4753,23 @@ function setupBannerCustomizer() {
     });
   }
 
-  // Drag & Drop and Browse Trigger
-  if (dropzone) {
-    // Clicking on dropzone triggers file picker (except if clicking directly on a button or input)
-    dropzone.addEventListener("click", (e) => {
-      if (e.target !== inputUpload && inputUpload) {
-        inputUpload.click();
-      }
-    });
-
-    dropzone.addEventListener("dragover", (e) => {
+  // Drag & Drop helper for any drop target
+  function setupDropEvents(element) {
+    if (!element) return;
+    element.addEventListener("dragover", (e) => {
       e.preventDefault();
       e.stopPropagation();
-      dropzone.classList.add("dragover");
+      element.classList.add("dragover");
     });
-
-    dropzone.addEventListener("dragleave", (e) => {
+    element.addEventListener("dragleave", (e) => {
       e.preventDefault();
       e.stopPropagation();
-      dropzone.classList.remove("dragover");
+      element.classList.remove("dragover");
     });
-
-    dropzone.addEventListener("drop", (e) => {
+    element.addEventListener("drop", (e) => {
       e.preventDefault();
       e.stopPropagation();
-      dropzone.classList.remove("dragover");
+      element.classList.remove("dragover");
       const dt = e.dataTransfer;
       if (dt && dt.files && dt.files.length > 0) {
         handleBannerFileUpload(dt.files[0]);
@@ -4760,19 +4777,17 @@ function setupBannerCustomizer() {
     });
   }
 
-  if (btnBrowse && inputUpload) {
-    btnBrowse.addEventListener("click", (e) => {
-      e.stopPropagation();
-      inputUpload.click();
-    });
-  }
+  setupDropEvents(document.getElementById("banner-dropzone"));
+  setupDropEvents(document.getElementById("oneshot-banner-wrapper"));
 
-  if (inputUpload) {
-    inputUpload.addEventListener("change", (e) => {
-      const file = e.target.files && e.target.files[0];
-      if (file) {
-        handleBannerFileUpload(file);
+  // Dropzone click handler: only trigger file picker if user didn't click directly on a label or button
+  if (dropzone) {
+    dropzone.addEventListener("click", (e) => {
+      if (e.target.closest("label") || e.target.closest("button") || e.target.closest("input")) {
+        return;
       }
+      const globalInput = document.getElementById("global-banner-file-input") || inputUpload;
+      if (globalInput) globalInput.click();
     });
   }
 

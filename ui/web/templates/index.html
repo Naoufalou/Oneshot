@@ -7,9 +7,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/style.css?v=3.8">
+  <link rel="stylesheet" href="/static/style.css?v=3.9">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <body class="notion-dark-clean">
+
+  <!-- Global Native File Input for Banner & Wallpaper Import (Guaranteed active in DOM) -->
+  <input type="file" id="global-banner-file-input" accept="image/*,.jpg,.jpeg,.png,.webp,.gif,.avif,.heic" style="position:fixed; top:-1000px; left:-1000px; opacity:0; pointer-events:none;" aria-hidden="true">
 
   <!-- Fixed Wallpaper Layers (Fond d'écran plein écran personnalisé) -->
   <div class="oneshot-wallpaper-layer" id="oneshot-wallpaper-layer"></div>
@@ -87,9 +90,13 @@
     <div class="oneshot-banner-image" id="oneshot-banner-image"></div>
     <div class="oneshot-banner-overlay"></div>
     <div class="oneshot-banner-controls">
-      <button type="button" class="oneshot-banner-btn" id="btn-banner-edit" title="Personnaliser la bannière">
+      <label for="global-banner-file-input" class="oneshot-banner-btn" title="Importer une image directement depuis votre ordinateur" style="cursor:pointer;">
+        <i class="fa-solid fa-camera"></i>
+        <span>Importer une image</span>
+      </label>
+      <button type="button" class="oneshot-banner-btn" id="btn-banner-edit" title="Personnaliser les thèmes & dégradés">
         <i class="fa-solid fa-wand-magic-sparkles"></i>
-        <span>Changer la bannière</span>
+        <span>Thèmes</span>
       </button>
       <button type="button" class="oneshot-banner-btn" id="btn-banner-toggle-vis" title="Masquer la bannière">
         <i class="fa-solid fa-eye-slash"></i>
@@ -579,7 +586,7 @@
           <button type="button" class="drawer-tool-chip" id="btn-drawer-upload-banner" title="Personnaliser la bannière ou le fond d'écran">
             <i class="fa-solid fa-wand-magic-sparkles" style="color:#ec4899;"></i> <span>Bannière / Fond</span>
           </button>
-          <label for="input-banner-file-upload" class="drawer-tool-chip" id="btn-drawer-browse-direct" title="Importer une image directement" style="cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+          <label for="global-banner-file-input" class="drawer-tool-chip" id="btn-drawer-browse-direct" title="Importer une image directement" style="cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
             <i class="fa-solid fa-camera" style="color:#38bdf8;"></i> <span>Importer image</span>
           </label>
           <button type="button" class="drawer-tool-chip" id="btn-drawer-reset-banner" title="Rétablir le thème par défaut">
@@ -1564,7 +1571,7 @@
                 <div class="banner-drop-title"><strong>Cliquez pour importer</strong> ou glissez-déposez votre image ici</div>
                 <div class="banner-drop-sub">JPG, PNG, WebP • Taille illimitée (import direct et optimisé)</div>
               </div>
-              <label for="input-banner-file-upload" class="banner-browse-btn" id="btn-banner-browse" style="cursor:pointer; display:inline-flex; align-items:center; gap:8px;">
+              <label for="global-banner-file-input" class="banner-browse-btn" id="btn-banner-browse" style="cursor:pointer; display:inline-flex; align-items:center; gap:8px;">
                 <i class="fa-solid fa-folder-open"></i> Parcourir
               </label>
             </div>
@@ -1632,6 +1639,6 @@
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  <script src="/static/app.js?v=4.8"></script>
+  <script src="/static/app.js?v=4.9"></script>
 </body>
 </html>
