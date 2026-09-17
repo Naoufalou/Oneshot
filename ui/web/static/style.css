@@ -8677,6 +8677,611 @@ body:not(.theme-dark) .steady-status-chip.applied.active {
   color: #fbbf24;
 }
 
+/* ==========================================================
+   VIDEO GAME MENU & TACTICAL HUD SCI-FI THEME
+   Immersive Cyberpunk Command Deck & Gaming Interface System
+========================================================== */
+
+/* 1. Tactical Grid & Background Atmosphere */
+body.notion-dark-clean {
+  background-color: #060913 !important;
+  background-image:
+    radial-gradient(circle at 50% 0%, rgba(0, 240, 255, 0.08) 0%, transparent 65%),
+    linear-gradient(rgba(0, 240, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 240, 255, 0.02) 1px, transparent 1px) !important;
+  background-size: 100% 100%, 48px 48px, 48px 48px !important;
+  background-position: 0 0, -1px -1px, -1px -1px !important;
+  color: #e2e8f0;
+}
+
+/* 2. Top Header (Command Deck HUD) */
+body.theme-dark .steady-header,
+.steady-header {
+  background: rgba(6, 9, 19, 0.94) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-bottom: 1px solid rgba(0, 240, 255, 0.3) !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.7), 0 1px 0 rgba(0, 240, 255, 0.2) !important;
+  position: relative;
+}
+
+.steady-header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(0, 240, 255, 0.8) 25%, rgba(251, 191, 36, 0.8) 50%, rgba(0, 240, 255, 0.8) 75%, transparent 100%);
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+/* Faction / Player Logo */
+.steady-logo-icon {
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px) !important;
+  background: linear-gradient(135deg, #00f0ff 0%, #0284c7 60%, #3b82f6 100%) !important;
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.6) !important;
+  border-radius: 0 !important;
+}
+
+.steady-brand-name {
+  font-family: 'Chakra Petch', sans-serif !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1.5px !important;
+  font-size: 15px !important;
+  color: #ffffff !important;
+  text-shadow: 0 0 12px rgba(0, 240, 255, 0.5) !important;
+}
+
+.steady-brand-sub {
+  font-family: 'Rajdhani', sans-serif !important;
+  font-weight: 600 !important;
+  letter-spacing: 1px !important;
+  text-transform: uppercase !important;
+  color: #00f0ff !important;
+  opacity: 0.85 !important;
+}
+
+/* Live Agent Pill */
+.steady-live-status-pill {
+  border: 1px solid rgba(0, 255, 159, 0.6) !important;
+  background: rgba(0, 255, 159, 0.1) !important;
+  color: #00ff9f !important;
+  font-family: 'Rajdhani', sans-serif !important;
+  font-weight: 700 !important;
+  letter-spacing: 1.2px !important;
+  text-transform: uppercase !important;
+  clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px) !important;
+  border-radius: 0 !important;
+}
+
+.steady-live-dot {
+  background: #00ff9f !important;
+  box-shadow: 0 0 8px #00ff9f !important;
+}
+
+/* 3. Equipped CV Slot (Legendary Item Border) */
+.steady-cv-pill {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(10, 16, 30, 0.95) 100%) !important;
+  border: 1px solid rgba(251, 191, 36, 0.55) !important;
+  box-shadow: 0 0 14px rgba(251, 191, 36, 0.22), inset 0 0 12px rgba(251, 191, 36, 0.08) !important;
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px) !important;
+  border-radius: 0 !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.steady-cv-pill:hover {
+  border-color: #fbbf24 !important;
+  box-shadow: 0 0 22px rgba(251, 191, 36, 0.45), inset 0 0 16px rgba(251, 191, 36, 0.18) !important;
+  transform: translateY(-2px) !important;
+}
+
+.steady-cv-icon {
+  color: #fbbf24 !important;
+  filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.6)) !important;
+}
+
+.steady-cv-label {
+  font-family: 'Rajdhani', sans-serif !important;
+  font-weight: 700 !important;
+  letter-spacing: 1.5px !important;
+  text-transform: uppercase !important;
+  color: #fbbf24 !important;
+  font-size: 10px !important;
+}
+
+.steady-cv-name {
+  font-family: 'Chakra Petch', sans-serif !important;
+  font-weight: 600 !important;
+  color: #ffffff !important;
+  letter-spacing: 0.5px !important;
+  font-size: 12.5px !important;
+}
+
+/* 4. Cyberpunk Cut-Corner Action Buttons */
+.steady-action-btn {
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px) !important;
+  border-radius: 0 !important;
+  font-family: 'Chakra Petch', sans-serif !important;
+  font-weight: 700 !important;
+  letter-spacing: 1px !important;
+  text-transform: uppercase !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Ghost Buttons (Scan, Menu, Theme, Bannière) */
+.steady-action-btn.steady-btn-ghost,
+.steady-btn-theme,
+.steady-btn-menu {
+  background: rgba(10, 16, 30, 0.85) !important;
+  border: 1px solid rgba(0, 240, 255, 0.3) !important;
+  color: #e2e8f0 !important;
+  box-shadow: inset 0 0 10px rgba(0, 240, 255, 0.04) !important;
+}
+
+.steady-action-btn.steady-btn-ghost:hover,
+.steady-btn-theme:hover,
+.steady-btn-menu:hover {
+  background: rgba(0, 240, 255, 0.15) !important;
+  border-color: #00f0ff !important;
+  color: #00f0ff !important;
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.4), inset 0 0 12px rgba(0, 240, 255, 0.1) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Primary 1-Click Apply Button (Ultimate Ability) */
+.steady-btn-primary,
+#btn-header-batch-apply {
+  background: linear-gradient(135deg, #00f0ff 0%, #0284c7 45%, #2563eb 100%) !important;
+  border: 1px solid #38bdf8 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.5), inset 0 0 14px rgba(255, 255, 255, 0.35) !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6) !important;
+}
+
+.steady-btn-primary:hover,
+#btn-header-batch-apply:hover {
+  background: linear-gradient(135deg, #38bdf8 0%, #00f0ff 100%) !important;
+  box-shadow: 0 0 30px rgba(0, 240, 255, 0.85), inset 0 0 18px rgba(255, 255, 255, 0.6) !important;
+  transform: translateY(-2px) scale(1.02) !important;
+}
+
+.steady-action-badge {
+  background: #fbbf24 !important;
+  color: #000000 !important;
+  font-family: 'Chakra Petch', sans-serif !important;
+  font-weight: 800 !important;
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.7) !important;
+  clip-path: polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px) !important;
+  border-radius: 0 !important;
+}
+
+/* 5. HUD Panels & Tactical Cards */
+.steady-workbench-card,
+.steady-kpi-card,
+.steady-table-container,
+.notion-db-table {
+  background: rgba(8, 13, 25, 0.9) !important;
+  border: 1px solid rgba(0, 240, 255, 0.2) !important;
+  box-shadow: 0 12px 36px -8px rgba(0, 0, 0, 0.75), inset 0 0 24px rgba(0, 240, 255, 0.02) !important;
+  border-radius: 14px !important;
+}
+
+/* Corner Bracket Accents on Main Card */
+.steady-workbench-card {
+  position: relative;
+}
+
+.steady-workbench-card::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  width: 14px;
+  height: 14px;
+  border-top: 2px solid #00f0ff;
+  border-left: 2px solid #00f0ff;
+  pointer-events: none;
+  border-top-left-radius: 14px;
+}
+
+.steady-workbench-card::after {
+  content: '';
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  width: 14px;
+  height: 14px;
+  border-top: 2px solid #00f0ff;
+  border-right: 2px solid #00f0ff;
+  pointer-events: none;
+  border-top-right-radius: 14px;
+}
+
+/* 6. KPI Cards (Player Stats HUD) */
+.steady-kpi-card {
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px) !important;
+  border-radius: 0 !important;
+  transition: all 0.2s ease !important;
+}
+
+.steady-kpi-card:hover {
+  border-color: rgba(0, 240, 255, 0.5) !important;
+  box-shadow: 0 8px 24px rgba(0, 240, 255, 0.15) !important;
+  transform: translateY(-2px);
+}
+
+.steady-kpi-value {
+  font-family: 'Chakra Petch', sans-serif !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.5px !important;
+  color: #ffffff !important;
+  text-shadow: 0 0 12px rgba(0, 240, 255, 0.4) !important;
+}
+
+.steady-kpi-label {
+  font-family: 'Rajdhani', sans-serif !important;
+  font-weight: 700 !important;
+  letter-spacing: 1.5px !important;
+  text-transform: uppercase !important;
+  color: #94a3b8 !important;
+  font-size: 11px !important;
+}
+
+/* 7. Mission Board Table (Candidatures Styled as Tactical Quests) */
+.steady-status-chips-bar {
+  border-bottom: 1px solid rgba(0, 240, 255, 0.2) !important;
+  padding-bottom: 12px !important;
+}
+
+.steady-status-chip {
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px) !important;
+  border-radius: 0 !important;
+  font-family: 'Chakra Petch', sans-serif !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.8px !important;
+  text-transform: uppercase !important;
+  font-size: 11px !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  background: rgba(10, 16, 28, 0.6) !important;
+  color: #94a3b8 !important;
+  transition: all 0.2s ease !important;
+}
+
+.steady-status-chip:hover {
+  background: rgba(0, 240, 255, 0.08) !important;
+  border-color: rgba(0, 240, 255, 0.35) !important;
+  color: #00f0ff !important;
+}
+
+.steady-status-chip.active {
+  background: rgba(0, 240, 255, 0.15) !important;
+  border-color: #00f0ff !important;
+  color: #00f0ff !important;
+  box-shadow: 0 0 14px rgba(0, 240, 255, 0.3) !important;
+}
+
+.steady-status-chip.applied.active {
+  background: rgba(0, 255, 159, 0.15) !important;
+  border-color: #00ff9f !important;
+  color: #00ff9f !important;
+  box-shadow: 0 0 16px rgba(0, 255, 159, 0.35) !important;
+}
+
+.steady-status-chip.skipped.active {
+  background: rgba(251, 191, 36, 0.15) !important;
+  border-color: #fbbf24 !important;
+  color: #fbbf24 !important;
+  box-shadow: 0 0 16px rgba(251, 191, 36, 0.35) !important;
+}
+
+/* Table Headers (Tactical Data Columns) */
+.steady-table th {
+  font-family: 'Rajdhani', sans-serif !important;
+  font-weight: 700 !important;
+  letter-spacing: 1.5px !important;
+  text-transform: uppercase !important;
+  color: #38bdf8 !important;
+  font-size: 11px !important;
+  background: rgba(5, 8, 16, 0.95) !important;
+  border-bottom: 1px solid rgba(0, 240, 255, 0.3) !important;
+}
+
+/* Table Rows Hover (Holographic Scanline) */
+.steady-table tbody tr:hover {
+  background: rgba(0, 240, 255, 0.05) !important;
+  box-shadow: inset 3px 0 0 #00f0ff !important;
+}
+
+/* Status Pills in Table */
+.steady-table .steady-status-pill.status-applied {
+  background: rgba(0, 255, 159, 0.12) !important;
+  border: 1px solid #00ff9f !important;
+  color: #00ff9f !important;
+  font-family: 'Rajdhani', sans-serif !important;
+  font-weight: 700 !important;
+  letter-spacing: 1px !important;
+  text-transform: uppercase !important;
+  clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px) !important;
+  border-radius: 0 !important;
+  box-shadow: 0 0 8px rgba(0, 255, 159, 0.25) !important;
+}
+
+.steady-table .steady-badge-quick {
+  background: rgba(0, 240, 255, 0.12) !important;
+  border: 1px solid rgba(0, 240, 255, 0.6) !important;
+  color: #00f0ff !important;
+  font-family: 'Rajdhani', sans-serif !important;
+  font-weight: 700 !important;
+  letter-spacing: 1px !important;
+  clip-path: polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px) !important;
+  border-radius: 0 !important;
+}
+
+.steady-score-badge {
+  font-family: 'Chakra Petch', sans-serif !important;
+  font-weight: 700 !important;
+  border-radius: 4px !important;
+}
+
+/* Action Buttons inside Table */
+.steady-table-actions .steady-table-btn {
+  clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px) !important;
+  border-radius: 0 !important;
+  font-family: 'Chakra Petch', sans-serif !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.6px !important;
+  text-transform: uppercase !important;
+  font-size: 11px !important;
+}
+
+.steady-table-actions .steady-btn-postuler {
+  background: linear-gradient(135deg, #00f0ff 0%, #0284c7 100%) !important;
+  border: 1px solid #38bdf8 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.4) !important;
+}
+
+.steady-table-actions .steady-btn-postuler:hover {
+  background: linear-gradient(135deg, #38bdf8 0%, #00f0ff 100%) !important;
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.7) !important;
+  transform: translateY(-1px);
+}
+
+/* 8. Circular Progress Hero (Cockpit Radar Integration) */
+.ludique-header-row .ludique-tag {
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px) !important;
+  border-radius: 0 !important;
+  font-family: 'Chakra Petch', sans-serif !important;
+  font-weight: 700 !important;
+  letter-spacing: 1px !important;
+  text-transform: uppercase !important;
+}
+
+.ludique-btn-action {
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px) !important;
+  border-radius: 0 !important;
+  font-family: 'Chakra Petch', sans-serif !important;
+  font-weight: 700 !important;
+  letter-spacing: 1px !important;
+  text-transform: uppercase !important;
+}
+
+.ludique-target-card,
+.ludique-console-card {
+  border-radius: 12px !important;
+  border: 1px solid rgba(0, 240, 255, 0.25) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(0, 240, 255, 0.03) !important;
+}
+
+.ludique-circular-counters .ludique-counter-card {
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px) !important;
+  border-radius: 0 !important;
+  border-color: rgba(0, 240, 255, 0.2) !important;
+}
+
+.ludique-counter-val {
+  font-family: 'Chakra Petch', sans-serif !important;
+  font-weight: 700 !important;
+}
+
+.ludique-counter-lbl {
+  font-family: 'Rajdhani', sans-serif !important;
+  font-weight: 700 !important;
+  letter-spacing: 1.2px !important;
+  text-transform: uppercase !important;
+}
+
+/* 9. Cover Banner Controls (Sci-Fi Holographic Overlay) */
+.oneshot-banner-btn {
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px) !important;
+  border-radius: 0 !important;
+  font-family: 'Chakra Petch', sans-serif !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.8px !important;
+  text-transform: uppercase !important;
+  background: rgba(6, 9, 19, 0.85) !important;
+  border: 1px solid rgba(0, 240, 255, 0.3) !important;
+  color: #e2e8f0 !important;
+}
+
+.oneshot-banner-btn:hover {
+  background: rgba(0, 240, 255, 0.2) !important;
+  border-color: #00f0ff !important;
+  color: #00f0ff !important;
+  box-shadow: 0 0 14px rgba(0, 240, 255, 0.4) !important;
+}
+
+/* 10. Side Drawer (Character Menu / Codex Panel) */
+.steady-drawer-panel {
+  background: rgba(6, 10, 20, 0.96) !important;
+  backdrop-filter: blur(28px) !important;
+  border-left: 1px solid rgba(0, 240, 255, 0.35) !important;
+  box-shadow: -12px 0 40px rgba(0, 0, 0, 0.85), -1px 0 0 rgba(0, 240, 255, 0.2) !important;
+}
+
+.steady-drawer-header {
+  border-bottom: 1px solid rgba(0, 240, 255, 0.25) !important;
+}
+
+.steady-drawer-title {
+  font-family: 'Chakra Petch', sans-serif !important;
+  font-weight: 700 !important;
+  letter-spacing: 1px !important;
+  text-transform: uppercase !important;
+  color: #ffffff !important;
+}
+
+.steady-tab-btn {
+  font-family: 'Chakra Petch', sans-serif !important;
+  font-weight: 600 !important;
+  letter-spacing: 1px !important;
+  text-transform: uppercase !important;
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px) !important;
+}
+
+.steady-tab-btn.active {
+  background: rgba(0, 240, 255, 0.15) !important;
+  border-color: #00f0ff !important;
+  color: #00f0ff !important;
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.3) !important;
+}
+
+/* 11. Platform Selector Pills (Quest Destination Selectors) */
+.zen-plat-pill {
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px) !important;
+  border-radius: 0 !important;
+  font-family: 'Chakra Petch', sans-serif !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.8px !important;
+  text-transform: uppercase !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  background: rgba(8, 13, 24, 0.85) !important;
+  border: 1px solid rgba(0, 240, 255, 0.25) !important;
+}
+
+.zen-plat-pill:hover {
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 12px rgba(0, 240, 255, 0.3) !important;
+  border-color: #00f0ff !important;
+}
+
+.zen-plat-badge {
+  font-family: 'Chakra Petch', sans-serif !important;
+  font-weight: 800 !important;
+  clip-path: polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px) !important;
+  border-radius: 0 !important;
+}
+
+/* 12. Zen Calm State (Empty Mission Briefing Room) */
+body.notion-dark-clean .zen-calm-state,
+body.theme-dark .zen-calm-state {
+  background: rgba(8, 13, 24, 0.9) !important;
+  border: 1px dashed rgba(0, 240, 255, 0.35) !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7), inset 0 0 25px rgba(0, 240, 255, 0.03) !important;
+  border-radius: 16px !important;
+}
+
+body.notion-dark-clean .zen-calm-title,
+body.theme-dark .zen-calm-title {
+  font-family: 'Chakra Petch', sans-serif !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  color: #f8fafc !important;
+}
+
+body.notion-dark-clean .zen-calm-sub,
+body.theme-dark .zen-calm-sub {
+  font-family: 'Rajdhani', sans-serif !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.8px !important;
+  color: #94a3b8 !important;
+}
+
+body.notion-dark-clean .zen-calm-icon,
+body.theme-dark .zen-calm-icon {
+  background: rgba(0, 240, 255, 0.12) !important;
+  border: 1px solid rgba(0, 240, 255, 0.4) !important;
+  color: #00f0ff !important;
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.3) !important;
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px) !important;
+  border-radius: 0 !important;
+}
+
+/* 13. Dark Mode Video Game Mission Board (Tableau de Quêtes) */
+body.theme-dark .steady-workbench-card,
+body.notion-dark-clean .steady-workbench-card {
+  background: rgba(8, 13, 25, 0.96) !important;
+  border: 1px solid rgba(0, 240, 255, 0.3) !important;
+  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.85), inset 0 0 30px rgba(0, 240, 255, 0.03) !important;
+}
+
+body.theme-dark .steady-workbench-header,
+body.notion-dark-clean .steady-workbench-header {
+  background: rgba(5, 8, 16, 0.98) !important;
+  border-bottom: 1px solid rgba(0, 240, 255, 0.25) !important;
+}
+
+body.theme-dark .steady-workbench-title,
+body.notion-dark-clean .steady-workbench-title {
+  font-family: 'Chakra Petch', sans-serif !important;
+  font-weight: 700 !important;
+  letter-spacing: 1px !important;
+  text-transform: uppercase !important;
+  color: #ffffff !important;
+  text-shadow: 0 0 10px rgba(0, 240, 255, 0.4) !important;
+}
+
+body.theme-dark .steady-count-pill,
+body.notion-dark-clean .steady-count-pill {
+  font-family: 'Chakra Petch', sans-serif !important;
+  font-weight: 700 !important;
+  clip-path: polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px) !important;
+  border-radius: 0 !important;
+  background: rgba(0, 240, 255, 0.15) !important;
+  border: 1px solid rgba(0, 240, 255, 0.4) !important;
+  color: #00f0ff !important;
+}
+
+body.theme-dark .steady-toolbar,
+body.notion-dark-clean .steady-toolbar {
+  background: rgba(6, 10, 20, 0.95) !important;
+  border-bottom: 1px solid rgba(0, 240, 255, 0.2) !important;
+}
+
+body.theme-dark .notion-db-table,
+body.notion-dark-clean .notion-db-table {
+  background: #080d1a !important;
+}
+
+body.theme-dark .notion-db-table th,
+body.notion-dark-clean .notion-db-table th {
+  background: #050812 !important;
+  color: #00f0ff !important;
+  font-family: 'Rajdhani', sans-serif !important;
+  font-weight: 700 !important;
+  letter-spacing: 1.5px !important;
+  text-transform: uppercase !important;
+  border-bottom: 1px solid rgba(0, 240, 255, 0.3) !important;
+}
+
+body.theme-dark .notion-db-table td,
+body.notion-dark-clean .notion-db-table td {
+  background: #080d1a !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  color: #e2e8f0 !important;
+}
+
+body.theme-dark .notion-db-table tr:hover td,
+body.notion-dark-clean .notion-db-table tr:hover td {
+  background: rgba(0, 240, 255, 0.06) !important;
+}
+
 
 
 

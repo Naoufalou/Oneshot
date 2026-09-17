@@ -44,6 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupPlatformsManager();
   setupPlatformCatalogAndSearch();
   setupArovaExperience();
+  initGameAudio();
 
   // Initial load
   loadResumes();
@@ -4738,10 +4739,9 @@ function setupThemeEngine() {
   const drawerThemeTitle = document.getElementById("drawer-theme-title-text");
   const drawerThemeSub = document.getElementById("drawer-theme-sub-text");
 
-  // Load saved theme or detect system preference
+  // Default to Dark Gaming HUD mode unless explicitly saved as light
   const savedTheme = localStorage.getItem("oneshot_theme");
-  const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-  const initialTheme = savedTheme || (prefersDark ? "dark" : "light");
+  const initialTheme = savedTheme || "dark";
 
   applyTheme(initialTheme);
 
@@ -5324,6 +5324,47 @@ function setupBannerCustomizer() {
       }
     });
   });
+}
+
+/* ==========================================================
+   TACTILE GAMING UI SOUND EFFECTS (WEB AUDIO API SYNTH)
+   Zero external dependencies, pure native procedural audio
+========================================================== */
+function initGameAudio() {
+  let audioCtx = null;
+  const isMuted = localStorage.getItem("oneshot_audio_mute") === "true";
+
+  function playCyberChirp(freq1 = 880, freq2 = 1320, duration = 0.035) {
+    if (isMuted) return;
+    try {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === "suspended") {
+        audioCtx.resume();
+      }
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq1, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(freq2, audioCtx.currentTime + duration);
+      gain.gain.setValueAtTime(0.035, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    } catch (_) {}
+  }
+
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest("button, .steady-action-btn, .zen-plat-pill, .steady-status-chip, .ludique-btn-action, .steady-cv-pill");
+    if (btn) {
+      playCyberChirp(920, 1480, 0.035);
+    }
+  });
+
+  window.playCyberChirp = playCyberChirp;
 }
 
 

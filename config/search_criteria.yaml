@@ -2,7 +2,7 @@ blacklisted_companies: []
 blacklisted_keywords:
 - Stage
 - Alternance
-- Senior 12+ ans
+- Senior 10+ ans
 contract_types:
 - CDI
 - Freelance
@@ -14,11 +14,18 @@ keywords:
 - UI Designer
 - Design Engineer
 - Développeur React TypeScript
+- Web Designer Intégrateur
+- Front-End UI Developer
+- Interactive Developer
+- Vibecoder
+- Design Engineer
+- UI Engineer
 locations:
-- Paris, France
+- Paris
+- France
 - Remote
 - Île-de-France
-max_applications_per_day: 25
-min_alert_score: 80
+max_applications_per_day: 40
+min_alert_score: 70
 min_match_score: 60
 remote_only: false
