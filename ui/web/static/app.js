@@ -119,37 +119,7 @@ function initLudiqueProgress() {
   }
 
   function updateChecklist(pct, isFinished = false) {
-    let activeStepNum = 1;
-    if (isFinished || pct >= 100) {
-      activeStepNum = 6;
-    } else if (pct >= 85) {
-      activeStepNum = 5;
-    } else if (pct >= 60) {
-      activeStepNum = 4;
-    } else if (pct >= 35) {
-      activeStepNum = 3;
-    } else if (pct >= 15) {
-      activeStepNum = 2;
-    } else {
-      activeStepNum = 1;
-    }
-
-    document.querySelectorAll(".ludique-step-item").forEach((item) => {
-      const stepIdx = parseInt(item.getAttribute("data-step") || "1", 10);
-      const iconWrap = item.querySelector(".ludique-step-status");
-
-      item.classList.remove("active", "completed", "pending");
-      if (isFinished || stepIdx < activeStepNum) {
-        item.classList.add("completed");
-        if (iconWrap) iconWrap.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
-      } else if (stepIdx === activeStepNum) {
-        item.classList.add("active");
-        if (iconWrap) iconWrap.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
-      } else {
-        item.classList.add("pending");
-        if (iconWrap) iconWrap.innerHTML = '<i class="fa-regular fa-circle"></i>';
-      }
-    });
+    // Checklist panel removed per user request
   }
 
   function initCanvas() {
@@ -1177,6 +1147,18 @@ function updateBatchCounts() {
   if (steadyKpiApplied) steadyKpiApplied.innerText = appliedTotal;
   if (steadyKpi1Click) steadyKpi1Click.innerText = count1Click;
 
+  // Status Filter Chips (All, Applied, Unapplied, Skipped)
+  const countChipAll = document.getElementById("count-chip-all");
+  const countChipApplied = document.getElementById("count-chip-applied");
+  const countChipUnapplied = document.getElementById("count-chip-unapplied");
+  const countChipSkipped = document.getElementById("count-chip-skipped");
+  const skippedTotal = allJobs.filter(j => j.status === "skipped").length;
+
+  if (countChipAll) countChipAll.innerText = allJobs.length;
+  if (countChipApplied) countChipApplied.innerText = appliedTotal;
+  if (countChipUnapplied) countChipUnapplied.innerText = unappliedTotal;
+  if (countChipSkipped) countChipSkipped.innerText = skippedTotal;
+
   if (pillAll) pillAll.innerText = unappliedTotal;
   if (pillFt) pillFt.innerText = ftUnapplied;
   if (pillLi) pillLi.innerText = liUnapplied;
@@ -1285,6 +1267,36 @@ function setupFilters() {
       showToast(filterOnly1Click ? "Filtre activé : Offres '1 Clic' uniquement" : "Toutes les offres affichées", "info");
     });
   }
+
+  // Steady Status Segmented Chips (Toutes / Postulées / À postuler / Externes)
+  document.querySelectorAll(".steady-status-chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      const targetStatus = chip.getAttribute("data-status-tab") || "";
+      selectedStatus = targetStatus;
+
+      // When selecting 'applied', reset platform constraint so all applied jobs across platforms are shown
+      if (selectedStatus === "applied") {
+        selectedPlatform = "";
+        filterOnly1Click = false;
+        if (chip1Click) chip1Click.classList.remove("active");
+      }
+
+      document.querySelectorAll(".steady-status-chip").forEach(c => c.classList.remove("active"));
+      chip.classList.add("active");
+
+      // Synchronize Zen platform pills
+      document.querySelectorAll(".zen-plat-pill").forEach(pill => {
+        const isApplied = pill.getAttribute("data-status-filter") === "applied" || pill.id === "btn-plat-applied";
+        if (selectedStatus === "applied") {
+          pill.classList.toggle("active", isApplied);
+        } else if (isApplied) {
+          pill.classList.remove("active");
+        }
+      });
+
+      renderJobsTable();
+    });
+  });
 
   // Zen Platform Hub Pills (Toggle Table on click)
   document.querySelectorAll(".zen-plat-pill").forEach(pill => {
@@ -1672,7 +1684,7 @@ function renderJobsTable() {
     // When inspecting applied candidatures, show all applied jobs without strict 1-click or location restrictions
     if (selectedStatus === "applied") {
       if (job.status !== "applied") return false;
-      if (selectedPlatform && job.platform.toLowerCase() !== selectedPlatform.toLowerCase()) return false;
+      if (selectedPlatform && (job.platform || "").toLowerCase() !== selectedPlatform.toLowerCase()) return false;
       if (searchQuery) {
         const matchText = `${job.job_title} ${job.company} ${job.location || ""} ${job.match_reason || ""}`.toLowerCase();
         if (!matchText.includes(searchQuery)) return false;
@@ -1680,12 +1692,18 @@ function renderJobsTable() {
       return true;
     }
 
+    if (selectedStatus === "unapplied") {
+      if (job.status === "applied" || job.status === "skipped") return false;
+    } else if (selectedStatus === "skipped") {
+      if (job.status !== "skipped") return false;
+    }
+
     // 1-Click only filter
     if (filterOnly1Click && (job.is_easy_apply === 0 || job.is_easy_apply === false)) {
       return false;
     }
 
-    if (selectedPlatform && job.platform.toLowerCase() !== selectedPlatform.toLowerCase()) {
+    if (selectedPlatform && (job.platform || "").toLowerCase() !== selectedPlatform.toLowerCase()) {
       return false;
     }
 
@@ -1713,12 +1731,33 @@ function renderJobsTable() {
       if (!matchText.includes(searchQuery)) return false;
     }
 
-    if (selectedStatus) {
-      if (job.status !== selectedStatus) return false;
-    }
-
     return true;
   });
+
+  // Synchronize status segmented chips active state
+  document.querySelectorAll(".steady-status-chip").forEach(chip => {
+    const tabStatus = chip.getAttribute("data-status-tab") || "";
+    chip.classList.toggle("active", tabStatus === selectedStatus);
+  });
+
+  const activeTitle = document.getElementById("workbench-active-title");
+  if (activeTitle) {
+    if (selectedStatus === "applied") {
+      activeTitle.innerHTML = `<i class="fa-solid fa-circle-check" style="color:#10b981;margin-right:8px;"></i> Candidatures postulées avec succès (${filtered.length})`;
+    } else if (selectedStatus === "unapplied") {
+      activeTitle.innerHTML = `<i class="fa-solid fa-paper-plane" style="color:#6366f1;margin-right:8px;"></i> Opportunités à postuler (${filtered.length})`;
+    } else if (selectedStatus === "skipped") {
+      activeTitle.innerHTML = `<i class="fa-solid fa-arrow-up-right-from-square" style="color:#f59e0b;margin-right:8px;"></i> Redirections externes (${filtered.length})`;
+    } else if (selectedPlatform === "francetravail") {
+      activeTitle.innerHTML = `<span class="steady-dot ft" style="display:inline-block;margin-right:8px;"></span> France Travail (${filtered.length})`;
+    } else if (selectedPlatform === "linkedin") {
+      activeTitle.innerHTML = `<span class="steady-dot li" style="display:inline-block;margin-right:8px;"></span> LinkedIn (${filtered.length})`;
+    } else if (selectedPlatform === "indeed") {
+      activeTitle.innerHTML = `<span class="steady-dot ind" style="display:inline-block;margin-right:8px;"></span> Indeed (${filtered.length})`;
+    } else {
+      activeTitle.innerHTML = `<i class="fa-solid fa-layer-group" style="color:#0f172a;margin-right:8px;"></i> Toutes les opportunités (${filtered.length})`;
+    }
+  }
 
   if (tabCount) tabCount.innerText = filtered.length;
   const elSheetCount = document.getElementById("sheet-current-count");
@@ -3599,6 +3638,12 @@ function setupArovaExperience() {
       } else if (pillPlat !== null) {
         pill.classList.toggle("active", pillPlat === selectedPlatform && selectedStatus === "");
       }
+    });
+
+    // Update active status chips
+    document.querySelectorAll(".steady-status-chip").forEach(chip => {
+      const chipStatus = chip.getAttribute("data-status-tab") || "";
+      chip.classList.toggle("active", chipStatus === selectedStatus);
     });
 
     // Set friendly dynamic title

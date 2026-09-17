@@ -58,6 +58,7 @@
 
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "SF Pro", "Inter", -system-ui, sans-serif;
   --font-mono: "SF Mono", Menlo, Monaco, "JetBrains Mono", Consolas, monospace;
+  --font-display-numbers: 'Plus Jakarta Sans', 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 /* ==========================================================
@@ -4560,47 +4561,67 @@ body.notion-dark-clean {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-top: 6px;
+  margin-top: 8px;
   min-height: 22px;
-  opacity: 0;
-  transform: translateY(6px);
-  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  pointer-events: none;
+  opacity: 1;
+  transform: translateY(0);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .steady-kpi-card:hover .steady-kpi-foot {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
+  transform: translateY(-1px);
 }
 
 .steady-kpi-tag {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 9999px;
+  font-family: var(--font-display-numbers);
+  font-size: 11.5px;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: 8px;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
+  letter-spacing: -0.02em;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
 }
 
 .steady-kpi-tag.positive {
-  background: #f0f9ff;
-  color: #0284c7;
-  border: 1px solid #bae6fd;
+  background: #bbf7d0;
+  color: #14532d;
+  border: 1px solid #86efac;
+  transform: rotate(2deg);
 }
 
 .steady-kpi-tag.emerald {
-  background: #ecfdf5;
-  color: #059669;
-  border: 1px solid #a7f3d0;
+  background: #a7f3d0;
+  color: #064e3b;
+  border: 1px solid #6ee7b7;
+  transform: rotate(2deg);
 }
 
 .steady-kpi-tag.sky {
-  background: #f0f9ff;
-  color: #0284c7;
-  border: 1px solid #bae6fd;
+  background: #bae6fd;
+  color: #0c4a6e;
+  border: 1px solid #7dd3fc;
+  transform: rotate(2deg);
+}
+
+body.theme-dark .steady-kpi-tag.positive {
+  background: rgba(134, 239, 172, 0.2);
+  color: #86efac;
+  border: 1px solid rgba(134, 239, 172, 0.4);
+}
+
+body.theme-dark .steady-kpi-tag.emerald {
+  background: rgba(16, 185, 129, 0.22);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+body.theme-dark .steady-kpi-tag.sky {
+  background: rgba(56, 189, 248, 0.2);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.4);
 }
 
 .steady-kpi-platform-pills {
@@ -8230,6 +8251,150 @@ body:not(.theme-dark) .ludique-console-box {
 .ludique-victory-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+}
+
+/* ==========================================================
+   CHUNKY FINTECH NUMBER TYPOGRAPHY (PLUS JAKARTA SANS / OUTFIT 900)
+========================================================== */
+.display-chunky-number,
+.steady-kpi-value,
+.ludique-giant-pct,
+.zen-plat-badge,
+.ludique-counter-val,
+.table-score-badge,
+.steady-count-pill,
+.batch-stat-number,
+#steady-kpi-total,
+#steady-kpi-applied,
+#steady-kpi-1click,
+#steady-kpi-platforms-count,
+#plat-count-all,
+#plat-count-ft,
+#plat-count-li,
+#plat-count-ind,
+#plat-count-applied,
+#sheet-current-count,
+#count-chip-all,
+#count-chip-applied,
+#count-chip-unapplied,
+#count-chip-skipped,
+#workbench-count-unapplied,
+#dock-count-all,
+#dock-count-applied,
+#arova-foot-unapplied-count,
+#drawer-count-all-unapplied,
+#drawer-count-applied-badge,
+#header-batch-count,
+#strip-batch-count,
+.arova-cta-badge,
+.count-chip-val {
+  font-family: var(--font-display-numbers) !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.04em !important;
+  font-feature-settings: "tnum" on, "lnum" on !important;
+}
+
+.steady-kpi-value {
+  font-size: 34px !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.05em !important;
+  line-height: 1.05 !important;
+}
+
+.ludique-giant-pct {
+  font-family: var(--font-display-numbers) !important;
+  font-size: 42px !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.05em !important;
+}
+
+/* ==========================================================
+   STEADY WORKBENCH STATUS TABS (DIRECT ACCESS TO POSTULÉES)
+========================================================== */
+.steady-status-segmented-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  flex-wrap: wrap;
+}
+
+body:not(.theme-dark) .steady-status-segmented-bar {
+  border-top-color: #e2e8f0;
+}
+
+.steady-status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  color: #94a3b8;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+
+body:not(.theme-dark) .steady-status-chip {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #475569;
+}
+
+.steady-status-chip:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+  transform: translateY(-1px);
+}
+
+body:not(.theme-dark) .steady-status-chip:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.steady-status-chip.active {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: rgba(56, 189, 248, 0.45);
+  color: #38bdf8;
+  box-shadow: 0 2px 10px rgba(56, 189, 248, 0.2);
+}
+
+body:not(.theme-dark) .steady-status-chip.active {
+  background: #e0f2fe;
+  border-color: #0284c7;
+  color: #0369a1;
+}
+
+/* Postulées tab (Special Emerald Glow) */
+.steady-status-chip.applied.active {
+  background: rgba(16, 185, 129, 0.18);
+  border-color: rgba(16, 185, 129, 0.5);
+  color: #34d399;
+  box-shadow: 0 2px 14px rgba(16, 185, 129, 0.25);
+}
+
+body:not(.theme-dark) .steady-status-chip.applied.active {
+  background: #d1fae5;
+  border-color: #059669;
+  color: #065f46;
+}
+
+.steady-status-chip.unapplied.active {
+  background: rgba(56, 189, 248, 0.18);
+  border-color: rgba(56, 189, 248, 0.5);
+  color: #38bdf8;
+}
+
+.steady-status-chip.skipped.active {
+  background: rgba(251, 191, 36, 0.18);
+  border-color: rgba(251, 191, 36, 0.5);
+  color: #fbbf24;
 }
 
 

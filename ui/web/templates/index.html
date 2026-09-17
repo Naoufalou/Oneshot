@@ -6,7 +6,7 @@
   <title>Oneshot • Candidatures Automatisées en 1 Clic</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/style.css?v=3.9">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <body class="notion-dark-clean">
@@ -240,56 +240,6 @@
               </div>
             </div>
 
-            <!-- Detailed Real-Time Tasks Sequence (Checklist) -->
-            <div class="ludique-checklist-container">
-              <div class="ludique-checklist-title">
-                <i class="fa-solid fa-list-check" style="color:#38bdf8;"></i> Étapes de la candidature en temps réel :
-              </div>
-              <div class="ludique-steps-list">
-                
-                <div class="ludique-step-item" id="step-task-auth" data-step="1">
-                  <div class="ludique-step-status"><i class="fa-solid fa-circle-notch fa-spin"></i></div>
-                  <div class="ludique-step-details">
-                    <span class="ludique-step-name">1. Connexion & Session Furtive</span>
-                    <span class="ludique-step-desc">Vérification de la session et bypass anti-détection Playwright</span>
-                  </div>
-                </div>
-
-                <div class="ludique-step-item pending" id="step-task-form" data-step="2">
-                  <div class="ludique-step-status"><i class="fa-regular fa-circle"></i></div>
-                  <div class="ludique-step-details">
-                    <span class="ludique-step-name">2. Analyse du Formulaire RH</span>
-                    <span class="ludique-step-desc">Détection des champs recruteur et éligibilité 1 Clic</span>
-                  </div>
-                </div>
-
-                <div class="ludique-step-item pending" id="step-task-cv" data-step="3">
-                  <div class="ludique-step-status"><i class="fa-regular fa-circle"></i></div>
-                  <div class="ludique-step-details">
-                    <span class="ludique-step-name">3. Injection Profil & CV</span>
-                    <span class="ludique-step-desc">Pré-remplissage des coordonnées et rattachement de votre CV</span>
-                  </div>
-                </div>
-
-                <div class="ludique-step-item pending" id="step-task-ai" data-step="4">
-                  <div class="ludique-step-status"><i class="fa-regular fa-circle"></i></div>
-                  <div class="ludique-step-details">
-                    <span class="ludique-step-name">4. Réponses IA aux Questions</span>
-                    <span class="ludique-step-desc">Adaptation sur-mesure aux exigences de l'employeur</span>
-                  </div>
-                </div>
-
-                <div class="ludique-step-item pending" id="step-task-submit" data-step="5">
-                  <div class="ludique-step-status"><i class="fa-regular fa-circle"></i></div>
-                  <div class="ludique-step-details">
-                    <span class="ludique-step-name">5. Envoi Définitif & Récépissé</span>
-                    <span class="ludique-step-desc">Validation de transmission et archivage dans l'historique</span>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-
             <!-- Live Event Console Stream -->
             <div class="ludique-console-box">
               <div class="ludique-console-head">
@@ -496,6 +446,22 @@
           <!-- 1-Click Fast Toggle -->
           <button type="button" class="steady-seg-btn-1click" id="filter-chip-1click" data-easy-filter="true" title="Afficher uniquement les offres 1 Clic">
             <i class="fa-solid fa-bolt"></i> <span>1 Clic uniquement</span>
+          </button>
+        </div>
+
+        <!-- Status Filter Tabs (All / Applied / To Apply / External) -->
+        <div class="steady-status-segmented-bar">
+          <button type="button" class="steady-status-chip active" data-status-tab="" id="chip-status-all">
+            <i class="fa-solid fa-layer-group"></i> <span>Toutes les offres</span> (<span id="count-chip-all">0</span>)
+          </button>
+          <button type="button" class="steady-status-chip applied" data-status-tab="applied" id="chip-status-applied">
+            <i class="fa-solid fa-circle-check"></i> <span>Postulées avec succès</span> (<span id="count-chip-applied">0</span>)
+          </button>
+          <button type="button" class="steady-status-chip unapplied" data-status-tab="unapplied" id="chip-status-unapplied">
+            <i class="fa-solid fa-paper-plane"></i> <span>À postuler</span> (<span id="count-chip-unapplied">0</span>)
+          </button>
+          <button type="button" class="steady-status-chip skipped" data-status-tab="skipped" id="chip-status-skipped">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> <span>Redirections externes</span> (<span id="count-chip-skipped">0</span>)
           </button>
         </div>
       </div>
