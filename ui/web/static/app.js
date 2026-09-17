@@ -3433,15 +3433,19 @@ function setupArovaExperience() {
 
   // Drawer banner triggers
   const btnDrawerUpload = document.getElementById("btn-drawer-upload-banner");
-  const fileInputBanner = document.getElementById("banner-file-input");
-  if (btnDrawerUpload && fileInputBanner) {
-    btnDrawerUpload.addEventListener("click", () => fileInputBanner.click());
+  if (btnDrawerUpload) {
+    btnDrawerUpload.addEventListener("click", () => {
+      if (typeof window.closeStudioDrawer === "function") window.closeStudioDrawer();
+      if (typeof window.openBannerModal === "function") window.openBannerModal();
+    });
   }
 
   const btnDrawerReset = document.getElementById("btn-drawer-reset-banner");
-  const btnResetBanner = document.getElementById("btn-reset-banner");
-  if (btnDrawerReset && btnResetBanner) {
-    btnDrawerReset.addEventListener("click", () => btnResetBanner.click());
+  if (btnDrawerReset) {
+    btnDrawerReset.addEventListener("click", () => {
+      const btnReset = document.getElementById("btn-reset-banner-default");
+      if (btnReset) btnReset.click();
+    });
   }
 
   // Brand click in top bar returns home (closes all sheets/drawers)
@@ -4228,6 +4232,11 @@ function setupThemeEngine() {
   const themeIcon = document.getElementById("theme-toggle-icon");
   const themeText = document.getElementById("theme-toggle-text");
 
+  const drawerToggleTheme = document.getElementById("drawer-toggle-theme");
+  const drawerThemeIcon = document.getElementById("drawer-theme-icon");
+  const drawerThemeTitle = document.getElementById("drawer-theme-title-text");
+  const drawerThemeSub = document.getElementById("drawer-theme-sub-text");
+
   // Load saved theme or detect system preference
   const savedTheme = localStorage.getItem("oneshot_theme");
   const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -4239,21 +4248,39 @@ function setupThemeEngine() {
     if (theme === "dark") {
       document.body.classList.remove("theme-light");
       document.body.classList.add("theme-dark");
+      document.documentElement.setAttribute("data-theme", "dark");
       if (themeIcon) {
         themeIcon.className = "fa-solid fa-sun";
         themeIcon.style.color = "#38bdf8";
       }
       if (themeText) themeText.innerText = "Jour";
       if (btnThemeToggle) btnThemeToggle.title = "Passer en Mode Jour (Clarté)";
+
+      if (drawerToggleTheme) drawerToggleTheme.checked = true;
+      if (drawerThemeIcon) {
+        drawerThemeIcon.className = "fa-solid fa-sun";
+        drawerThemeIcon.style.color = "#38bdf8";
+      }
+      if (drawerThemeTitle) drawerThemeTitle.innerText = "Mode Nuit Actif (Zen)";
+      if (drawerThemeSub) drawerThemeSub.innerText = "Cliquer pour passer en Mode Jour (Clarté)";
     } else {
       document.body.classList.remove("theme-dark");
       document.body.classList.add("theme-light");
+      document.documentElement.setAttribute("data-theme", "light");
       if (themeIcon) {
         themeIcon.className = "fa-solid fa-moon";
         themeIcon.style.color = "#f59e0b";
       }
       if (themeText) themeText.innerText = "Nuit";
       if (btnThemeToggle) btnThemeToggle.title = "Passer en Mode Nuit (Obsidian Zen)";
+
+      if (drawerToggleTheme) drawerToggleTheme.checked = false;
+      if (drawerThemeIcon) {
+        drawerThemeIcon.className = "fa-solid fa-moon";
+        drawerThemeIcon.style.color = "#f59e0b";
+      }
+      if (drawerThemeTitle) drawerThemeTitle.innerText = "Mode Jour Actif (Clarté)";
+      if (drawerThemeSub) drawerThemeSub.innerText = "Cliquer pour passer en Mode Nuit (Obsidian Zen)";
     }
     localStorage.setItem("oneshot_theme", theme);
   }
@@ -4267,6 +4294,12 @@ function setupThemeEngine() {
 
   if (btnThemeToggle) {
     btnThemeToggle.addEventListener("click", () => {
+      window.toggleOneShotTheme();
+    });
+  }
+
+  if (drawerToggleTheme) {
+    drawerToggleTheme.addEventListener("change", () => {
       window.toggleOneShotTheme();
     });
   }
@@ -4461,6 +4494,16 @@ function setupBannerCustomizer() {
       return;
     }
 
+    // Instant immediate visual preview for zero-latency feedback
+    try {
+      const tempBlobUrl = URL.createObjectURL(file);
+      bannerConfig.type = "image";
+      bannerConfig.value = tempBlobUrl;
+      bannerConfig.name = file.name || "Image importée";
+      bannerConfig.visible = true;
+      renderBanner();
+    } catch (_) {}
+
     if (uploadProgress) uploadProgress.style.display = "flex";
 
     try {
@@ -4564,23 +4607,46 @@ function setupBannerCustomizer() {
     .catch(() => {});
 
   function openBannerModal() {
-    if (modal) {
-      modal.style.display = "flex";
+    const modalEl = document.getElementById("modal-banner-customizer") || modal;
+    if (modalEl) {
+      modalEl.style.setProperty("display", "flex", "important");
       renderBanner();
     }
   }
 
   function closeBannerModal() {
-    if (modal) modal.style.display = "none";
+    const modalEl = document.getElementById("modal-banner-customizer") || modal;
+    if (modalEl) modalEl.style.display = "none";
   }
+
+  // Expose globally on window for 100% reliable invocation from any menu or drawer
+  window.openBannerModal = openBannerModal;
+  window.closeBannerModal = closeBannerModal;
 
   // Open modal triggers
   if (btnHeaderBanner) btnHeaderBanner.addEventListener("click", openBannerModal);
   if (btnBannerEdit) btnBannerEdit.addEventListener("click", openBannerModal);
+
+  const btnDrawerBanner = document.getElementById("btn-drawer-upload-banner");
+  if (btnDrawerBanner) {
+    btnDrawerBanner.addEventListener("click", () => {
+      if (typeof window.closeStudioDrawer === "function") window.closeStudioDrawer();
+      openBannerModal();
+    });
+  }
+
   if (menuTileBanner) {
     menuTileBanner.addEventListener("click", () => {
-      if (typeof closeStudioDrawer === "function") closeStudioDrawer();
+      if (typeof window.closeStudioDrawer === "function") window.closeStudioDrawer();
       openBannerModal();
+    });
+  }
+
+  const legacyInput = document.getElementById("banner-file-input");
+  if (legacyInput) {
+    legacyInput.addEventListener("change", (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (file) handleBannerFileUpload(file);
     });
   }
 

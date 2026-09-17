@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/style.css?v=3.7">
+  <link rel="stylesheet" href="/static/style.css?v=3.8">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <body class="notion-dark-clean">
 
@@ -67,8 +67,9 @@
       </button>
 
       <!-- Banner Customizer Quick Button -->
-      <button type="button" class="steady-action-btn steady-btn-ghost" id="btn-header-banner" title="Personnaliser la bannière">
-        <i class="fa-solid fa-image"></i>
+      <button type="button" class="steady-action-btn steady-btn-ghost" id="btn-header-banner" title="Personnaliser la bannière ou le fond d'écran">
+        <i class="fa-solid fa-wand-magic-sparkles" style="color:#38bdf8;"></i>
+        <span>Bannière</span>
       </button>
 
       <!-- Sleek Menu Trigger (Ouvre / Ferme le menu complet) -->
@@ -556,15 +557,35 @@
           </div>
         </div>
 
-        <!-- 3D Banner Controls & Utilities -->
+        <!-- Mode Jour / Nuit Toggle Row -->
+        <div class="drawer-control-row" id="drawer-theme-row">
+          <div class="drawer-control-info">
+            <span class="drawer-control-title">
+              <i class="fa-solid fa-moon" id="drawer-theme-icon" style="color:#f59e0b; font-size:12px; margin-right:4px;"></i> 
+              <span id="drawer-theme-title-text">Mode Nuit &amp; Jour</span>
+            </span>
+            <span class="drawer-control-sub" id="drawer-theme-sub-text">Alterner entre Obsidian Zen et Clarté</span>
+          </div>
+          <div class="app-toggle-wrapper">
+            <label class="apple-switch" title="Basculer Mode Jour / Mode Nuit">
+              <input type="checkbox" id="drawer-toggle-theme">
+              <span class="apple-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Banner & Wallpaper Controls -->
         <div class="drawer-tools-row">
-          <button class="drawer-tool-chip" id="btn-drawer-upload-banner" title="Changer l'image de fond">
-            <i class="fa-solid fa-camera"></i> <span>Image de fond</span>
+          <button type="button" class="drawer-tool-chip" id="btn-drawer-upload-banner" title="Personnaliser la bannière ou le fond d'écran">
+            <i class="fa-solid fa-wand-magic-sparkles" style="color:#ec4899;"></i> <span>Bannière / Fond</span>
           </button>
-          <button class="drawer-tool-chip" id="btn-drawer-reset-banner" title="Rétablir le fond 3D interactif">
-            <i class="fa-solid fa-rotate-left"></i> <span>Fond 3D</span>
+          <label for="input-banner-file-upload" class="drawer-tool-chip" id="btn-drawer-browse-direct" title="Importer une image directement" style="cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+            <i class="fa-solid fa-camera" style="color:#38bdf8;"></i> <span>Importer image</span>
+          </label>
+          <button type="button" class="drawer-tool-chip" id="btn-drawer-reset-banner" title="Rétablir le thème par défaut">
+            <i class="fa-solid fa-rotate-left"></i> <span>Rétablir</span>
           </button>
-          <button class="drawer-tool-chip danger" id="btn-kill-all-browsers-drawer" title="Fermer les fenêtres de navigateur">
+          <button type="button" class="drawer-tool-chip danger" id="btn-kill-all-browsers-drawer" title="Fermer les fenêtres de navigateur">
             <i class="fa-solid fa-power-off"></i> <span>Fermer navigateurs</span>
           </button>
         </div>
@@ -1543,9 +1564,9 @@
                 <div class="banner-drop-title"><strong>Cliquez pour importer</strong> ou glissez-déposez votre image ici</div>
                 <div class="banner-drop-sub">JPG, PNG, WebP • Taille illimitée (import direct et optimisé)</div>
               </div>
-              <button type="button" class="banner-browse-btn" id="btn-banner-browse">
+              <label for="input-banner-file-upload" class="banner-browse-btn" id="btn-banner-browse" style="cursor:pointer; display:inline-flex; align-items:center; gap:8px;">
                 <i class="fa-solid fa-folder-open"></i> Parcourir
-              </button>
+              </label>
             </div>
             <div class="banner-upload-progress" id="banner-upload-progress" style="display:none;">
               <div class="banner-spinner"><i class="fa-solid fa-circle-notch fa-spin"></i></div>
@@ -1611,6 +1632,6 @@
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  <script src="/static/app.js?v=4.7"></script>
+  <script src="/static/app.js?v=4.8"></script>
 </body>
 </html>

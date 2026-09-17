@@ -5654,103 +5654,103 @@ body.notion-dark-clean {
   border-color: #fecaca !important;
 }
 
-/* 7. Studio Menu Drawer (White & Grey Modern Slide-over) */
+/* 7. Studio Menu Drawer - Day / Night Responsive Theme */
 .studio-menu-drawer {
-  background: #ffffff !important;
-  border-left: 1px solid #e2e8f0 !important;
-  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.08) !important;
-  color: #0f172a !important;
+  background: #ffffff;
+  border-left: 1px solid #e2e8f0;
+  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.08);
+  color: #0f172a;
 }
 
 .studio-drawer-backdrop {
-  background: rgba(15, 23, 42, 0.35) !important;
-  backdrop-filter: blur(8px) !important;
-  -webkit-backdrop-filter: blur(8px) !important;
+  background: rgba(15, 23, 42, 0.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .drawer-header {
-  background: #ffffff !important;
-  border-bottom: 1px solid #e2e8f0 !important;
-  padding: 20px 24px !important;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 20px 24px;
 }
 
 .drawer-header h3 {
-  color: #0f172a !important;
-  font-weight: 700 !important;
+  color: #0f172a;
+  font-weight: 700;
 }
 
 .drawer-header p {
-  color: #64748b !important;
+  color: #64748b;
 }
 
 .drawer-close-btn {
-  background: #f1f5f9 !important;
-  border: 1px solid #e2e8f0 !important;
-  color: #475569 !important;
-  width: 32px !important;
-  height: 32px !important;
-  border-radius: 8px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  cursor: pointer !important;
-  transition: all 0.15s ease !important;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
 .drawer-close-btn:hover {
-  background: #e2e8f0 !important;
-  color: #0f172a !important;
-  transform: scale(1.08) !important;
+  background: #e2e8f0;
+  color: #0f172a;
+  transform: scale(1.08);
 }
 
 .drawer-profile-compact {
-  background: #f8fafc !important;
-  border: 1px solid #e2e8f0 !important;
-  border-radius: 12px !important;
-  padding: 14px 16px !important;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px 16px;
 }
 
 .drawer-profile-compact h4 {
-  color: #0f172a !important;
+  color: #0f172a;
 }
 
 .drawer-profile-compact p {
-  color: #64748b !important;
+  color: #64748b;
 }
 
 .drawer-profile-compact-cv {
-  background: #ffffff !important;
-  border: 1px solid #e2e8f0 !important;
-  padding: 6px 12px !important;
-  border-radius: 8px !important;
-  cursor: pointer !important;
-  transition: all 0.15s ease !important;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
 .drawer-profile-compact-cv:hover {
-  background: #f1f5f9 !important;
-  border-color: #cbd5e1 !important;
+  background: #f1f5f9;
+  border-color: #cbd5e1;
 }
 
 .drawer-compact-cv-name {
-  color: #0f172a !important;
-  font-weight: 600 !important;
+  color: #0f172a;
+  font-weight: 600;
 }
 
 .quick-link-pill {
-  background: #f1f5f9 !important;
-  border: 1px solid #e2e8f0 !important;
-  color: #334155 !important;
-  font-size: 11.5px !important;
-  padding: 5px 12px !important;
-  border-radius: 6px !important;
-  transition: all 0.15s ease !important;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+  font-size: 11.5px;
+  padding: 5px 12px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
 }
 
 .quick-link-pill:hover {
-  background: #e2e8f0 !important;
-  color: #0f172a !important;
-  transform: translateY(-1px) !important;
+  background: #e2e8f0;
+  color: #0f172a;
+  transform: translateY(-1px);
 }
 
 .studio-nav-grid {
@@ -5760,52 +5760,273 @@ body.notion-dark-clean {
 }
 
 .studio-nav-tile {
-  background: #f8fafc !important;
-  border: 1px solid #e2e8f0 !important;
-  border-radius: 12px !important;
-  padding: 14px 18px !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 14px !important;
-  cursor: pointer !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .studio-nav-tile:hover {
-  background: #ffffff !important;
-  border-color: #cbd5e1 !important;
-  transform: translateY(-2px) !important;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05) !important;
+  background: #ffffff;
+  border-color: #cbd5e1;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
 }
 
 .studio-nav-tile .nav-tile-title {
-  color: #0f172a !important;
-  font-size: 14px !important;
-  font-weight: 700 !important;
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 .studio-nav-tile .nav-tile-sub {
-  color: #64748b !important;
-  font-size: 12px !important;
+  color: #64748b;
+  font-size: 12px;
 }
 
 .studio-nav-tile .nav-tile-arrow {
-  color: #94a3b8 !important;
-  transition: transform 0.15s ease !important;
+  color: #94a3b8;
+  transition: transform 0.15s ease;
 }
 
 .studio-nav-tile:hover .nav-tile-arrow {
-  color: #0284c7 !important;
-  transform: translateX(3px) !important;
+  color: #0284c7;
+  transform: translateX(3px);
 }
 
 .drawer-section-title {
-  font-size: 11px !important;
-  font-weight: 700 !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.06em !important;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+  margin: 16px 0 8px 0;
+}
+
+.drawer-controls-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.drawer-control-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.drawer-control-row:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.drawer-control-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+}
+
+.drawer-control-sub {
+  font-size: 11.5px;
+  color: #64748b;
+}
+
+.drawer-tools-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-top: 4px;
+}
+
+.drawer-tool-chip {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.drawer-tool-chip:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #0f172a;
+  transform: translateY(-1px);
+}
+
+.drawer-tool-chip.danger {
+  color: #ef4444;
+  border-color: #fecaca;
+}
+
+.drawer-tool-chip.danger:hover {
+  background: #fef2f2;
+  border-color: #ef4444;
+}
+
+/* ==========================================================
+   DRAWER DARK MODE OVERRIDES (Obsidian Deep Zen)
+========================================================== */
+body.theme-dark .studio-menu-drawer {
+  background: #090d16 !important;
+  border-left: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: -12px 0 40px rgba(0, 0, 0, 0.75) !important;
+  color: #f8fafc !important;
+}
+
+body.theme-dark .studio-drawer-backdrop {
+  background: rgba(0, 0, 0, 0.65) !important;
+}
+
+body.theme-dark .drawer-header {
+  background: #090d16 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+body.theme-dark .drawer-header h3 {
+  color: #f8fafc !important;
+}
+
+body.theme-dark .drawer-header p {
+  color: #94a3b8 !important;
+}
+
+body.theme-dark .drawer-close-btn {
+  background: #141b27 !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #cbd5e1 !important;
+}
+
+body.theme-dark .drawer-close-btn:hover {
+  background: #1d2738 !important;
+  color: #ffffff !important;
+  border-color: #38bdf8 !important;
+}
+
+body.theme-dark .drawer-profile-compact {
+  background: #101622 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+body.theme-dark .drawer-profile-compact h4 {
+  color: #f8fafc !important;
+}
+
+body.theme-dark .drawer-profile-compact p {
+  color: #94a3b8 !important;
+}
+
+body.theme-dark .drawer-profile-compact-cv {
+  background: #151d2c !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+body.theme-dark .drawer-profile-compact-cv:hover {
+  background: #1d2738 !important;
+  border-color: #38bdf8 !important;
+}
+
+body.theme-dark .drawer-compact-cv-name {
+  color: #f8fafc !important;
+}
+
+body.theme-dark .quick-link-pill {
+  background: #141b27 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #cbd5e1 !important;
+}
+
+body.theme-dark .quick-link-pill:hover {
+  background: #1d2738 !important;
+  color: #ffffff !important;
+}
+
+body.theme-dark .studio-nav-tile {
+  background: #101622 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+body.theme-dark .studio-nav-tile:hover {
+  background: #161e2d !important;
+  border-color: rgba(56, 189, 248, 0.35) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45) !important;
+}
+
+body.theme-dark .studio-nav-tile .nav-tile-title {
+  color: #f8fafc !important;
+}
+
+body.theme-dark .studio-nav-tile .nav-tile-sub,
+body.theme-dark .studio-nav-tile .nav-tile-desc {
+  color: #94a3b8 !important;
+}
+
+body.theme-dark .studio-nav-tile .nav-tile-arrow {
   color: #64748b !important;
-  margin: 16px 0 8px 0 !important;
+}
+
+body.theme-dark .drawer-section-title {
+  color: #64748b !important;
+}
+
+body.theme-dark .drawer-controls-box {
+  background: #101622 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+body.theme-dark .drawer-control-row {
+  border-bottom-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+body.theme-dark .drawer-control-title {
+  color: #f8fafc !important;
+}
+
+body.theme-dark .drawer-control-sub {
+  color: #94a3b8 !important;
+}
+
+body.theme-dark .drawer-tool-chip {
+  background: #141b27 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #cbd5e1 !important;
+}
+
+body.theme-dark .drawer-tool-chip:hover {
+  background: #1d2738 !important;
+  color: #ffffff !important;
+  border-color: #38bdf8 !important;
+}
+
+body.theme-dark .drawer-tool-chip.danger {
+  color: #f87171 !important;
+  border-color: rgba(248, 113, 113, 0.3) !important;
+  background: rgba(239, 68, 68, 0.1) !important;
+}
+
+body.theme-dark .drawer-tool-chip.danger:hover {
+  background: rgba(239, 68, 68, 0.2) !important;
 }
 
 /* Secondary Sheets & Side Peek Modals */
@@ -6986,6 +7207,127 @@ body.theme-dark .oneshot-wallpaper-overlay.active {
   background: rgba(239, 68, 68, 0.15);
   border-color: #ef4444;
   color: #fca5a5;
+}
+
+/* Ensure Banner Modal is always on top and supports Light & Dark Modes */
+#modal-banner-customizer {
+  z-index: 100000 !important;
+}
+
+body.theme-light #modal-banner-customizer .oneshot-banner-modal {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.16) !important;
+  color: #0f172a !important;
+}
+
+body.theme-light #modal-banner-customizer .profile-modal-head {
+  background: #f8fafc !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+body.theme-light #modal-banner-customizer .profile-modal-title {
+  color: #0f172a !important;
+}
+
+body.theme-light #modal-banner-customizer .profile-modal-sub {
+  color: #64748b !important;
+}
+
+body.theme-light #modal-banner-customizer .banner-group-title {
+  color: #475569 !important;
+}
+
+body.theme-light #modal-banner-customizer .banner-mode-chip {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #334155;
+}
+
+body.theme-light #modal-banner-customizer .banner-mode-chip:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+body.theme-light #modal-banner-customizer .banner-mode-chip.active {
+  background: #e0f2fe;
+  border-color: #0284c7;
+  color: #0284c7;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.25);
+}
+
+body.theme-light #modal-banner-customizer .banner-preset-card {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #334155;
+}
+
+body.theme-light #modal-banner-customizer .banner-preset-card:hover {
+  background: #ffffff;
+  border-color: #0284c7;
+}
+
+body.theme-light #modal-banner-customizer .banner-preset-card.active {
+  border-color: #0284c7;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.35);
+}
+
+body.theme-light #modal-banner-customizer .banner-dropzone {
+  background: #f8fafc;
+  border-color: #94a3b8;
+}
+
+body.theme-light #modal-banner-customizer .banner-dropzone:hover,
+body.theme-light #modal-banner-customizer .banner-dropzone.dragover {
+  background: #f0f9ff;
+  border-color: #0284c7;
+}
+
+body.theme-light #modal-banner-customizer .banner-drop-title {
+  color: #0f172a;
+}
+
+body.theme-light #modal-banner-customizer .banner-drop-sub {
+  color: #64748b;
+}
+
+body.theme-light #modal-banner-customizer .banner-url-input-wrap input {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+body.theme-light #modal-banner-customizer .banner-active-preview-bar {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+body.theme-light #modal-banner-customizer .banner-active-name {
+  color: #0f172a;
+}
+
+body.theme-light #modal-banner-customizer .banner-size-chip {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #334155;
+}
+
+body.theme-light #modal-banner-customizer .banner-size-chip.active {
+  background: #0284c7;
+  border-color: #0284c7;
+  color: #ffffff;
+}
+
+body.theme-light #modal-banner-customizer .banner-toggle-btn {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #334155;
+}
+
+body.theme-light #modal-banner-customizer .banner-toggle-btn.active {
+  background: #ecfdf5;
+  border-color: #10b981;
+  color: #059669;
 }
 
 
