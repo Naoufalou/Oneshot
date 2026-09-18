@@ -45,7 +45,9 @@ Puis ouvrez votre navigateur sur : **[http://127.0.0.1:8000](http://127.0.0.1:80
 
 ---
 
-## 🛠️ Pour Contribuer / Ajouter des Fonctionnalités
+## 🛠️ Pour Contribuer / Guide Développeur Fullstack
+
+> 📖 **Guide complet pour les développeurs** : Consultez le document détaillé **[DEV_GUIDE.md](DEV_GUIDE.md)** qui explique toute l'architecture interne (FastAPI, Playwright Stealth, modèle SQLite, intégration LLM Gemini/OpenAI, flux Batch et ajout de nouvelles plateformes).
 
 Pour ajouter de nouvelles fonctionnalités proprement :
 
