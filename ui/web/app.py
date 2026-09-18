@@ -50,8 +50,18 @@ TEMPLATES_DIR = WEB_DIR / "templates"
 STATIC_DIR = WEB_DIR / "static"
 
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
-app.mount("/screenshots", StaticFiles(directory=str(SCREENSHOTS_DIR)), name="screenshots")
-app.mount("/generated", StaticFiles(directory=str(GENERATED_DIR)), name="generated")
+
+try:
+    SCREENSHOTS_DIR.mkdir(parents=True, exist_ok=True)
+    app.mount("/screenshots", StaticFiles(directory=str(SCREENSHOTS_DIR)), name="screenshots")
+except Exception as e:
+    logger.debug(f"Screenshots mount note: {e}")
+
+try:
+    GENERATED_DIR.mkdir(parents=True, exist_ok=True)
+    app.mount("/generated", StaticFiles(directory=str(GENERATED_DIR)), name="generated")
+except Exception as e:
+    logger.debug(f"Generated mount note: {e}")
 
 # Multi-platform simultaneous runners
 PLATFORM_WORKERS: Dict[str, Dict[str, Any]] = {}

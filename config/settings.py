@@ -5,8 +5,39 @@ from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 import yaml
 
+import shutil
+
 BASE_DIR = Path(__file__).resolve().parent.parent
-DATA_DIR = BASE_DIR / "data"
+IS_VERCEL = bool(os.getenv("VERCEL") or os.getenv("AWS_LAMBDA_FUNCTION_NAME"))
+
+if IS_VERCEL:
+    DATA_DIR = Path("/tmp/data")
+    CONFIG_CACHE_DIR = Path("/tmp/config")
+    try:
+        DATA_DIR.mkdir(parents=True, exist_ok=True)
+        CONFIG_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+        # Copy seed data from repository bundle if present
+        source_data = BASE_DIR / "data"
+        if source_data.exists():
+            for item in source_data.iterdir():
+                dest = DATA_DIR / item.name
+                if not dest.exists():
+                    if item.is_file():
+                        shutil.copy2(item, dest)
+                    elif item.is_dir() and item.name not in ["browser_sessions", "screenshots"]:
+                        shutil.copytree(item, dest)
+        source_config = BASE_DIR / "config"
+        if source_config.exists():
+            for item in source_config.iterdir():
+                dest = CONFIG_CACHE_DIR / item.name
+                if not dest.exists() and item.is_file() and item.suffix in [".yaml", ".yml"]:
+                    shutil.copy2(item, dest)
+    except Exception as e:
+        print(f"Vercel /tmp initialization note: {e}")
+else:
+    DATA_DIR = BASE_DIR / "data"
+    CONFIG_CACHE_DIR = BASE_DIR / "config"
+
 SESSIONS_DIR = DATA_DIR / "browser_sessions"
 SCREENSHOTS_DIR = DATA_DIR / "screenshots"
 RESUMES_DIR = DATA_DIR / "resumes"
@@ -14,7 +45,10 @@ GENERATED_DIR = DATA_DIR / "generated"
 
 # Ensure directories exist
 for folder in [DATA_DIR, SESSIONS_DIR, SCREENSHOTS_DIR, RESUMES_DIR, GENERATED_DIR]:
-    folder.mkdir(parents=True, exist_ok=True)
+    try:
+        folder.mkdir(parents=True, exist_ok=True)
+    except Exception:
+        pass
 
 
 class UserProfile(BaseModel):
@@ -152,12 +186,13 @@ class Settings(BaseSettings):
     db_path: Path = DATA_DIR / "applications.db"
     
     # User Profile & Search config paths
-    profile_path: Path = BASE_DIR / "config" / "profile.yaml"
-    search_criteria_path: Path = BASE_DIR / "config" / "search_criteria.yaml"
+    profile_path: Path = CONFIG_CACHE_DIR / "profile.yaml"
+    search_criteria_path: Path = CONFIG_CACHE_DIR / "search_criteria.yaml"
 
     def load_profile(self) -> UserProfile:
-        if self.profile_path.exists():
-            with open(self.profile_path, "r", encoding="utf-8") as f:
+        target = self.profile_path if self.profile_path.exists() else (BASE_DIR / "config" / "profile.yaml")
+        if target.exists():
+            with open(target, "r", encoding="utf-8") as f:
                 data = yaml.safe_load(f) or {}
                 return UserProfile(**data)
         return UserProfile()
@@ -167,8 +202,9 @@ class Settings(BaseSettings):
             yaml.dump(profile.model_dump(), f, allow_unicode=True, default_flow_style=False)
 
     def load_search_criteria(self) -> SearchCriteria:
-        if self.search_criteria_path.exists():
-            with open(self.search_criteria_path, "r", encoding="utf-8") as f:
+        target = self.search_criteria_path if self.search_criteria_path.exists() else (BASE_DIR / "config" / "search_criteria.yaml")
+        if target.exists():
+            with open(target, "r", encoding="utf-8") as f:
                 data = yaml.safe_load(f) or {}
                 return SearchCriteria(**data)
         return SearchCriteria()
