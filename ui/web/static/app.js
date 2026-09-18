@@ -213,6 +213,31 @@ function initLudiqueProgress() {
     });
   }
 
+  // Mini stats counter cards in hero directly open workbench table
+  const cardSuccess = document.querySelector(".ludique-counter-card.success");
+  if (cardSuccess) {
+    cardSuccess.style.cursor = "pointer";
+    cardSuccess.addEventListener("click", () => {
+      if (typeof window.openZenTable === "function") window.openZenTable("", "applied");
+    });
+  }
+
+  const cardRemaining = document.querySelector(".ludique-counter-card.remaining");
+  if (cardRemaining) {
+    cardRemaining.style.cursor = "pointer";
+    cardRemaining.addEventListener("click", () => {
+      if (typeof window.openZenTable === "function") window.openZenTable("", "unapplied");
+    });
+  }
+
+  const cardSkipped = document.querySelector(".ludique-counter-card.skipped");
+  if (cardSkipped) {
+    cardSkipped.style.cursor = "pointer";
+    cardSkipped.addEventListener("click", () => {
+      if (typeof window.openZenTable === "function") window.openZenTable("", "skipped");
+    });
+  }
+
   window.LudiqueProgress = {
     open: function (options = {}) {
       isRunning = true;
@@ -220,6 +245,7 @@ function initLudiqueProgress() {
       lastLoggedMsg = "";
 
       if (hero) {
+        hero.classList.remove("minimized");
         hero.style.display = "block";
         setTimeout(() => {
           hero.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -1305,7 +1331,7 @@ function setupFilters() {
     });
   });
 
-  // Zen Platform Hub Pills (Toggle Table on click)
+  // Zen Platform Hub Pills (Always Open & Switch Table on click)
   document.querySelectorAll(".zen-plat-pill").forEach(pill => {
     pill.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -1313,24 +1339,24 @@ function setupFilters() {
       const targetPlat = isApplied ? "" : (pill.getAttribute("data-platform") || "");
       const targetStatus = isApplied ? "applied" : "";
 
-      const workbench = document.getElementById("steady-workbench");
-      const isTableOpen = workbench && workbench.style.display !== "none";
-
-      // If already open on the exact same platform/status, toggle closed (zen calm mode)
-      if (isTableOpen && selectedPlatform === targetPlat && selectedStatus === targetStatus) {
-        closeZenTable();
-        return;
-      }
-
       openZenTable(targetPlat, targetStatus);
     });
   });
 
-  // Workbench Close Button
+  // Workbench Close Button (Only explicit way to collapse the table)
   const btnCloseWorkbench = document.getElementById("btn-close-table-workbench");
   if (btnCloseWorkbench) {
     btnCloseWorkbench.addEventListener("click", () => {
       closeZenTable();
+    });
+  }
+
+  // Calm placeholder is interactive: clicking it reveals the dashboard table
+  const calmStateCard = document.getElementById("zen-calm-state");
+  if (calmStateCard) {
+    calmStateCard.style.cursor = "pointer";
+    calmStateCard.addEventListener("click", () => {
+      openZenTable("", "");
     });
   }
 
@@ -1361,14 +1387,12 @@ function setupFilters() {
     });
   }
 
-  // Card 4: Plateformes Actives -> Open Connexions & Sessions des Plateformes
+  // Card 4: Plateformes Actives -> Open full candidatures table across platforms
   const kpiPlatformsCard = document.getElementById("steady-kpi-card-platforms");
   if (kpiPlatformsCard) {
     kpiPlatformsCard.style.cursor = "pointer";
     kpiPlatformsCard.addEventListener("click", () => {
-      if (typeof window.openSecondarySheet === "function") {
-        window.openSecondarySheet("tab-platforms");
-      }
+      openZenTable("", "");
     });
   }
 
@@ -1377,8 +1401,15 @@ function setupFilters() {
     chip.style.cursor = "pointer";
     chip.addEventListener("click", (e) => {
       e.stopPropagation();
-      if (typeof window.openSecondarySheet === "function") {
-        window.openSecondarySheet("tab-platforms");
+      const chipText = chip.innerText.toLowerCase();
+      if (chipText.includes("ft") || chipText.includes("france")) {
+        openZenTable("francetravail", "");
+      } else if (chipText.includes("li") || chipText.includes("linkedin")) {
+        openZenTable("linkedin", "");
+      } else if (chipText.includes("indeed")) {
+        openZenTable("indeed", "");
+      } else {
+        openZenTable("", "");
       }
     });
   });
@@ -3579,6 +3610,11 @@ function setupArovaExperience() {
     selectedPlatform = platformKey !== undefined ? platformKey : "";
     selectedStatus = statusFilter !== undefined ? statusFilter : "";
 
+    // Ensure allJobs is loaded in memory
+    if (!allJobs || allJobs.length === 0) {
+      await loadJobs();
+    }
+
     // When viewing applied candidatures, ensure clean display without conflicting 1-click or search filters
     if (selectedStatus === "applied") {
       selectedPlatform = platformKey || "";
@@ -3609,9 +3645,17 @@ function setupArovaExperience() {
     const calmState = document.getElementById("zen-calm-state");
     const activeTitle = document.getElementById("workbench-active-title");
 
-    // Close cards and drawers
+    // Close floating cards and drawers
     closeArovaCard();
-    closeStudioDrawer();
+    if (typeof window.closeStudioDrawer === "function") {
+      window.closeStudioDrawer();
+    }
+
+    // If hero progress is open and not currently in active animation, minimize it so workbench table has full prominence
+    const hero = document.getElementById("ludique-progress-hero");
+    if (hero && hero.style.display !== "none") {
+      hero.classList.add("minimized");
+    }
 
     // Show workbench with smooth appearance and platform-specific color theme
     if (workbench) {
@@ -3671,11 +3715,17 @@ function setupArovaExperience() {
 
     renderJobsTable();
 
-    // Scroll smoothly down to the workbench
+    // Scroll smoothly down to the workbench with sticky header offset
     if (workbench) {
       setTimeout(() => {
-        workbench.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 40);
+        const headerOffset = 84;
+        const elementPosition = workbench.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        window.scrollTo({
+          top: Math.max(0, offsetPosition),
+          behavior: "smooth"
+        });
+      }, 50);
     }
   };
 
@@ -4569,6 +4619,10 @@ function setupBatchApplyExperience() {
         }
         showToast(`🎉 Session terminée : ${status.success_count || 0} offre(s) postulée(s) avec succès !`, "success");
         await loadJobs();
+        // Automatically open the workbench dashboard with candidatures!
+        if (typeof window.openZenTable === "function") {
+          window.openZenTable("", status.success_count > 0 ? "applied" : "");
+        }
       }
     } catch (e) {
       console.warn("Poll batch status failed:", e);

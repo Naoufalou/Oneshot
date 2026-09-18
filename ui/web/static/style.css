@@ -3982,10 +3982,12 @@ body.arova-gallery-theme .arova-hero-tagline {
 .drawer-action-subrow {
   display: flex;
   gap: 6px;
+  flex-wrap: wrap;
 }
 
 .drawer-quick-action-btn {
   flex: 1;
+  min-width: 75px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3993,12 +3995,25 @@ body.arova-gallery-theme .arova-hero-tagline {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.09);
   color: #e2e8f0;
-  padding: 8px 10px;
+  padding: 8px 8px;
   border-radius: 8px;
   font-size: 11.5px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s;
+}
+
+body:not(.theme-dark) .drawer-quick-action-btn {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #0f172a;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+body:not(.theme-dark) .drawer-quick-action-btn:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+  color: #0284c7;
 }
 
 .drawer-quick-action-btn:hover {
@@ -4010,6 +4025,17 @@ body.arova-gallery-theme .arova-hero-tagline {
   background: rgba(56, 189, 248, 0.15);
   border-color: rgba(56, 189, 248, 0.3);
   color: #38bdf8;
+}
+
+body:not(.theme-dark) .drawer-quick-action-btn.primary {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: #0284c7;
+  color: #0284c7;
+}
+
+body:not(.theme-dark) .drawer-quick-action-btn.primary:hover {
+  background: #0284c7;
+  color: #ffffff;
 }
 
 .drawer-quick-action-btn.primary:hover {
@@ -4797,6 +4823,7 @@ body.theme-dark .steady-table-plat-badge.ind {
 .zen-platform-hub {
   margin: 12px 0 20px 0;
   width: 100%;
+  scroll-margin-top: 84px;
 }
 
 .zen-platform-pills-row {
@@ -5163,6 +5190,7 @@ body.theme-dark .steady-table-plat-badge.ind {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  scroll-margin-top: 84px;
 }
 
 /* ==========================================================
@@ -7679,6 +7707,29 @@ body:not(.theme-dark) .ludique-progress-hero {
   background: linear-gradient(135deg, #ffffff, #f8fafc);
   border-color: rgba(59, 130, 246, 0.35);
   box-shadow: 0 20px 50px -10px rgba(59, 130, 246, 0.16), 0 0 0 1px rgba(59, 130, 246, 0.12);
+}
+
+/* Compact Victory Banner state after one-click finishes to give full spotlight to workbench table */
+.ludique-progress-hero.minimized {
+  padding: 14px 24px !important;
+  margin-bottom: 16px !important;
+}
+
+.ludique-progress-hero.minimized .ludique-hero-canvas-wrap {
+  display: none !important;
+}
+
+.ludique-progress-hero.minimized .ludique-main-grid {
+  display: none !important;
+}
+
+.ludique-progress-hero.minimized .ludique-victory-row {
+  margin-top: 0 !important;
+  padding: 8px 16px !important;
+}
+
+.ludique-progress-hero.minimized .ludique-header-row {
+  margin-bottom: 6px !important;
 }
 
 .ludique-hero-canvas-wrap {

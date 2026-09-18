@@ -21,54 +21,41 @@
   ========================================================== -->
   <header class="steady-header">
     <div class="steady-header-left">
-      <!-- Brand & Workspace Identity -->
-      <div class="steady-brand-block" id="btn-brand-home" title="Oneshot • Candidatures Automatisées">
-        <div class="steady-logo-icon">
-          <i class="fa-solid fa-gamepad"></i>
+      <!-- Brand & App Identity : Logo Arc Tendu Oneshot -->
+      <div class="steady-brand-block" id="btn-brand-home" title="Oneshot • Accueil">
+        <div class="steady-logo-icon" aria-label="Logo Oneshot - Arc tendu">
+          <svg viewBox="0 0 36 36" width="24" height="24" fill="none" class="oneshot-bow-svg">
+            <g transform="rotate(-45 18 18)">
+              <!-- Recurve bow stave -->
+              <path d="M 10 6 C 14 5, 20 8, 23 13 C 24.5 15.5, 24.5 20.5, 23 23 C 20 28, 14 31, 10 30" 
+                    stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+              <!-- Recurve tips -->
+              <path d="M 10 6 C 8.5 7, 7.5 8, 7 9" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+              <path d="M 10 30 C 8.5 29, 7.5 28, 7 27" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+              <!-- Riser grip wrap -->
+              <rect x="22.2" y="15.5" width="2.8" height="5" rx="1.2" fill="currentColor"/>
+              <!-- Taught bowstring pulled back to nock at (5, 18) -->
+              <path d="M 7 9 L 4.5 18 L 7 27" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>
+              <!-- Arrow shaft -->
+              <line x1="4.5" y1="18" x2="31" y2="18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+              <!-- Arrowhead -->
+              <path d="M 27 14 L 32.5 18 L 27 22 L 28.5 18 Z" fill="currentColor"/>
+              <!-- Fletching -->
+              <path d="M 7 14.5 L 10 18 L 7 21.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </g>
+          </svg>
         </div>
-        <div class="steady-brand-meta">
-          <div class="steady-brand-title-row">
-            <span class="steady-brand-name">Oneshot</span>
-            <span class="steady-live-status-pill"><span class="steady-live-dot"></span> Agent IA Actif</span>
-          </div>
-          <span class="steady-brand-sub">Tableau de bord de pilotage • Paris & IDF</span>
-        </div>
+        <span class="steady-brand-name">Oneshot</span>
       </div>
 
-      <!-- Active Profile CV Quick Pill -->
-      <div class="steady-cv-pill" id="header-cv-pill" title="Cliquer pour changer de CV actif">
-        <i class="fa-solid fa-scroll steady-cv-icon"></i>
-        <div class="steady-cv-info">
-          <span class="steady-cv-label">Équipement CV :</span>
-          <span class="steady-cv-name" id="topbar-active-cv-name">Chargement...</span>
-        </div>
-        <i class="fa-solid fa-chevron-down steady-cv-arrow"></i>
+      <!-- Hidden compatibility hook for resume display -->
+      <div style="display:none;" aria-hidden="true">
+        <div id="header-cv-pill"><span id="topbar-active-cv-name"></span></div>
       </div>
     </div>
 
-    <!-- Header Actions (Decluttered, Modern, Executive) -->
+    <!-- Header Actions (Decluttered - Thèmes & Réglages only) -->
     <div class="steady-header-actions">
-      <!-- Direct Fast Scan -->
-      <button type="button" class="steady-action-btn steady-btn-ghost" id="btn-header-scan" title="Lancer un scan ultra-rapide en direct">
-        <span class="nintendo-key-badge key-y">Y</span>
-        <i class="fa-solid fa-satellite-dish"></i>
-        <span>Scanner</span>
-      </button>
-
-      <!-- Primary 1-Click Apply Batch CTA -->
-      <button type="button" class="steady-action-btn steady-btn-primary" id="btn-header-batch-apply" title="Lancer toutes les candidatures en 1 Clic">
-        <span class="nintendo-key-badge key-a">A</span>
-        <i class="fa-solid fa-bolt"></i>
-        <span>Postuler en 1 Clic</span>
-        <span class="steady-action-badge" id="header-batch-count">0</span>
-      </button>
-
-      <!-- Day / Night Theme Toggle Button -->
-      <button type="button" class="steady-action-btn steady-btn-theme" id="btn-theme-toggle" title="Passer en Mode Nuit (Obsidian Zen)">
-        <i class="fa-solid fa-moon" id="theme-toggle-icon" style="color:#f59e0b;"></i>
-        <span id="theme-toggle-text">Nuit</span>
-      </button>
-
       <!-- Theme & Color Palette Selector Button (Tirage aléatoire au clic, palette sur Shift+Clic ou Clic-droit) -->
       <button type="button" class="steady-action-btn steady-btn-ghost" id="btn-header-theme-selector" title="Changer aléatoirement de thème (Clic) • Ouvrir la palette (Shift+Clic ou Clic-droit)">
         <span class="nintendo-key-badge key-minus">-</span>
@@ -76,12 +63,18 @@
         <span>Thèmes</span>
       </button>
 
-      <!-- Sleek Menu Trigger (Ouvre / Ferme le menu complet) -->
-      <button type="button" class="steady-action-btn steady-btn-menu" id="btn-top-menu" title="Ouvrir le menu de navigation">
+      <!-- Réglages Menu Trigger (Ouvre le menu Réglages complet) -->
+      <button type="button" class="steady-action-btn steady-btn-menu" id="btn-top-menu" title="Ouvrir les réglages">
         <span class="nintendo-key-badge key-plus">+</span>
-        <i class="fa-solid fa-bars-staggered"></i>
-        <span>Menu</span>
+        <i class="fa-solid fa-gear"></i>
+        <span>Réglages</span>
       </button>
+
+      <!-- Compatibility hooks for headless scripts & tests -->
+      <div style="display:none;" aria-hidden="true">
+        <button type="button" id="btn-header-scan"></button>
+        <button type="button" id="btn-header-batch-apply"><span id="header-batch-count">0</span></button>
+      </div>
     </div>
   </header>
 
@@ -541,11 +534,11 @@
       <div class="drawer-title-row">
         <span class="drawer-logo-dot"></span>
         <div>
-          <h3 style="font-size:16px; font-weight:700; color:#fff; margin:0;">Oneshot Studio</h3>
-          <p style="font-size:11.5px; color:#94a3b8; margin:2px 0 0 0;">Agent IA & Candidatures Automatiques</p>
+          <h3 style="font-size:16px; font-weight:700; margin:0;"><i class="fa-solid fa-gear" style="margin-right:6px; color:#38bdf8;"></i> Réglages</h3>
+          <p style="font-size:11.5px; margin:2px 0 0 0;">Actions rapides, préférences &amp; système</p>
         </div>
       </div>
-      <button class="drawer-close-btn" id="btn-close-menu-drawer" title="Fermer le menu (Echap)">
+      <button class="drawer-close-btn" id="btn-close-menu-drawer" title="Fermer les réglages (Echap)">
         <i class="fa-solid fa-xmark"></i>
       </button>
     </div>
@@ -583,16 +576,23 @@
         </a>
       </div>
 
-      <!-- 2. Primary Action Bar (Prominent 1-Click + Scan + Refresh) -->
+      <!-- 2. Primary Action Bar (Rangé dans Réglages : 1-Click + Scan + Nuit/Jour + Refresh) -->
+      <div class="drawer-section-title" style="margin-top:14px;"><i class="fa-solid fa-bolt" style="color:#10b981; margin-right:6px;"></i> Actions Rapides</div>
       <div class="drawer-action-hero">
         <button class="drawer-btn-apply-hero arova-btn-apply-all-master" id="btn-drawer-apply-all-master" title="Lancer toutes les candidatures automatiques en 1 Clic">
+          <span class="nintendo-key-badge key-a" style="margin-right:6px; font-size:11px; padding:2px 7px;">A</span>
           <i class="fa-solid fa-bolt"></i>
           <span>Postuler en 1 Clic (<span id="drawer-count-all-unapplied">0</span>)</span>
         </button>
         <div class="drawer-action-subrow">
           <button class="drawer-quick-action-btn primary" id="btn-scan-now" title="Lancer un scan en direct">
+            <span class="nintendo-key-badge key-y" style="font-size:10px; padding:1px 6px; margin-right:4px;">Y</span>
             <i class="fa-solid fa-satellite-dish"></i>
             <span>Scanner</span>
+          </button>
+          <button type="button" class="drawer-quick-action-btn" id="btn-theme-toggle" title="Passer en Mode Nuit / Mode Jour">
+            <i class="fa-solid fa-moon" id="theme-toggle-icon" style="color:#f59e0b;"></i>
+            <span id="theme-toggle-text">Nuit</span>
           </button>
           <button class="drawer-quick-action-btn" id="btn-refresh" title="Actualiser la liste des offres">
             <i class="fa-solid fa-rotate"></i>

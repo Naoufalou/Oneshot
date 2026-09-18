@@ -105,7 +105,7 @@ class LinkedInEasyApply:
                 logger.warning(f"Could not generate tailored documents (will fall back to static CV): {e}")
 
             # Locate Easy Apply button
-            apply_btn = page.locator("button.jobs-apply-button, button:has-text('Candidature simplifiée'), button:has-text('Easy Apply'").first
+            apply_btn = page.locator("button.jobs-apply-button, button:has-text('Candidature simplifiée'), button:has-text('Easy Apply')").first
             if await apply_btn.count() == 0:
                 ext_btn = page.locator("button:has-text('Postuler sur le site'), button:has-text('Apply on company website'), a:has-text('Postuler sur le site')").first
                 if await ext_btn.count() > 0:
