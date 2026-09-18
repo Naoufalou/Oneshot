@@ -9461,3 +9461,471 @@ body:not(.theme-dark) .modal-content {
   color: #ffffff !important;
   box-shadow: 0 3px 0 #047857 !important;
 }
+
+
+/* ==========================================================
+   NINTENDO & GAME PALETTES MULTI-THEME ENGINE
+   8 Curated Color Combinations + Light/Dark Seamless Harmony
+========================================================== */
+
+/* Remove banner and ensure clean layout */
+#oneshot-banner-wrapper,
+.oneshot-banner-wrapper {
+  display: none !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+body:not(.theme-dark) .oneshot-wallpaper-layer,
+body:not(.theme-dark) .oneshot-wallpaper-overlay {
+  display: none !important;
+}
+
+/* Light mode defaults (Switch OLED Ivoire) */
+body.theme-light,
+body:not(.theme-dark) {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+body.theme-light .steady-header {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-bottom: 3px solid #e2e8f0 !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05), 0 2px 0 #cbd5e1 !important;
+}
+
+body.theme-light .steady-card,
+body.theme-light .steady-workbench-card,
+body.theme-light .zen-calm-state,
+body.theme-light .zen-hud-bar {
+  background: #ffffff !important;
+  border: 2px solid #e2e8f0 !important;
+  box-shadow: 0 5px 0 #cbd5e1, 0 10px 24px rgba(0, 0, 0, 0.05) !important;
+}
+
+body.theme-light .steady-kpi-value {
+  color: #0f172a !important;
+}
+
+body.theme-light .notion-db-table td,
+body.theme-light .steady-table td {
+  background: #ffffff !important;
+  color: #1e293b !important;
+}
+
+body.theme-light .notion-db-table tr:hover td,
+body.theme-light .steady-table tr:hover td {
+  background: #f1f5f9 !important;
+}
+
+/* 1. THEME: SWITCH OLED (Classique) */
+body[data-color-theme="switch"] .steady-header::after {
+  background: linear-gradient(90deg, #e60012 0%, #ffcc00 35%, #00c3e3 70%, #10b981 100%) !important;
+}
+body[data-color-theme="switch"] .steady-btn-primary,
+body[data-color-theme="switch"] #btn-header-batch-apply {
+  background: linear-gradient(180deg, #ff3b30 0%, #e60012 100%) !important;
+  border: 2px solid #ff6b6b !important;
+  box-shadow: 0 4px 0 #99000c, 0 6px 16px rgba(230, 0, 18, 0.4) !important;
+}
+body[data-color-theme="switch"] .steady-logo-icon {
+  background: linear-gradient(135deg, #e60012 0%, #ff3b30 50%, #fbbf24 100%) !important;
+  box-shadow: 0 3px 0 #99000c !important;
+}
+body[data-color-theme="switch"] .zen-calm-state,
+body[data-color-theme="switch"] .steady-hero-banner {
+  border-color: #00c3e3 !important;
+}
+
+/* 2. THEME: POKEMON KANTO (Rouge & Or) */
+body[data-color-theme="pokemon"] .steady-header::after {
+  background: linear-gradient(90deg, #ef4444 0%, #f59e0b 45%, #ffffff 50%, #f59e0b 55%, #ef4444 100%) !important;
+}
+body[data-color-theme="pokemon"] .steady-btn-primary,
+body[data-color-theme="pokemon"] #btn-header-batch-apply {
+  background: linear-gradient(180deg, #f87171 0%, #dc2626 100%) !important;
+  border: 2px solid #fca5a5 !important;
+  box-shadow: 0 4px 0 #991b1b, 0 6px 16px rgba(220, 38, 38, 0.4) !important;
+}
+body[data-color-theme="pokemon"] .steady-logo-icon {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #f59e0b 100%) !important;
+  box-shadow: 0 3px 0 #991b1b !important;
+}
+body[data-color-theme="pokemon"] .zen-calm-state,
+body[data-color-theme="pokemon"] .steady-hero-banner {
+  border-color: #ef4444 !important;
+  box-shadow: 0 6px 0 #991b1b, 0 12px 28px rgba(239, 68, 68, 0.2) !important;
+}
+body[data-color-theme="pokemon"] .steady-cv-pill {
+  border-color: #f59e0b !important;
+  box-shadow: 0 3px 0 #b45309 !important;
+}
+
+/* 3. THEME: ZELDA TOTK (Sonau Cyan & Or Céleste) */
+body[data-color-theme="zelda"] .steady-header::after {
+  background: linear-gradient(90deg, #06b6d4 0%, #10b981 40%, #fbbf24 75%, #06b6d4 100%) !important;
+}
+body[data-color-theme="zelda"] .steady-btn-primary,
+body[data-color-theme="zelda"] #btn-header-batch-apply {
+  background: linear-gradient(180deg, #22d3ee 0%, #0891b2 100%) !important;
+  border: 2px solid #67e8f9 !important;
+  box-shadow: 0 4px 0 #164e63, 0 6px 16px rgba(8, 145, 178, 0.4) !important;
+}
+body[data-color-theme="zelda"] .steady-logo-icon {
+  background: linear-gradient(135deg, #06b6d4 0%, #0891b2 50%, #10b981 100%) !important;
+  box-shadow: 0 3px 0 #164e63 !important;
+}
+body[data-color-theme="zelda"] .zen-calm-state,
+body[data-color-theme="zelda"] .steady-hero-banner {
+  border-color: #06b6d4 !important;
+  box-shadow: 0 6px 0 #0e7490, 0 12px 28px rgba(6, 182, 212, 0.2) !important;
+}
+body[data-color-theme="zelda"] .steady-cv-pill {
+  border-color: #10b981 !important;
+  box-shadow: 0 3px 0 #047857 !important;
+}
+
+/* 4. THEME: SUPER MARIO (Royaume Champignon) */
+body[data-color-theme="mario"] .steady-header::after {
+  background: linear-gradient(90deg, #dc2626 0%, #2563eb 50%, #facc15 100%) !important;
+}
+body[data-color-theme="mario"] .steady-btn-primary,
+body[data-color-theme="mario"] #btn-header-batch-apply {
+  background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%) !important;
+  border: 2px solid #fca5a5 !important;
+  box-shadow: 0 4px 0 #7f1d1d, 0 6px 16px rgba(220, 38, 38, 0.4) !important;
+}
+body[data-color-theme="mario"] .steady-logo-icon {
+  background: linear-gradient(135deg, #dc2626 0%, #2563eb 50%, #facc15 100%) !important;
+  box-shadow: 0 3px 0 #7f1d1d !important;
+}
+body[data-color-theme="mario"] .zen-calm-state,
+body[data-color-theme="mario"] .steady-hero-banner {
+  border-color: #2563eb !important;
+  box-shadow: 0 6px 0 #1d4ed8, 0 12px 28px rgba(37, 99, 235, 0.2) !important;
+}
+
+/* 5. THEME: KIRBY PASTEL DREAM */
+body[data-color-theme="kirby"] .steady-header::after {
+  background: linear-gradient(90deg, #ec4899 0%, #a855f7 50%, #38bdf8 100%) !important;
+}
+body[data-color-theme="kirby"] .steady-btn-primary,
+body[data-color-theme="kirby"] #btn-header-batch-apply {
+  background: linear-gradient(180deg, #f472b6 0%, #db2777 100%) !important;
+  border: 2px solid #f9a8d4 !important;
+  box-shadow: 0 4px 0 #9d174d, 0 6px 16px rgba(219, 39, 119, 0.4) !important;
+}
+body[data-color-theme="kirby"] .steady-logo-icon {
+  background: linear-gradient(135deg, #ec4899 0%, #f472b6 50%, #a855f7 100%) !important;
+  box-shadow: 0 3px 0 #9d174d !important;
+}
+body[data-color-theme="kirby"] .zen-calm-state,
+body[data-color-theme="kirby"] .steady-hero-banner {
+  border-color: #ec4899 !important;
+  box-shadow: 0 6px 0 #be185d, 0 12px 28px rgba(236, 72, 153, 0.2) !important;
+}
+body[data-color-theme="kirby"] .steady-cv-pill {
+  border-color: #a855f7 !important;
+  box-shadow: 0 3px 0 #7e22ce !important;
+}
+
+/* 6. THEME: POKEMON EMERAUDE */
+body[data-color-theme="emerald"] .steady-header::after {
+  background: linear-gradient(90deg, #059669 0%, #10b981 50%, #84cc16 100%) !important;
+}
+body[data-color-theme="emerald"] .steady-btn-primary,
+body[data-color-theme="emerald"] #btn-header-batch-apply {
+  background: linear-gradient(180deg, #34d399 0%, #059669 100%) !important;
+  border: 2px solid #6ee7b7 !important;
+  box-shadow: 0 4px 0 #065f46, 0 6px 16px rgba(5, 150, 105, 0.4) !important;
+}
+body[data-color-theme="emerald"] .steady-logo-icon {
+  background: linear-gradient(135deg, #10b981 0%, #059669 50%, #84cc16 100%) !important;
+  box-shadow: 0 3px 0 #065f46 !important;
+}
+body[data-color-theme="emerald"] .zen-calm-state,
+body[data-color-theme="emerald"] .steady-hero-banner {
+  border-color: #10b981 !important;
+  box-shadow: 0 6px 0 #047857, 0 12px 28px rgba(16, 185, 129, 0.2) !important;
+}
+
+/* 7. THEME: TOKYO CYBER NEON */
+body[data-color-theme="cyberpunk"] .steady-header::after {
+  background: linear-gradient(90deg, #00f0ff 0%, #f43f5e 50%, #a855f7 100%) !important;
+}
+body[data-color-theme="cyberpunk"] .steady-btn-primary,
+body[data-color-theme="cyberpunk"] #btn-header-batch-apply {
+  background: linear-gradient(180deg, #38bdf8 0%, #00c3e3 100%) !important;
+  border: 2px solid #7dd3fc !important;
+  box-shadow: 0 4px 0 #0369a1, 0 6px 16px rgba(0, 195, 227, 0.4) !important;
+}
+body[data-color-theme="cyberpunk"] .steady-logo-icon {
+  background: linear-gradient(135deg, #00f0ff 0%, #f43f5e 50%, #a855f7 100%) !important;
+  box-shadow: 0 3px 0 #0369a1 !important;
+}
+body[data-color-theme="cyberpunk"] .zen-calm-state,
+body[data-color-theme="cyberpunk"] .steady-hero-banner {
+  border-color: #00f0ff !important;
+  box-shadow: 0 6px 0 #0284c7, 0 12px 28px rgba(0, 240, 255, 0.2) !important;
+}
+
+/* 8. THEME: NOCTALI DARK MOON */
+body[data-color-theme="midnight"] .steady-header::after {
+  background: linear-gradient(90deg, #fbbf24 0%, #6366f1 50%, #fbbf24 100%) !important;
+}
+body[data-color-theme="midnight"] .steady-btn-primary,
+body[data-color-theme="midnight"] #btn-header-batch-apply {
+  background: linear-gradient(180deg, #fbbf24 0%, #d97706 100%) !important;
+  border: 2px solid #fde047 !important;
+  color: #0f172a !important;
+  box-shadow: 0 4px 0 #78350f, 0 6px 16px rgba(251, 191, 36, 0.4) !important;
+}
+body[data-color-theme="midnight"] .steady-logo-icon {
+  background: linear-gradient(135deg, #fbbf24 0%, #6366f1 100%) !important;
+  box-shadow: 0 3px 0 #78350f !important;
+}
+body[data-color-theme="midnight"] .zen-calm-state,
+body[data-color-theme="midnight"] .steady-hero-banner {
+  border-color: #fbbf24 !important;
+  box-shadow: 0 6px 0 #b45309, 0 12px 28px rgba(251, 191, 36, 0.2) !important;
+}
+
+/* ==========================================================
+   THEME SELECTOR MODAL UI STYLES
+========================================================== */
+.game-theme-modal-card {
+  border-radius: 24px !important;
+  box-shadow: 0 12px 0 rgba(0,0,0,0.3), 0 24px 60px rgba(0,0,0,0.5) !important;
+  border: 3px solid #00c3e3 !important;
+  overflow: hidden;
+  font-family: 'Fredoka', sans-serif !important;
+}
+
+body.theme-dark .game-theme-modal-card {
+  background: #0f172a !important;
+  border-color: #00c3e3 !important;
+}
+
+body:not(.theme-dark) .game-theme-modal-card {
+  background: #ffffff !important;
+  border-color: #0284c7 !important;
+  box-shadow: 0 10px 0 #cbd5e1, 0 20px 45px rgba(0,0,0,0.12) !important;
+}
+
+.theme-modal-group {
+  margin-bottom: 20px;
+}
+
+.theme-group-title {
+  font-family: 'Fredoka', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.8px !important;
+  color: #38bdf8 !important;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+body:not(.theme-dark) .theme-group-title {
+  color: #0284c7 !important;
+}
+
+/* Mode Ambiance (Jour / Nuit) Row */
+.theme-ambiance-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.theme-ambiance-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 16px;
+  border: 2px solid #334155;
+  background: #1e293b;
+  color: #f8fafc;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 3px 0 #0f172a;
+  text-align: left;
+}
+
+body:not(.theme-dark) .theme-ambiance-btn {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #0f172a;
+  box-shadow: 0 3px 0 #cbd5e1;
+}
+
+.theme-ambiance-btn:hover {
+  transform: translateY(-2px);
+  border-color: #ffcc00;
+}
+
+.theme-ambiance-btn.active {
+  border-color: #10b981 !important;
+  background: rgba(16, 185, 129, 0.15) !important;
+  box-shadow: 0 3px 0 #047857 !important;
+}
+
+.theme-ambiance-icon {
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.theme-ambiance-info {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.theme-ambiance-info strong {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.theme-ambiance-info span {
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+.theme-check-pill {
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 3px 8px;
+  background: #10b981;
+  color: #ffffff;
+  display: none;
+}
+
+.theme-ambiance-btn.active .theme-check-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Palette Cards Grid */
+.game-palette-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.game-palette-card {
+  padding: 12px;
+  border-radius: 16px;
+  border: 2px solid #334155;
+  background: #1e293b;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 3px 0 #0f172a;
+  transition: all 0.15s ease;
+  position: relative;
+  user-select: none;
+}
+
+body:not(.theme-dark) .game-palette-card {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  box-shadow: 0 3px 0 #cbd5e1;
+}
+
+.game-palette-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 0 #0f172a, 0 8px 16px rgba(0, 0, 0, 0.2);
+  border-color: #00c3e3;
+}
+
+body:not(.theme-dark) .game-palette-card:hover {
+  border-color: #0284c7;
+  box-shadow: 0 6px 0 #cbd5e1, 0 8px 16px rgba(0, 0, 0, 0.08);
+}
+
+.game-palette-card:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #0f172a;
+}
+
+.game-palette-card.active {
+  border-color: #10b981 !important;
+  background: rgba(16, 185, 129, 0.12) !important;
+  box-shadow: 0 3px 0 #047857, 0 6px 14px rgba(16, 185, 129, 0.25) !important;
+}
+
+.game-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.game-card-badge {
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: #334155;
+  color: #f8fafc;
+  letter-spacing: 0.5px;
+}
+
+body:not(.theme-dark) .game-card-badge {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.game-card-active-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 6px #10b981;
+  display: none;
+}
+
+.game-palette-card.active .game-card-active-dot {
+  display: block;
+}
+
+.game-swatch-row {
+  display: flex;
+  gap: 5px;
+}
+
+.game-swatch-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+}
+
+.game-card-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #f8fafc;
+  margin: 0;
+}
+
+body:not(.theme-dark) .game-card-title {
+  color: #0f172a;
+}
+
+.game-card-desc {
+  font-size: 11px;
+  color: #94a3b8;
+  line-height: 1.35;
+  margin: 0;
+}
+
+body:not(.theme-dark) .game-card-desc {
+  color: #64748b;
+}

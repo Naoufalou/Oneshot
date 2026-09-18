@@ -34,7 +34,7 @@ function formatRelativeTime(dateStr) {
 document.addEventListener("DOMContentLoaded", () => {
   init3DMotionBanner();
   setupThemeEngine();
-  setupBannerCustomizer();
+  setupColorThemeEngine();
   setupTabs();
   setupFilters();
   setupResumeManager();
@@ -4739,9 +4739,9 @@ function setupThemeEngine() {
   const drawerThemeTitle = document.getElementById("drawer-theme-title-text");
   const drawerThemeSub = document.getElementById("drawer-theme-sub-text");
 
-  // Default to Dark Gaming HUD mode unless explicitly saved as light
-  const savedTheme = localStorage.getItem("oneshot_theme");
-  const initialTheme = savedTheme || "dark";
+  // Default to Day / Light Mode as requested
+  const savedTheme = localStorage.getItem("oneshot_theme_v2");
+  const initialTheme = savedTheme || "light";
 
   applyTheme(initialTheme);
 
@@ -4784,13 +4784,14 @@ function setupThemeEngine() {
       if (drawerThemeSub) drawerThemeSub.innerText = "Cliquer pour passer en Mode Nuit (Obsidian Zen)";
     }
     localStorage.setItem("oneshot_theme", theme);
+    localStorage.setItem("oneshot_theme_v2", theme);
   }
 
   window.toggleOneShotTheme = function() {
     const isDark = document.body.classList.contains("theme-dark");
     const nextTheme = isDark ? "light" : "dark";
     applyTheme(nextTheme);
-    showToast(nextTheme === "dark" ? "Mode Nuit activé (Obsidian Zen)" : "Mode Jour activé (Clarté)", "info");
+    showToast(nextTheme === "dark" ? "Mode Nuit activé (Obsidian Zen)" : "Mode Jour activé (Clarté Switch OLED)", "info");
   };
 
   if (btnThemeToggle) {
@@ -4807,523 +4808,205 @@ function setupThemeEngine() {
 }
 
 /* ==========================================================
-   ONESHOT WORKSPACE BANNER CUSTOMIZER
+   NINTENDO & POKÉMON COLOR THEMES ENGINE
+   8 Curated Color Palettes + Theme Selector Modal
 ========================================================== */
-/* ==========================================================
-   ONESHOT WORKSPACE BANNER & WALLPAPER CUSTOMIZER
-========================================================== */
-function setupBannerCustomizer() {
-  const bannerWrapper = document.getElementById("oneshot-banner-wrapper");
-  const bannerImage = document.getElementById("oneshot-banner-image");
-  const wallpaperLayer = document.getElementById("oneshot-wallpaper-layer");
-  const wallpaperOverlay = document.getElementById("oneshot-wallpaper-overlay");
-
-  const modal = document.getElementById("modal-banner-customizer");
-  const btnCloseModal = document.getElementById("btn-close-banner-modal");
-  const btnCloseModalFoot = document.getElementById("btn-close-banner-modal-foot");
-  const btnSaveModal = document.getElementById("btn-save-banner-modal");
-
-  const btnHeaderBanner = document.getElementById("btn-header-banner");
-  const btnBannerEdit = document.getElementById("btn-banner-edit");
-  const btnBannerToggleVis = document.getElementById("btn-banner-toggle-vis");
-  const menuTileBanner = document.getElementById("menu-tile-banner");
-
-  const inputCustomUrl = document.getElementById("input-banner-custom-url");
-  const btnApplyCustomUrl = document.getElementById("btn-apply-banner-custom-url");
-  const inputUpload = document.getElementById("input-banner-file-upload");
-  const dropzone = document.getElementById("banner-dropzone");
-  const btnBrowse = document.getElementById("btn-banner-browse");
-  const uploadProgress = document.getElementById("banner-upload-progress");
-
-  const btnToggleVisModal = document.getElementById("btn-modal-toggle-banner-vis");
-  const btnResetDefault = document.getElementById("btn-reset-banner-default");
-
-  const activeThumb = document.getElementById("banner-active-thumb");
-  const activeName = document.getElementById("banner-active-name");
-  const activeModeTag = document.getElementById("banner-active-mode-tag");
-
-  // Default state: banner mode, Cyber Obsidian gradient
-  const defaultBanner = {
-    type: "gradient",
-    value: "linear-gradient(135deg, #090d16 0%, #1e1b4b 50%, #312e81 100%)",
-    name: "Cyber Obsidian",
-    height: 160,
-    visible: true,
-    mode: "banner" // "banner" | "wallpaper" | "both"
-  };
-
-  let bannerConfig = { ...defaultBanner };
-  try {
-    const saved = localStorage.getItem("oneshot_banner_config");
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      bannerConfig = { ...defaultBanner, ...parsed };
-    }
-  } catch (e) {
-    console.warn("Could not load banner config from localStorage:", e);
-    bannerConfig = { ...defaultBanner };
+const COLOR_THEMES = [
+  {
+    id: "switch",
+    name: "Nintendo Switch",
+    badge: "CONSOLE",
+    desc: "Rouge Joy-Con & Bleu Cyan, Or et Vert sur Ivoire",
+    colors: ["#e60012", "#00c3e3", "#ffcc00", "#10b981"]
+  },
+  {
+    id: "pokemon",
+    name: "Pokémon Kanto",
+    badge: "POKÉMON",
+    desc: "Rouge Pokéball ardent, Jaune Pikachu foudre et Bleu",
+    colors: ["#ef4444", "#f59e0b", "#3b82f6", "#10b981"]
+  },
+  {
+    id: "zelda",
+    name: "Zelda: TotK",
+    badge: "ZELDA",
+    desc: "Vert Sonau céleste, Cyan Sanctuaire et Or solaire d'Hyrule",
+    colors: ["#06b6d4", "#10b981", "#fbbf24", "#0284c7"]
+  },
+  {
+    id: "mario",
+    name: "Super Mario",
+    badge: "MARIO",
+    desc: "Rouge casquette, Bleu salopette et Jaune étoile",
+    colors: ["#dc2626", "#2563eb", "#facc15", "#16a34a"]
+  },
+  {
+    id: "kirby",
+    name: "Kirby Pastel Dream",
+    badge: "KIRBY",
+    desc: "Rose bonbon doux, Pêche et Lavande étoilée",
+    colors: ["#ec4899", "#f472b6", "#a855f7", "#38bdf8"]
+  },
+  {
+    id: "emerald",
+    name: "Pokémon Émeraude",
+    badge: "POKÉMON",
+    desc: "Vert Forêt de Jade vivifiant, Menthe et Citron vert",
+    colors: ["#10b981", "#059669", "#84cc16", "#0284c7"]
+  },
+  {
+    id: "cyberpunk",
+    name: "Tokyo Cyber Neon",
+    badge: "RETRO-FUTUR",
+    desc: "Néon Cyan électrique, Rose fuchsia et Violet synthwave",
+    colors: ["#00f0ff", "#f43f5e", "#a855f7", "#38bdf8"]
+  },
+  {
+    id: "midnight",
+    name: "Noctali Dark Moon",
+    badge: "OBSIDIAN",
+    desc: "Anneaux dorés de Noctali sur fond nuit mystique",
+    colors: ["#fbbf24", "#6366f1", "#38bdf8", "#cbd5e1"]
   }
+];
 
-  // Safe localStorage saving
-  function saveConfig() {
-    try {
-      localStorage.setItem("oneshot_banner_config", JSON.stringify(bannerConfig));
-    } catch (e) {
-      console.warn("localStorage quota exceeded, storing lightweight reference only:", e);
-      if (bannerConfig.value && bannerConfig.value.length > 500) {
-        // If it's a huge base64, don't store it in localStorage to prevent crashing
-        const safeConfig = { ...bannerConfig, value: "" };
-        try {
-          localStorage.setItem("oneshot_banner_config", JSON.stringify(safeConfig));
-        } catch (_) {}
-      }
+function setupColorThemeEngine() {
+  const modal = document.getElementById("modal-theme-selector");
+  const btnHeaderTheme = document.getElementById("btn-header-theme-selector") || document.getElementById("btn-header-banner");
+  const btnCloseModal = document.getElementById("btn-close-theme-modal");
+  const btnApplyModal = document.getElementById("btn-theme-modal-apply");
+  const grid = document.getElementById("game-palette-grid");
+  const statusEl = document.getElementById("theme-selection-status");
+
+  const btnModeLight = document.getElementById("btn-modal-mode-light");
+  const btnModeDark = document.getElementById("btn-modal-mode-dark");
+
+  let currentColorTheme = localStorage.getItem("oneshot_color_theme") || "switch";
+
+  function applyColorTheme(themeId, notify = false) {
+    const found = COLOR_THEMES.find(t => t.id === themeId) || COLOR_THEMES[0];
+    currentColorTheme = found.id;
+    document.body.setAttribute("data-color-theme", found.id);
+    localStorage.setItem("oneshot_color_theme", found.id);
+
+    if (statusEl) {
+      statusEl.textContent = "Thème actif : " + found.name;
     }
-    renderBanner();
-  }
 
-  function renderBanner() {
-    const isVisible = !!bannerConfig.visible;
-    const mode = bannerConfig.mode || "banner";
-    const isWallpaper = mode === "wallpaper" || mode === "both";
-    const isBanner = mode === "banner" || mode === "both";
-
-    // 1. Wallpaper Layer & Overlay
-    if (wallpaperLayer && wallpaperOverlay) {
-      if (isVisible && isWallpaper && bannerConfig.value) {
-        wallpaperLayer.classList.add("active");
-        wallpaperOverlay.classList.add("active");
-        document.body.classList.add("has-custom-wallpaper");
-
-        if (bannerConfig.type === "gradient") {
-          wallpaperLayer.style.background = bannerConfig.value;
-          wallpaperLayer.style.backgroundImage = bannerConfig.value;
+    if (grid) {
+      grid.querySelectorAll(".game-palette-card").forEach(card => {
+        const cId = card.getAttribute("data-theme-id");
+        if (cId === found.id) {
+          card.classList.add("active");
         } else {
-          wallpaperLayer.style.background = "";
-          wallpaperLayer.style.backgroundImage = `url("${bannerConfig.value}")`;
+          card.classList.remove("active");
         }
-      } else {
-        wallpaperLayer.classList.remove("active");
-        wallpaperOverlay.classList.remove("active");
-        wallpaperLayer.style.backgroundImage = "none";
-        wallpaperLayer.style.background = "none";
-        document.body.classList.remove("has-custom-wallpaper");
-      }
-    }
-
-    // 2. Banner Wrapper (Top Notion-style cover)
-    if (bannerWrapper && bannerImage) {
-      if (isVisible && isBanner && bannerConfig.value) {
-        bannerWrapper.classList.remove("hidden");
-        bannerWrapper.style.height = `${bannerConfig.height || 160}px`;
-
-        if (bannerConfig.type === "gradient") {
-          bannerImage.style.background = bannerConfig.value;
-          bannerImage.style.backgroundImage = bannerConfig.value;
-        } else {
-          bannerImage.style.background = "";
-          bannerImage.style.backgroundImage = `url("${bannerConfig.value}")`;
-        }
-      } else {
-        bannerWrapper.classList.add("hidden");
-      }
-    }
-
-    // 3. Quick Toggle button on banner
-    if (btnBannerToggleVis) {
-      btnBannerToggleVis.innerHTML = isVisible
-        ? '<i class="fa-solid fa-eye-slash"></i> <span>Masquer</span>'
-        : '<i class="fa-solid fa-eye"></i> <span>Afficher</span>';
-    }
-
-    // 4. Modal Controls Sync
-    if (btnToggleVisModal) {
-      btnToggleVisModal.classList.toggle("active", isVisible);
-      btnToggleVisModal.innerHTML = isVisible
-        ? '<i class="fa-solid fa-eye"></i> <span>Bannière Visible</span>'
-        : '<i class="fa-solid fa-eye-slash"></i> <span>Bannière Masquée</span>';
-    }
-
-    // Mode chips (Banner / Wallpaper / Both)
-    document.querySelectorAll(".banner-mode-chip").forEach(chip => {
-      const chipMode = chip.getAttribute("data-mode");
-      chip.classList.toggle("active", chipMode === mode);
-    });
-
-    // Height chips
-    document.querySelectorAll(".banner-size-chip").forEach(chip => {
-      const h = parseInt(chip.getAttribute("data-size"), 10);
-      chip.classList.toggle("active", h === bannerConfig.height);
-    });
-
-    // Preset cards
-    document.querySelectorAll(".banner-preset-card").forEach(card => {
-      const val = card.getAttribute("data-banner-val");
-      card.classList.toggle("active", val === bannerConfig.value);
-    });
-
-    // Active visual preview bar
-    if (activeThumb) {
-      if (bannerConfig.type === "gradient") {
-        activeThumb.style.background = bannerConfig.value;
-        activeThumb.style.backgroundImage = bannerConfig.value;
-      } else {
-        activeThumb.style.background = "";
-        activeThumb.style.backgroundImage = `url("${bannerConfig.value}")`;
-      }
-    }
-    if (activeName) {
-      let displayName = bannerConfig.name || "Visuel personnalisé";
-      if (bannerConfig.type === "image" && !bannerConfig.name) {
-        displayName = bannerConfig.value.includes("/custom_banner") ? "Image importée" : "Image personnalisée";
-      }
-      activeName.textContent = displayName;
-    }
-    if (activeModeTag) {
-      let modeText = "Bannière (Haut)";
-      if (mode === "wallpaper") modeText = "Fond d'écran";
-      else if (mode === "both") modeText = "Bannière & Fond";
-      activeModeTag.textContent = modeText;
-    }
-  }
-
-  // Upload handler with API and Canvas compression fallback
-  async function handleBannerFileUpload(file) {
-    if (!file) return;
-
-    // Robust image check: MIME type OR file extension
-    const isImageMime = file.type && file.type.startsWith("image/");
-    const isImageExt = /\.(jpe?g|png|webp|gif|bmp|svg|avif|heic|jfif|ico)$/i.test(file.name || "");
-    if (!isImageMime && !isImageExt) {
-      showToast("Veuillez sélectionner un fichier image valide (JPG, PNG, WebP, GIF, etc.)", "error");
-      return;
-    }
-
-    // Ensure banner is visible and active when user imports an image
-    bannerConfig.visible = true;
-    if (bannerConfig.mode === "wallpaper") {
-      bannerConfig.mode = "both";
-    }
-
-    // Instant immediate visual preview for zero-latency feedback
-    try {
-      const tempBlobUrl = URL.createObjectURL(file);
-      bannerConfig.type = "image";
-      bannerConfig.value = tempBlobUrl;
-      bannerConfig.name = file.name || "Image importée";
-      renderBanner();
-      showToast("Application immédiate de votre image...", "info");
-    } catch (_) {}
-
-    if (uploadProgress) uploadProgress.style.display = "flex";
-
-    try {
-      // 1. Direct server upload via FormData
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const response = await fetch("/api/banner/upload", {
-        method: "POST",
-        body: formData
       });
+    }
 
-      if (response.ok) {
-        const data = await response.json();
-        if (data.status === "success" && data.url) {
-          bannerConfig.type = "image";
-          bannerConfig.value = data.url;
-          bannerConfig.name = file.name || "Image importée";
-          bannerConfig.visible = true;
-          saveConfig();
-          showToast("✓ Image importée et appliquée avec succès !", "success");
-          return;
-        }
+    if (notify) {
+      if (typeof window.playNintendoChirp === "function") {
+        window.playNintendoChirp("confirm");
       }
-      throw new Error("API upload returned non-success");
-    } catch (err) {
-      console.warn("Direct upload to /api/banner/upload failed, using compressed canvas fallback:", err);
-
-      // 2. Client-side fallback: compress image on canvas to avoid quota errors
-      try {
-        const compressedDataUrl = await compressImageFile(file, 1920, 0.82);
-        bannerConfig.type = "image";
-        bannerConfig.value = compressedDataUrl;
-        bannerConfig.name = file.name || "Image importée (local)";
-        bannerConfig.visible = true;
-        saveConfig();
-        showToast("✓ Image optimisée et appliquée avec succès !", "success");
-      } catch (compressionErr) {
-        console.error("Compression failed:", compressionErr);
-        saveConfig();
-        showToast("Image appliquée localement !", "info");
-      }
-    } finally {
-      if (uploadProgress) uploadProgress.style.display = "none";
+      showToast("Univers activé : " + found.name, "success");
     }
   }
 
-  // Helper: compress image file using canvas
-  function compressImageFile(file, maxDimension, quality) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const img = new Image();
-        img.onload = function() {
-          let width = img.width;
-          let height = img.height;
+  // Render Grid
+  if (grid) {
+    grid.innerHTML = COLOR_THEMES.map(theme => {
+      const swatches = theme.colors.map(col => '<span class="game-swatch-dot" style="background:' + col + ';"></span>').join("");
+      const isActive = theme.id === currentColorTheme;
+      return `
+        <div class="game-palette-card ${isActive ? 'active' : ''}" data-theme-id="${theme.id}">
+          <div class="game-card-head">
+            <span class="game-card-badge">${theme.badge}</span>
+            <span class="game-card-active-dot"></span>
+          </div>
+          <div class="game-swatch-row">${swatches}</div>
+          <h4 class="game-card-title">${theme.name}</h4>
+          <p class="game-card-desc">${theme.desc}</p>
+        </div>
+      `;
+    }).join("");
 
-          if (width > maxDimension || height > maxDimension) {
-            if (width > height) {
-              height = Math.round((height * maxDimension) / width);
-              width = maxDimension;
-            } else {
-              width = Math.round((width * maxDimension) / height);
-              height = maxDimension;
-            }
-          }
-
-          const canvas = document.createElement("canvas");
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext("2d");
-          ctx.drawImage(img, 0, 0, width, height);
-
-          resolve(canvas.toDataURL("image/jpeg", quality));
-        };
-        img.onerror = reject;
-        img.src = e.target.result;
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
+    grid.querySelectorAll(".game-palette-card").forEach(card => {
+      card.addEventListener("click", () => {
+        const tid = card.getAttribute("data-theme-id");
+        applyColorTheme(tid, true);
+      });
     });
   }
 
-  // Initial apply
-  renderBanner();
+  // Update Ambiance Buttons state inside modal
+  function updateModalAmbianceButtons() {
+    const isDark = document.body.classList.contains("theme-dark");
+    if (btnModeLight) btnModeLight.classList.toggle("active", !isDark);
+    if (btnModeDark) btnModeDark.classList.toggle("active", isDark);
+  }
 
-  // Check if server already has a custom banner previously uploaded
-  fetch("/api/banner")
-    .then(res => res.json())
-    .then(data => {
-      if (data && data.has_custom && data.url) {
-        // If current config is default or points to a custom banner, update url
-        if (!bannerConfig.value || bannerConfig.value.includes("custom_banner")) {
-          bannerConfig.type = "image";
-          bannerConfig.value = data.url;
-          bannerConfig.name = "Image importée";
-          renderBanner();
-        }
-      } else if (data && !data.has_custom) {
-        // If server was reset and localStorage points to an old missing file, revert to default
-        if (bannerConfig.value && bannerConfig.value.includes("custom_banner")) {
-          bannerConfig = { ...defaultBanner };
-          saveConfig();
-        }
+  if (btnModeLight) {
+    btnModeLight.addEventListener("click", () => {
+      if (document.body.classList.contains("theme-dark")) {
+        if (typeof window.toggleOneShotTheme === "function") window.toggleOneShotTheme();
       }
-    })
-    .catch(() => {});
+      updateModalAmbianceButtons();
+    });
+  }
 
-  function openBannerModal() {
-    const modalEl = document.getElementById("modal-banner-customizer") || modal;
-    if (modalEl) {
-      modalEl.style.setProperty("display", "flex", "important");
-      renderBanner();
+  if (btnModeDark) {
+    btnModeDark.addEventListener("click", () => {
+      if (!document.body.classList.contains("theme-dark")) {
+        if (typeof window.toggleOneShotTheme === "function") window.toggleOneShotTheme();
+      }
+      updateModalAmbianceButtons();
+    });
+  }
+
+  function openModal() {
+    if (modal) {
+      updateModalAmbianceButtons();
+      modal.style.display = "flex";
+      if (typeof window.playNintendoChirp === "function") window.playNintendoChirp("select");
     }
   }
 
-  function closeBannerModal() {
-    const modalEl = document.getElementById("modal-banner-customizer") || modal;
-    if (modalEl) modalEl.style.display = "none";
+  function closeModal() {
+    if (modal) {
+      modal.style.display = "none";
+    }
   }
 
-  // Expose globally on window for 100% reliable invocation from any menu or drawer
-  window.openBannerModal = openBannerModal;
-  window.closeBannerModal = closeBannerModal;
-  window.handleBannerFileUpload = handleBannerFileUpload;
-
-  // Open modal triggers
-  if (btnHeaderBanner) btnHeaderBanner.addEventListener("click", openBannerModal);
-  if (btnBannerEdit) btnBannerEdit.addEventListener("click", openBannerModal);
-
-  const btnDrawerBanner = document.getElementById("btn-drawer-upload-banner");
-  if (btnDrawerBanner) {
-    btnDrawerBanner.addEventListener("click", () => {
-      if (typeof window.closeStudioDrawer === "function") window.closeStudioDrawer();
-      openBannerModal();
+  if (btnHeaderTheme) {
+    btnHeaderTheme.addEventListener("click", (e) => {
+      e.preventDefault();
+      openModal();
     });
   }
 
-  if (menuTileBanner) {
-    menuTileBanner.addEventListener("click", () => {
-      if (typeof window.closeStudioDrawer === "function") window.closeStudioDrawer();
-      openBannerModal();
-    });
-  }
-
-  // Attach all file input elements (global, modal, legacy) to handleBannerFileUpload
-  function bindFileInput(id) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.addEventListener("change", (e) => {
-      const file = e.target.files && e.target.files[0];
-      if (file) {
-        handleBannerFileUpload(file);
-      }
-      el.value = "";
-    });
-  }
-
-  bindFileInput("global-banner-file-input");
-  bindFileInput("input-banner-file-upload");
-  bindFileInput("banner-file-input");
-
-  // Quick toggle on banner
-  if (btnBannerToggleVis) {
-    btnBannerToggleVis.addEventListener("click", (e) => {
-      e.stopPropagation();
-      bannerConfig.visible = !bannerConfig.visible;
-      saveConfig();
-      showToast(bannerConfig.visible ? "Bannière affichée" : "Bannière masquée (Mode zen)", "info");
-    });
-  }
-
-  // Close triggers
-  if (btnCloseModal) btnCloseModal.addEventListener("click", closeBannerModal);
-  if (btnCloseModalFoot) btnCloseModalFoot.addEventListener("click", closeBannerModal);
-  if (btnSaveModal) {
-    btnSaveModal.addEventListener("click", () => {
-      saveConfig();
-      closeBannerModal();
-      showToast("✓ Thème et affichage enregistrés !", "success");
-    });
-  }
+  if (btnCloseModal) btnCloseModal.addEventListener("click", closeModal);
+  if (btnApplyModal) btnApplyModal.addEventListener("click", closeModal);
 
   if (modal) {
     modal.addEventListener("click", (e) => {
-      if (e.target === modal) closeBannerModal();
+      if (e.target === modal) closeModal();
     });
   }
 
-  // Mode Selection (Bannière / Fond d'écran / Les deux)
-  document.querySelectorAll(".banner-mode-chip").forEach(chip => {
-    chip.addEventListener("click", () => {
-      const selectedMode = chip.getAttribute("data-mode");
-      if (selectedMode) {
-        bannerConfig.mode = selectedMode;
-        bannerConfig.visible = true;
-        saveConfig();
-        const modeLabels = {
-          banner: "Bannière seule (Haut de page)",
-          wallpaper: "Fond d'écran plein écran",
-          both: "Bannière et Fond d'écran"
-        };
-        showToast(`✓ Mode actif : ${modeLabels[selectedMode] || selectedMode}`, "info");
-      }
-    });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && modal && modal.style.display !== "none") {
+      closeModal();
+    }
   });
 
-  // Preset click handlers (Gradients & Photos)
-  document.querySelectorAll(".banner-preset-card").forEach(card => {
-    card.addEventListener("click", () => {
-      const type = card.getAttribute("data-banner-type") || "gradient";
-      const val = card.getAttribute("data-banner-val") || "";
-      const name = card.querySelector("span") ? card.querySelector("span").textContent.trim() : "Préréglage";
+  // Initial apply
+  applyColorTheme(currentColorTheme, false);
 
-      bannerConfig.type = type;
-      bannerConfig.value = val;
-      bannerConfig.name = name;
-      bannerConfig.visible = true;
-      saveConfig();
-      showToast(`✓ Thème appliqué : ${name}`, "info");
-    });
-  });
+  window.applyColorTheme = applyColorTheme;
+}
 
-  // Custom Web URL handler
-  if (btnApplyCustomUrl && inputCustomUrl) {
-    btnApplyCustomUrl.addEventListener("click", () => {
-      const url = inputCustomUrl.value.trim();
-      if (!url) {
-        showToast("Veuillez saisir une URL d'image valide", "error");
-        return;
-      }
-      bannerConfig.type = "image";
-      bannerConfig.value = url;
-      bannerConfig.name = "Image Web personnalisée";
-      bannerConfig.visible = true;
-      saveConfig();
-      showToast("✓ Image web appliquée !", "success");
-    });
-  }
-
-  // Drag & Drop helper for any drop target
-  function setupDropEvents(element) {
-    if (!element) return;
-    element.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      element.classList.add("dragover");
-    });
-    element.addEventListener("dragleave", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      element.classList.remove("dragover");
-    });
-    element.addEventListener("drop", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      element.classList.remove("dragover");
-      const dt = e.dataTransfer;
-      if (dt && dt.files && dt.files.length > 0) {
-        handleBannerFileUpload(dt.files[0]);
-      }
-    });
-  }
-
-  setupDropEvents(document.getElementById("banner-dropzone"));
-  setupDropEvents(document.getElementById("oneshot-banner-wrapper"));
-
-  // Dropzone click handler: only trigger file picker if user didn't click directly on a label or button
-  if (dropzone) {
-    dropzone.addEventListener("click", (e) => {
-      if (e.target.closest("label") || e.target.closest("button") || e.target.closest("input")) {
-        return;
-      }
-      const globalInput = document.getElementById("global-banner-file-input") || inputUpload;
-      if (globalInput) globalInput.click();
-    });
-  }
-
-  // Reset to default button
-  if (btnResetDefault) {
-    btnResetDefault.addEventListener("click", async () => {
-      try {
-        await fetch("/api/banner/reset", { method: "POST" });
-      } catch (_) {}
-
-      bannerConfig = { ...defaultBanner };
-      saveConfig();
-      showToast("✓ Thème par défaut rétabli !", "info");
-    });
-  }
-
-  // Modal Visibility toggle
-  if (btnToggleVisModal) {
-    btnToggleVisModal.addEventListener("click", () => {
-      bannerConfig.visible = !bannerConfig.visible;
-      saveConfig();
-      showToast(bannerConfig.visible ? "Visuel activé" : "Visuel masqué", "info");
-    });
-  }
-
-  // Height chips
-  document.querySelectorAll(".banner-size-chip").forEach(chip => {
-    chip.addEventListener("click", () => {
-      const h = parseInt(chip.getAttribute("data-size"), 10);
-      if (h) {
-        bannerConfig.height = h;
-        saveConfig();
-      }
-    });
-  });
+function setupBannerCustomizer() {
+  // Legacy stub replaced by setupColorThemeEngine
 }
 
 /* ==========================================================
