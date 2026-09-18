@@ -69,10 +69,10 @@
         <span id="theme-toggle-text">Nuit</span>
       </button>
 
-      <!-- Theme & Color Palette Selector Button (Remplace la bannière) -->
-      <button type="button" class="steady-action-btn steady-btn-ghost" id="btn-header-theme-selector" title="Personnaliser les thèmes et combinaisons de couleurs">
+      <!-- Theme & Color Palette Selector Button (Tirage aléatoire au clic, palette sur Shift+Clic ou Clic-droit) -->
+      <button type="button" class="steady-action-btn steady-btn-ghost" id="btn-header-theme-selector" title="Changer aléatoirement de thème (Clic) • Ouvrir la palette (Shift+Clic ou Clic-droit)">
         <span class="nintendo-key-badge key-minus">-</span>
-        <i class="fa-solid fa-palette" style="color:#ffcc00;"></i>
+        <i class="fa-solid fa-dice" style="color:#ffcc00;"></i>
         <span>Thèmes</span>
       </button>
 
@@ -1687,10 +1687,16 @@
 
       <div class="profile-modal-actions" style="margin-top:0; border-top:1px solid rgba(255,255,255,0.08); padding:16px 24px 20px 24px; display:flex; justify-content:space-between; align-items:center;">
         <span id="theme-selection-status" style="font-size:13px; font-weight:600; opacity:0.85;">Thème actif : Nintendo Switch (Classique)</span>
-        <button type="button" class="steady-action-btn steady-btn-primary" id="btn-theme-modal-apply" style="padding:8px 24px;">
-          <span class="nintendo-key-badge key-a">A</span>
-          <span>Confirmer</span>
-        </button>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <button type="button" class="steady-action-btn steady-btn-ghost" id="btn-modal-random-theme" title="Tirer un univers de jeu au hasard" style="border-color:#facc15; color:#facc15;">
+            <i class="fa-solid fa-dice"></i>
+            <span>Aléatoire</span>
+          </button>
+          <button type="button" class="steady-action-btn steady-btn-primary" id="btn-theme-modal-apply" style="padding:8px 24px;">
+            <span class="nintendo-key-badge key-a">A</span>
+            <span>Confirmer</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>

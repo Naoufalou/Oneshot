@@ -4977,10 +4977,49 @@ function setupColorThemeEngine() {
     }
   }
 
+  function rollRandomTheme() {
+    const candidates = COLOR_THEMES.filter(t => t.id !== currentColorTheme);
+    const chosen = candidates[Math.floor(Math.random() * candidates.length)] || COLOR_THEMES[0];
+    
+    applyColorTheme(chosen.id, false);
+
+    const icon = btnHeaderTheme ? btnHeaderTheme.querySelector("i") : null;
+    if (icon) {
+      icon.style.transition = "transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)";
+      icon.style.transform = "rotate(360deg) scale(1.25)";
+      setTimeout(() => {
+        icon.style.transform = "";
+      }, 450);
+    }
+
+    if (typeof window.playNintendoChirp === "function") {
+      window.playNintendoChirp("confirm");
+    }
+
+    showToast("🎲 Thème aléatoire : " + chosen.name, "success");
+  }
+
   if (btnHeaderTheme) {
     btnHeaderTheme.addEventListener("click", (e) => {
       e.preventDefault();
+      if (e.shiftKey || e.altKey) {
+        openModal();
+      } else {
+        rollRandomTheme();
+      }
+    });
+
+    btnHeaderTheme.addEventListener("contextmenu", (e) => {
+      e.preventDefault();
       openModal();
+    });
+  }
+
+  const btnModalRandom = document.getElementById("btn-modal-random-theme");
+  if (btnModalRandom) {
+    btnModalRandom.addEventListener("click", (e) => {
+      e.preventDefault();
+      rollRandomTheme();
     });
   }
 
