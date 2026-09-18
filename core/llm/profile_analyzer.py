@@ -145,66 +145,233 @@ class ProfileAnalyzer:
                 "summary": desc,
             }
         except Exception as e:
-            logger.warning(f"LinkedIn public fetch note (normal for protected pages): {e}")
+            logger.warning(f"LinkedIn public fetch note: {e}")
             return {"url": clean_url}
+
+    def scrape_github_public(self, url: str) -> Dict[str, Any]:
+        """
+        Extracts public profile, repositories, languages, and topics from a candidate's GitHub URL or username.
+        """
+        if not url or not url.strip():
+            return {}
+
+        raw = url.strip()
+        # Clean username from URL
+        clean_user = re.sub(r"^https?://(www\.)?github\.com/", "", raw, flags=re.IGNORECASE)
+        username = clean_user.split("/")[0].strip("@/ ")
+        if not username:
+            return {}
+
+        clean_url = f"https://github.com/{username}"
+        github_data: Dict[str, Any] = {
+            "url": clean_url,
+            "username": username,
+            "name": "",
+            "bio": "",
+            "company": "",
+            "location": "",
+            "blog": "",
+            "public_repos_count": 0,
+            "top_languages": [],
+            "repositories": [],
+        }
+
+        # 1. Try public GitHub REST API
+        try:
+            api_user_url = f"https://api.github.com/users/{username}"
+            req = urllib.request.Request(api_user_url, headers={
+                "User-Agent": USER_AGENT,
+                "Accept": "application/vnd.github.v3+json",
+            })
+            with urllib.request.urlopen(req, timeout=8) as resp:
+                if resp.status == 200:
+                    user_json = json.loads(resp.read().decode("utf-8"))
+                    github_data["name"] = user_json.get("name") or username
+                    github_data["bio"] = user_json.get("bio") or ""
+                    github_data["company"] = user_json.get("company") or ""
+                    github_data["location"] = user_json.get("location") or ""
+                    github_data["blog"] = user_json.get("blog") or ""
+                    github_data["public_repos_count"] = user_json.get("public_repos", 0)
+
+            # Fetch top repositories
+            api_repos_url = f"https://api.github.com/users/{username}/repos?sort=updated&per_page=12"
+            req_repos = urllib.request.Request(api_repos_url, headers={
+                "User-Agent": USER_AGENT,
+                "Accept": "application/vnd.github.v3+json",
+            })
+            with urllib.request.urlopen(req_repos, timeout=8) as resp_repos:
+                if resp_repos.status == 200:
+                    repos_json = json.loads(resp_repos.read().decode("utf-8"))
+                    languages = set()
+                    repos_summary = []
+                    for r in repos_json:
+                        if r.get("fork"):
+                            continue
+                        lang = r.get("language")
+                        if lang:
+                            languages.add(lang)
+                        topics = r.get("topics") or []
+                        for t in topics:
+                            if len(t) > 1:
+                                languages.add(t)
+                        repos_summary.append({
+                            "name": r.get("name"),
+                            "description": r.get("description") or "",
+                            "language": lang,
+                            "stars": r.get("stargazers_count", 0),
+                            "topics": topics[:5],
+                        })
+                    github_data["top_languages"] = sorted(list(languages))
+                    github_data["repositories"] = repos_summary[:8]
+            return github_data
+        except Exception as e:
+            logger.debug(f"GitHub API fetch note ({e}), falling back to public profile scraping")
+
+        # 2. Fallback: scrape public HTML page
+        try:
+            req_html = urllib.request.Request(clean_url, headers={"User-Agent": USER_AGENT})
+            with urllib.request.urlopen(req_html, timeout=8) as resp_html:
+                html = resp_html.read().decode("utf-8", errors="ignore")
+
+            name_m = re.search(r'<span[^>]*itemprop=[\"\']name[\"\'][^>]*>([^<]+)</span>', html)
+            if name_m:
+                github_data["name"] = name_m.group(1).strip()
+            
+            bio_m = re.search(r'<div[^>]*class=[\"\'][^\"\']*user-profile-bio[^\"\']*[\"\'][^>]*>(.*?)</div>', html, re.DOTALL)
+            if bio_m:
+                github_data["bio"] = re.sub(r'<[^>]+>', '', bio_m.group(1)).strip()
+
+            # Pinned / popular repositories
+            repo_names = re.findall(r'<span[^>]*class=[\"\']repo[\"\'][^>]*>([^<]+)</span>', html)
+            langs = re.findall(r'<span[^>]*itemprop=[\"\']programmingLanguage[\"\'][^>]*>([^<]+)</span>', html)
+            github_data["top_languages"] = sorted(list(set(langs)))
+            github_data["repositories"] = [{"name": n} for n in repo_names[:6]]
+
+            return github_data
+        except Exception as err:
+            logger.warning(f"Error scraping GitHub profile for {username}: {err}")
+            return github_data
+
+    def scrape_website_public(self, url: str) -> Dict[str, Any]:
+        """
+        Scrapes a candidate's personal website or blog (meta tags, headings, about content).
+        """
+        if not url or not url.strip():
+            return {}
+
+        clean_url = url.strip()
+        if not clean_url.startswith("http"):
+            clean_url = "https://" + clean_url
+
+        try:
+            req = urllib.request.Request(clean_url, headers={"User-Agent": USER_AGENT})
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                html = resp.read().decode("utf-8", errors="ignore")
+
+            title_m = re.search(r'<title>(.*?)</title>', html, re.IGNORECASE)
+            title = title_m.group(1).strip() if title_m else ""
+
+            desc_m = re.search(r'<meta[^>]*name=[\"\']description[\"\'][^>]*content=[\"\']([^\"\']+)[\"\']', html, re.IGNORECASE)
+            desc = desc_m.group(1).strip() if desc_m else ""
+
+            headings = re.findall(r'<h[1-3][^>]*>(.*?)</h[1-3]>', html, re.IGNORECASE)
+            clean_headings = [re.sub(r'<[^>]+>', '', h).strip() for h in headings if len(re.sub(r'<[^>]+>', '', h).strip()) > 3][:8]
+
+            paragraphs = re.findall(r'<p[^>]*>(.*?)</p>', html, re.IGNORECASE)
+            clean_p = [re.sub(r'<[^>]+>', '', p).strip() for p in paragraphs if len(re.sub(r'<[^>]+>', '', p).strip()) > 20][:5]
+
+            return {
+                "url": clean_url,
+                "title": title,
+                "description": desc,
+                "headings": clean_headings,
+                "snippets": clean_p,
+            }
+        except Exception as e:
+            logger.warning(f"Error scraping personal website {url}: {e}")
+            return {"url": clean_url, "error": str(e)}
 
     def analyze_profile(
         self,
         portfolio_url: Optional[str] = None,
         linkedin_url: Optional[str] = None,
+        github_url: Optional[str] = None,
+        website_url: Optional[str] = None,
         resume_filename: Optional[str] = None,
         additional_notes: Optional[str] = None,
     ) -> tuple[UserProfile, SearchCriteria]:
         """
-        Analyzes profile inputs and builds calibrated UserProfile and SearchCriteria.
+        Analyzes multi-source candidate inputs (Portfolio, LinkedIn, GitHub, Website, PDF Resume, Notes)
+        and builds calibrated UserProfile and SearchCriteria suitable for any user.
         """
         scraped_portfolio = self.scrape_portfolio(portfolio_url) if portfolio_url else {}
         scraped_linkedin = self.scrape_linkedin_public(linkedin_url) if linkedin_url else {}
-        
+        scraped_github = self.scrape_github_public(github_url) if github_url else {}
+        scraped_website = self.scrape_website_public(website_url) if website_url else {}
+
         # Resume text
         resume_text = ""
         resume_path = None
         if resume_filename:
             path = RESUMES_DIR / resume_filename
-            if path.exists():
-                resume_path = str(path.relative_to(BASE_DIR))
-                resume_text = self.extract_text_from_pdf(str(path))
-        elif (RESUMES_DIR / "CV_Eliot_Hantute-4.pdf").exists():
-            default_path = RESUMES_DIR / "CV_Eliot_Hantute-4.pdf"
-            resume_path = str(default_path.relative_to(BASE_DIR))
-            resume_text = self.extract_text_from_pdf(str(default_path))
+            if not path.exists() and Path(resume_filename).is_absolute():
+                path = Path(resume_filename)
+            if not path.exists():
+                candidate = BASE_DIR / resume_filename
+                if candidate.exists():
+                    path = candidate
 
-        # Build prompt for LLM
+            if path.exists():
+                try:
+                    resume_path = str(path.relative_to(BASE_DIR))
+                except ValueError:
+                    resume_path = str(path)
+                resume_text = self.extract_text_from_pdf(str(path))
+        else:
+            # Check if an existing PDF is in RESUMES_DIR
+            existing_pdfs = list(RESUMES_DIR.glob("*.pdf"))
+            if existing_pdfs:
+                # pick the most recently modified
+                most_recent = max(existing_pdfs, key=lambda p: p.stat().st_mtime)
+                try:
+                    resume_path = str(most_recent.relative_to(BASE_DIR))
+                except ValueError:
+                    resume_path = str(most_recent)
+                resume_text = self.extract_text_from_pdf(str(most_recent))
+
+        # Combine all prompt data
         prompt_data = {
             "portfolio_url": portfolio_url,
             "portfolio_data": scraped_portfolio,
             "linkedin_url": linkedin_url,
             "linkedin_data": scraped_linkedin,
-            "resume_text": resume_text[:3500] if resume_text else None,
+            "github_url": github_url,
+            "github_data": scraped_github,
+            "website_url": website_url,
+            "website_data": scraped_website,
+            "resume_text": resume_text[:4000] if resume_text else None,
             "additional_notes": additional_notes,
         }
 
         system_prompt = (
-            "Tu es un expert en recrutement tech de très haut niveau. "
-            "Analyse le profil du candidat fourni (portfolio, linkedin, CV) et extrais une fiche candidat ultra-précise "
-            "avec un profil technique et des critères de recherche d'offres d'emploi parfaitement calibrés. "
+            "Tu es un expert en recrutement tech et talent acquisition de très haut niveau. "
+            "Analyse minutieusement toutes les données fournies pour CE candidat (CV, GitHub, Portfolio, LinkedIn, Site Web, Notes) "
+            "et extrais un profil professionnel complet, authentique et personnalisé, ainsi que des critères de recherche d'offres parfaitement calibrés. "
+            "Ne préremplis PAS avec des données fictives ou d'autres personnes : base-toi rigoureusement sur les informations extraites des documents et URLs du candidat. "
             "Tu dois OBLIGATOIREMENT répondre sous la forme d'un objet JSON strict respectant ce schéma :\n"
             "{\n"
-            '  "first_name": "...",\n'
-            '  "last_name": "...",\n'
-            '  "email": "...",\n'
-            '  "phone_number": "...",\n'
-            '  "city": "Paris",\n'
+            '  "first_name": "Prénom du candidat",\n'
+            '  "last_name": "Nom du candidat",\n'
+            '  "email": "email@example.com",\n'
+            '  "phone_number": "0600000000",\n'
+            '  "city": "Ville (ex: Paris, Lyon...)",\n'
             '  "country": "France",\n'
-            '  "current_title": "...",\n'
+            '  "current_title": "Intitulé précis du poste (ex: Développeur Full Stack Python / React, Lead DevOps, UI Designer...)",\n'
             '  "total_years_experience": 3,\n'
-            '  "portfolio_url": "...",\n'
-            '  "linkedin_url": "...",\n'
-            '  "github_url": "...",\n'
-            '  "summary": "Résumé percutant du candidat (2-3 phrases)",\n'
-            '  "skills": ["Compétence 1", "Compétence 2", ...],\n'
-            '  "target_search_keywords": ["Mots clés 1", "Mots clés 2", ...],\n'
-            '  "locations": ["Paris", "Remote", "Île-de-France"],\n'
+            '  "summary": "Résumé professionnel percutant et valorisant (2-3 phrases)",\n'
+            '  "skills": ["Compétence 1", "Compétence 2", "Compétence 3", ...],\n'
+            '  "target_search_keywords": ["Mot-clé recherche 1", "Mot-clé 2", "Mot-clé 3", ...],\n'
+            '  "locations": ["Ville, France", "Remote", "Région"],\n'
             '  "contract_types": ["CDI", "Freelance"]\n'
             "}"
         )
@@ -222,146 +389,196 @@ class ProfileAnalyzer:
                 clean = clean.split("```")[1].split("```")[0].strip()
 
             parsed = json.loads(clean)
-            
+
+            # Resolve coordinates and identity safely
+            f_name = parsed.get("first_name") or ""
+            l_name = parsed.get("last_name") or ""
+            if not f_name and not l_name:
+                gh_name = scraped_github.get("name") or ""
+                if " " in gh_name:
+                    parts = gh_name.split(" ", 1)
+                    f_name, l_name = parts[0], parts[1]
+                elif gh_name:
+                    f_name = gh_name
+
             # Construct UserProfile
             profile = UserProfile(
-                first_name=parsed.get("first_name", "Eliot"),
-                last_name=parsed.get("last_name", "Hantute"),
-                email=parsed.get("email") or "eliot.hantute@gmail.com",
+                first_name=f_name or "Candidat",
+                last_name=l_name or "",
+                email=parsed.get("email") or "candidat@example.com",
                 phone_country_code="+33",
-                phone_number=parsed.get("phone_number") or "775036875",
-                city=parsed.get("city", "Paris"),
-                country=parsed.get("country", "France"),
+                phone_number=parsed.get("phone_number") or "",
+                city=parsed.get("city") or scraped_github.get("location") or "Paris",
+                country=parsed.get("country") or "France",
                 postal_code="75000",
-                address="Paris",
-                current_title=parsed.get("current_title", "Creative Front-End Developer & UI Designer"),
-                total_years_experience=int(parsed.get("total_years_experience", 3)),
-                linkedin_url=linkedin_url or parsed.get("linkedin_url", "https://www.linkedin.com/in/eliot-hantute/"),
-                github_url=parsed.get("github_url", "https://github.com/eliothantute"),
-                portfolio_url=portfolio_url or parsed.get("portfolio_url", "https://eliotlab.fr/"),
-                summary=parsed.get("summary", "Développeur front-end créatif & UI Designer spécialisé en React 19, TypeScript, Three.js et WebGL."),
-                skills=parsed.get("skills", [
-                    "React 19", "Three.js", "WebGL", "TypeScript", "Tailwind CSS",
-                    "Figma", "UI/UX Design", "Next.js", "Vite", "GSAP", "Motion",
-                    "Shaders GLSL", "Design Systems", "PWA", "Python", "Playwright"
-                ]),
-                languages={"Français": "Natif", "Anglais": "Professionnel (C1)"},
+                address=parsed.get("city") or "France",
+                current_title=parsed.get("current_title") or "Développeur Full Stack",
+                total_years_experience=int(parsed.get("total_years_experience") or 3),
+                linkedin_url=linkedin_url or scraped_linkedin.get("url"),
+                github_url=github_url or scraped_github.get("url"),
+                portfolio_url=portfolio_url or scraped_portfolio.get("url"),
+                summary=parsed.get("summary") or (f"Professionnel passionné spécialisé en {', '.join(parsed.get('skills', [])[:5])}"),
+                skills=parsed.get("skills") or [
+                    "Python", "JavaScript", "TypeScript", "React", "Node.js", "Docker", "Git", "SQL"
+                ],
+                languages={"Français": "Natif", "Anglais": "Professionnel (B2/C1)"},
                 work_authorization_eu=True,
                 requires_sponsorship=False,
-                salary_expectation_annual_eur=55000,
+                salary_expectation_annual_eur=50000,
                 notice_period_weeks=0,
                 willing_to_relocate=False,
                 custom_qa={
                     "permis": "Oui",
-                    "statut": "Cadre / Freelance",
-                    "diplome": "Product Designer / BUT Info-Com & Arts Appliqués",
                     "disponibilite": "Immédiate",
-                    "stack_preferee": "React, Three.js, TypeScript, Tailwind, Figma",
+                    "statut": "Cadre / Indépendant",
                 },
                 resume_path=resume_path,
             )
 
             # Construct SearchCriteria
+            keywords = parsed.get("target_search_keywords")
+            if not keywords or len(keywords) == 0:
+                keywords = [profile.current_title]
+                if profile.skills:
+                    keywords.append(f"{profile.skills[0]} Developer")
+
             criteria = SearchCriteria(
-                keywords=parsed.get("target_search_keywords", [
-                    "Creative Developer",
-                    "Développeur Front-End React",
-                    "Three.js WebGL",
-                    "UI Designer",
-                    "Design Engineer",
-                    "Développeur React TypeScript",
-                ]),
-                locations=parsed.get("locations", ["Paris, France", "Remote", "Île-de-France"]),
+                keywords=keywords[:8],
+                locations=parsed.get("locations") or [f"{profile.city}, France", "Remote", "France"],
                 remote_only=False,
-                contract_types=parsed.get("contract_types", ["CDI", "Freelance"]),
+                contract_types=parsed.get("contract_types") or ["CDI", "Freelance"],
                 min_match_score=60,
                 min_alert_score=80,
                 max_applications_per_day=25,
                 easy_apply_only=True,
                 blacklisted_companies=[],
-                blacklisted_keywords=["Stage", "Alternance", "Senior 12+ ans"],
+                blacklisted_keywords=["Stage", "Alternance", "Senior 15+ ans"],
             )
 
             return profile, criteria
 
         except Exception as e:
-            logger.warning(f"LLM profile analysis fallback note ({e}), constructing profile using structured domain extraction.")
-            # Deterministic fallback for Eliot Hantute or provided inputs
-            is_eliot = ("eliot" in (portfolio_url or "").lower()) or ("eliot" in (linkedin_url or "").lower()) or ("eliot" in resume_text.lower())
+            logger.warning(f"LLM profile analysis fallback note ({e}), extracting features with heuristic parsing.")
             
-            if is_eliot or True:
-                extracted_skills = scraped_portfolio.get("extracted_technologies", [])
-                base_skills = [
-                    "React 19", "Three.js", "WebGL", "TypeScript", "Tailwind CSS",
-                    "Next.js", "Vite", "GSAP", "Framer Motion", "Figma", "UI/UX Design",
-                    "Shaders GLSL", "React Globe GL", "PWA", "Audio Web API", "Sound Design"
-                ]
-                all_skills = sorted(list(set(base_skills + extracted_skills)))
-                
-                profile = UserProfile(
-                    first_name="Eliot",
-                    last_name="Hantute",
-                    email="eliot.hantute@gmail.com",
-                    phone_country_code="+33",
-                    phone_number="775036875",
-                    city="Paris",
-                    country="France",
-                    postal_code="75000",
-                    address="Paris",
-                    current_title="Creative Front-End Developer & UI Designer",
-                    total_years_experience=3,
-                    linkedin_url=linkedin_url or "https://www.linkedin.com/in/eliot-hantute/",
-                    github_url="https://github.com/eliothantute",
-                    portfolio_url=portfolio_url or "https://eliotlab.fr/",
-                    summary="Développeur front-end créatif, UI designer et musicien. Spécialisé en React 19, Three.js, WebGL et TypeScript pour des interfaces modulaires et des expériences 3D immersives 60 FPS.",
-                    skills=all_skills,
-                    languages={"Français": "Natif", "Anglais": "Professionnel (C1)", "Italien": "A2"},
-                    work_authorization_eu=True,
-                    requires_sponsorship=False,
-                    salary_expectation_annual_eur=55000,
-                    notice_period_weeks=0,
-                    willing_to_relocate=False,
-                    custom_qa={
-                        "permis": "Oui",
-                        "statut": "Cadre / Freelance",
-                        "diplome": "Product Designer RNCP 6 / BUT Info-Com / Bac STD2A Arts Appliqués",
-                        "disponibilite": "Immédiate",
-                    },
-                    resume_path=resume_path or "data/resumes/CV_Eliot_Hantute-4.pdf",
-                )
+            # Universal heuristic fallback: extract from CV text, GitHub and URLs
+            full_text = f"{resume_text}\n{json.dumps(scraped_github)}\n{json.dumps(scraped_portfolio)}\n{additional_notes or ''}"
+            
+            # Email extraction
+            email_m = re.search(r'[\w\.-]+@[\w\.-]+\.\w+', full_text)
+            extracted_email = email_m.group(0) if email_m else "candidat@example.com"
+            
+            # Phone extraction
+            phone_m = re.search(r'(?:(?:\+|00)33|0)\s*[1-9](?:[\s.-]*\d{2}){4}', full_text)
+            extracted_phone = re.sub(r'[\s.-]', '', phone_m.group(0)) if phone_m else ""
 
-                criteria = SearchCriteria(
-                    keywords=[
-                        "Creative Developer",
-                        "Développeur Front-End React",
-                        "Three.js WebGL",
-                        "Design Engineer",
-                        "UI Designer Front-End",
-                        "Développeur React TypeScript",
-                    ],
-                    locations=["Paris, France", "Remote", "Île-de-France"],
-                    remote_only=False,
-                    contract_types=["CDI", "Freelance"],
-                    min_match_score=60,
-                    min_alert_score=80,
-                    max_applications_per_day=25,
-                    easy_apply_only=True,
-                    blacklisted_companies=[],
-                    blacklisted_keywords=["Stage", "Alternance"],
-                )
-                return profile, criteria
+            # Name extraction
+            candidate_name = scraped_github.get("name") or ""
+            if not candidate_name and resume_text:
+                first_lines = [l.strip() for l in resume_text.splitlines() if len(l.strip()) > 2 and len(l.strip()) < 50]
+                if first_lines:
+                    candidate_name = first_lines[0]
+            
+            f_name, l_name = "Candidat", ""
+            if candidate_name and " " in candidate_name:
+                parts = candidate_name.split(" ", 1)
+                f_name, l_name = parts[0], parts[1]
+            elif candidate_name:
+                f_name = candidate_name
+
+            # Tech skills extraction
+            tech_keywords = [
+                "Python", "JavaScript", "TypeScript", "React", "Next.js", "Vue", "Angular",
+                "Node.js", "FastAPI", "Django", "Flask", "Docker", "Kubernetes", "SQL",
+                "PostgreSQL", "MongoDB", "Three.js", "WebGL", "Tailwind CSS", "GSAP",
+                "Figma", "UI/UX", "AWS", "GCP", "Azure", "Git", "CI/CD", "Playwright",
+                "C++", "Java", "Go", "Rust", "PHP", "Symfony", "Laravel", "Linux"
+            ]
+            found_skills = [tk for tk in tech_keywords if re.search(r'\b' + re.escape(tk) + r'\b', full_text, re.IGNORECASE)]
+            if scraped_github.get("top_languages"):
+                found_skills = sorted(list(set(found_skills + scraped_github["top_languages"])))
+            if scraped_portfolio.get("extracted_technologies"):
+                found_skills = sorted(list(set(found_skills + scraped_portfolio["extracted_technologies"])))
+
+            if not found_skills:
+                found_skills = ["Python", "JavaScript", "React", "Docker", "Git"]
+
+            # Title extraction
+            title = "Développeur Full Stack"
+            if "three.js" in full_text.lower() or "creative" in full_text.lower():
+                title = "Creative Front-End Developer & UI Designer"
+            elif "devops" in full_text.lower() or "cloud" in full_text.lower():
+                title = "Ingénieur DevOps / Cloud"
+            elif "data" in full_text.lower():
+                title = "Data Engineer / Python"
+            elif "front" in full_text.lower():
+                title = "Développeur Front-End React"
+
+            profile = UserProfile(
+                first_name=f_name,
+                last_name=l_name,
+                email=extracted_email,
+                phone_country_code="+33",
+                phone_number=extracted_phone,
+                city="Paris",
+                country="France",
+                postal_code="75000",
+                address="Paris",
+                current_title=title,
+                total_years_experience=3,
+                linkedin_url=linkedin_url or "https://www.linkedin.com/",
+                github_url=github_url or scraped_github.get("url") or "https://github.com/",
+                portfolio_url=portfolio_url or scraped_portfolio.get("url") or website_url or "",
+                summary=f"{title} expérimenté avec une maîtrise approfondie de {', '.join(found_skills[:6])}.",
+                skills=found_skills,
+                languages={"Français": "Natif", "Anglais": "Professionnel (B2/C1)"},
+                work_authorization_eu=True,
+                requires_sponsorship=False,
+                salary_expectation_annual_eur=50000,
+                notice_period_weeks=0,
+                willing_to_relocate=False,
+                custom_qa={
+                    "permis": "Oui",
+                    "disponibilite": "Immédiate",
+                    "statut": "Cadre / Indépendant",
+                },
+                resume_path=resume_path,
+            )
+
+            criteria = SearchCriteria(
+                keywords=[
+                    title,
+                    f"Développeur {found_skills[0]}",
+                    f"Développeur {found_skills[1]}" if len(found_skills) > 1 else "Software Engineer",
+                    "Full Stack Developer",
+                ],
+                locations=["Paris, France", "Remote", "Île-de-France"],
+                remote_only=False,
+                contract_types=["CDI", "Freelance"],
+                min_match_score=60,
+                min_alert_score=80,
+                max_applications_per_day=25,
+                easy_apply_only=True,
+                blacklisted_companies=[],
+                blacklisted_keywords=["Stage", "Alternance"],
+            )
+
+            return profile, criteria
 
     def apply_and_save_profile(
         self,
         portfolio_url: Optional[str] = None,
         linkedin_url: Optional[str] = None,
+        github_url: Optional[str] = None,
+        website_url: Optional[str] = None,
         resume_filename: Optional[str] = None,
         additional_notes: Optional[str] = None,
     ) -> tuple[UserProfile, SearchCriteria]:
-        """Runs profile analysis and saves into settings/yaml files."""
+        """Runs profile analysis across all 5 sources and saves into settings/yaml files."""
         profile, criteria = self.analyze_profile(
             portfolio_url=portfolio_url,
             linkedin_url=linkedin_url,
+            github_url=github_url,
+            website_url=website_url,
             resume_filename=resume_filename,
             additional_notes=additional_notes,
         )
@@ -372,3 +589,4 @@ class ProfileAnalyzer:
 
 
 profile_analyzer = ProfileAnalyzer()
+

@@ -7,7 +7,7 @@ import logging
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, List, Dict, Any
-from fastapi import FastAPI, BackgroundTasks, HTTPException, UploadFile, File
+from fastapi import FastAPI, BackgroundTasks, HTTPException, UploadFile, File, Form
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from pydantic import BaseModel
@@ -149,8 +149,11 @@ async def get_opportunities(limit: int = 50, sort_by: str = "relevance"):
 class ProfileAnalyzeRequest(BaseModel):
     portfolio_url: Optional[str] = None
     linkedin_url: Optional[str] = None
+    github_url: Optional[str] = None
+    website_url: Optional[str] = None
     resume_filename: Optional[str] = None
     additional_notes: Optional[str] = None
+    auto_sync_jobs: bool = True
 
 
 @app.get("/api/profile/current")
@@ -170,22 +173,37 @@ async def get_current_profile():
 async def analyze_profile_endpoint(req: ProfileAnalyzeRequest):
     from core.llm.profile_analyzer import profile_analyzer
     from core.llm.job_evaluator import job_evaluator
+    from core.watcher.realtime_scanner import realtime_scanner
 
     try:
         profile, criteria = profile_analyzer.apply_and_save_profile(
             portfolio_url=req.portfolio_url,
             linkedin_url=req.linkedin_url,
+            github_url=req.github_url,
+            website_url=req.website_url,
             resume_filename=req.resume_filename,
             additional_notes=req.additional_notes,
         )
+
+        new_synced = 0
+        if req.auto_sync_jobs:
+            try:
+                scan_res = await realtime_scanner.scan_all()
+                new_synced = scan_res.get("new_count", 0)
+            except Exception as scan_err:
+                logger.warning(f"Scan jobs note during analyze: {scan_err}")
+
         rescore_stats = job_evaluator.rescore_all_applications(db)
+        recommended = db.list_applications(status=None, limit=8, sort_by="relevance")
 
         return {
             "status": "success",
-            "message": f"Profil de {profile.first_name} {profile.last_name} analysé avec succès ! {rescore_stats['high_matches']} offres recommandées.",
+            "message": f"Profil de {profile.first_name} {profile.last_name} ({profile.current_title}) analysé avec succès ! {len(recommended)} offres recommandées.",
             "profile": profile.model_dump(),
             "criteria": criteria.model_dump(),
             "rescore_stats": rescore_stats,
+            "new_jobs_synced": new_synced,
+            "recommended_jobs": recommended,
         }
     except Exception as e:
         import traceback
@@ -193,6 +211,76 @@ async def analyze_profile_endpoint(req: ProfileAnalyzeRequest):
         return JSONResponse(
             status_code=500,
             content={"status": "error", "message": f"Erreur lors de l'analyse du profil: {str(e)}"}
+        )
+
+
+@app.post("/api/profile/upload-and-analyze")
+async def upload_and_analyze_profile_endpoint(
+    resume_file: Optional[UploadFile] = File(None),
+    portfolio_url: Optional[str] = Form(None),
+    linkedin_url: Optional[str] = Form(None),
+    github_url: Optional[str] = Form(None),
+    website_url: Optional[str] = Form(None),
+    existing_resume_filename: Optional[str] = Form(None),
+    additional_notes: Optional[str] = Form(None),
+    auto_sync_jobs: bool = Form(True),
+):
+    from core.llm.profile_analyzer import profile_analyzer
+    from core.llm.job_evaluator import job_evaluator
+    from core.watcher.realtime_scanner import realtime_scanner
+
+    saved_resume_name = existing_resume_filename
+    if resume_file and resume_file.filename:
+        clean_name = Path(resume_file.filename).name.replace(" ", "_")
+        target_path = RESUMES_DIR / clean_name
+        content = await resume_file.read()
+        with open(target_path, "wb") as f:
+            f.write(content)
+        saved_resume_name = clean_name
+        
+        prof = settings.load_profile()
+        try:
+            prof.resume_path = str(target_path.relative_to(BASE_DIR))
+        except ValueError:
+            prof.resume_path = str(target_path)
+        settings.save_profile(prof)
+
+    try:
+        profile, criteria = profile_analyzer.apply_and_save_profile(
+            portfolio_url=portfolio_url,
+            linkedin_url=linkedin_url,
+            github_url=github_url,
+            website_url=website_url,
+            resume_filename=saved_resume_name,
+            additional_notes=additional_notes,
+        )
+
+        new_synced = 0
+        if auto_sync_jobs:
+            try:
+                scan_res = await realtime_scanner.scan_all()
+                new_synced = scan_res.get("new_count", 0)
+            except Exception as scan_err:
+                logger.warning(f"Scan jobs note during upload & analyze: {scan_err}")
+
+        rescore_stats = job_evaluator.rescore_all_applications(db)
+        recommended = db.list_applications(status=None, limit=8, sort_by="relevance")
+
+        return {
+            "status": "success",
+            "message": f"Profil de {profile.first_name} {profile.last_name} ({profile.current_title}) importé et analysé avec succès !",
+            "profile": profile.model_dump(),
+            "criteria": criteria.model_dump(),
+            "rescore_stats": rescore_stats,
+            "new_jobs_synced": new_synced,
+            "recommended_jobs": recommended,
+        }
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return JSONResponse(
+            status_code=500,
+            content={"status": "error", "message": f"Erreur lors de l'import et analyse: {str(e)}"}
         )
 
 

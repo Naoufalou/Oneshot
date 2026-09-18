@@ -4124,21 +4124,83 @@ function setupProfileAndMatchingExperience() {
     }
   }
 
-  // Open modal
-  if (btnOpenAnalyze) {
-    btnOpenAnalyze.addEventListener("click", () => {
-      if (profileModal) {
-        profileModal.style.display = "flex";
-        const prog = document.getElementById("analyze-progress-box");
-        if (prog) prog.style.display = "none";
+  // Modal multi-sources profile import & analyze
+  let selectedModalCvFile = null;
+
+  async function populateModalResumeSelect(activeFilename) {
+    const sel = document.getElementById("select-profile-resume");
+    if (!sel) return;
+    try {
+      const res = await fetch("/api/resumes");
+      if (!res.ok) return;
+      const data = await res.json();
+      const files = data.resumes || [];
+      const currentActive = activeFilename || data.active_resume || "";
+      
+      let html = '<option value="">-- Aucun CV sélectionné (utiliser liens en ligne) --</option>';
+      files.forEach(f => {
+        const isSel = (f.filename === currentActive) ? " selected" : "";
+        html += `<option value="${escapeHtml(f.filename)}"${isSel}>${escapeHtml(f.filename)}${f.is_active ? ' ⭐ (Actif)' : ''}</option>`;
+      });
+      sel.innerHTML = html;
+    } catch (e) {
+      console.warn("Could not populate modal resumes:", e);
+    }
+  }
+
+  async function openProfileModal() {
+    if (!profileModal) return;
+    profileModal.style.display = "flex";
+    
+    // Reset state
+    const prog = document.getElementById("analyze-progress-box");
+    const results = document.getElementById("analyze-results-box");
+    const formFields = document.querySelectorAll("#form-profile-analyzer .import-profile-section");
+    if (prog) prog.style.display = "none";
+    if (results) results.style.display = "none";
+    formFields.forEach(f => f.style.display = "");
+
+    // Pre-fill fields with current profile data
+    try {
+      const res = await fetch("/api/profile/current");
+      if (res.ok) {
+        const data = await res.json();
+        const p = data.profile || {};
+        const inGh = document.getElementById("input-profile-github");
+        const inPort = document.getElementById("input-profile-portfolio");
+        const inLi = document.getElementById("input-profile-linkedin");
+        const inWeb = document.getElementById("input-profile-website");
+        
+        if (inGh && !inGh.value) inGh.value = p.github_url || "";
+        if (inPort && !inPort.value) inPort.value = p.portfolio_url || "";
+        if (inLi && !inLi.value) inLi.value = p.linkedin_url || "";
+        if (inWeb && !inWeb.value && p.portfolio_url && !p.portfolio_url.includes("linkedin")) {
+          inWeb.value = "";
+        }
+        
+        let activeCv = "";
+        if (p.resume_path) {
+          activeCv = p.resume_path.split("/").pop();
+        }
+        await populateModalResumeSelect(activeCv);
       }
-    });
+    } catch (err) {
+      console.warn("Could not prefill modal:", err);
+    }
   }
 
   function closeProfileModal() {
     if (profileModal) profileModal.style.display = "none";
   }
 
+  // Open modal buttons
+  const btnHeaderImport = document.getElementById("btn-header-import-profile");
+  if (btnHeaderImport) btnHeaderImport.addEventListener("click", openProfileModal);
+
+  const btnOpenFromCv = document.getElementById("btn-open-analyze-from-cv");
+  if (btnOpenFromCv) btnOpenFromCv.addEventListener("click", openProfileModal);
+
+  if (btnOpenAnalyze) btnOpenAnalyze.addEventListener("click", openProfileModal);
   if (btnCloseAnalyze) btnCloseAnalyze.addEventListener("click", closeProfileModal);
   if (btnCancelAnalyze) btnCancelAnalyze.addEventListener("click", closeProfileModal);
   if (profileModal) {
@@ -4147,26 +4209,127 @@ function setupProfileAndMatchingExperience() {
     });
   }
 
-  // Form submit: analyze profile
+  // Modal CV Drag & Drop Setup
+  const modalDropzone = document.getElementById("modal-cv-dropzone");
+  const modalCvInput = document.getElementById("input-modal-cv-file");
+  const modalDropzoneInner = document.getElementById("modal-dropzone-inner");
+  const modalFilePill = document.getElementById("modal-selected-file-pill");
+  const modalFileName = document.getElementById("modal-selected-file-name");
+  const btnModalRemoveFile = document.getElementById("btn-modal-remove-file");
+
+  if (modalDropzone && modalCvInput) {
+    modalDropzone.addEventListener("click", (e) => {
+      if (e.target.closest("#btn-modal-remove-file")) return;
+      modalCvInput.click();
+    });
+
+    ["dragenter", "dragover"].forEach(evt => {
+      modalDropzone.addEventListener(evt, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        modalDropzone.style.borderColor = "#38bdf8";
+        modalDropzone.style.background = "rgba(56,189,248,0.08)";
+      });
+    });
+
+    ["dragleave", "drop"].forEach(evt => {
+      modalDropzone.addEventListener(evt, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        modalDropzone.style.borderColor = "rgba(255,255,255,0.18)";
+        modalDropzone.style.background = "rgba(255,255,255,0.02)";
+      });
+    });
+
+    modalDropzone.addEventListener("drop", (e) => {
+      const dt = e.dataTransfer;
+      if (dt && dt.files && dt.files.length > 0) {
+        const file = dt.files[0];
+        if (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
+          setModalSelectedFile(file);
+        } else {
+          showToast("Veuillez sélectionner un fichier PDF valide", "error");
+        }
+      }
+    });
+
+    modalCvInput.addEventListener("change", () => {
+      if (modalCvInput.files && modalCvInput.files.length > 0) {
+        setModalSelectedFile(modalCvInput.files[0]);
+      }
+    });
+  }
+
+  function setModalSelectedFile(file) {
+    selectedModalCvFile = file;
+    if (modalDropzoneInner) modalDropzoneInner.style.display = "none";
+    if (modalFilePill) {
+      modalFilePill.style.display = "inline-flex";
+      if (modalFileName) modalFileName.innerText = `${file.name} (${(file.size / 1024 / 1024).toFixed(2)} Mo)`;
+    }
+    // Deselect select fallback
+    const sel = document.getElementById("select-profile-resume");
+    if (sel) sel.value = "";
+  }
+
+  function clearModalSelectedFile() {
+    selectedModalCvFile = null;
+    if (modalCvInput) modalCvInput.value = "";
+    if (modalDropzoneInner) modalDropzoneInner.style.display = "block";
+    if (modalFilePill) modalFilePill.style.display = "none";
+  }
+
+  if (btnModalRemoveFile) {
+    btnModalRemoveFile.addEventListener("click", (e) => {
+      e.stopPropagation();
+      clearModalSelectedFile();
+    });
+  }
+
+  // Toggle edit inputs button
+  const btnReEdit = document.getElementById("btn-re-edit-inputs");
+  if (btnReEdit) {
+    btnReEdit.addEventListener("click", () => {
+      const results = document.getElementById("analyze-results-box");
+      const formFields = document.querySelectorAll("#form-profile-analyzer .import-profile-section");
+      if (results) results.style.display = "none";
+      formFields.forEach(f => f.style.display = "");
+      const submitBtn = document.getElementById("btn-run-profile-analysis");
+      if (submitBtn) {
+        submitBtn.style.display = "";
+        submitBtn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Re-lancer l\'analyse';
+      }
+    });
+  }
+
+  // Form submit: analyze profile with all sources & present recommended offers
   if (formAnalyze) {
     formAnalyze.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const portfolioUrl = document.getElementById("input-profile-portfolio")?.value || "";
-      const linkedinUrl = document.getElementById("input-profile-linkedin")?.value || "";
-      const resumeSelect = document.getElementById("select-profile-resume")?.value || "";
-      const notes = document.getElementById("input-profile-notes")?.value || "";
+      const portfolioUrl = document.getElementById("input-profile-portfolio")?.value.trim() || "";
+      const linkedinUrl = document.getElementById("input-profile-linkedin")?.value.trim() || "";
+      const githubUrl = document.getElementById("input-profile-github")?.value.trim() || "";
+      const websiteUrl = document.getElementById("input-profile-website")?.value.trim() || "";
+      const resumeSelect = document.getElementById("select-profile-resume")?.value.trim() || "";
+      const notes = document.getElementById("input-profile-notes")?.value.trim() || "";
+      const autoSync = document.getElementById("check-profile-autosync")?.checked !== false;
 
       const progBox = document.getElementById("analyze-progress-box");
+      const resultsBox = document.getElementById("analyze-results-box");
       const submitBtn = document.getElementById("btn-run-profile-analysis");
+      const formSections = document.querySelectorAll("#form-profile-analyzer .import-profile-section");
+
       const step1 = document.getElementById("prog-step-1");
       const step2 = document.getElementById("prog-step-2");
       const step3 = document.getElementById("prog-step-3");
       const step4 = document.getElementById("prog-step-4");
+      const step5 = document.getElementById("prog-step-5");
 
+      if (resultsBox) resultsBox.style.display = "none";
       if (progBox) progBox.style.display = "flex";
       if (submitBtn) {
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Analyse en cours...';
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Ingestion & Analyse IA en cours...';
       }
 
       function setStep(stepEl, state) {
@@ -4186,43 +4349,149 @@ function setupProfileAndMatchingExperience() {
       setStep(step1, "active");
 
       try {
-        setTimeout(() => { setStep(step1, "done"); setStep(step2, "active"); }, 500);
-        setTimeout(() => { setStep(step2, "done"); setStep(step3, "active"); }, 1200);
+        setTimeout(() => { setStep(step1, "done"); setStep(step2, "active"); }, 400);
+        setTimeout(() => { setStep(step2, "done"); setStep(step3, "active"); }, 900);
+        setTimeout(() => { setStep(step3, "done"); setStep(step4, "active"); }, 1400);
 
-        const res = await fetch("/api/profile/analyze", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            portfolio_url: portfolioUrl,
-            linkedin_url: linkedinUrl,
-            resume_filename: resumeSelect,
-            additional_notes: notes,
-          })
-        });
+        let res, data;
 
-        const data = await res.json();
+        if (selectedModalCvFile) {
+          // Multipart form upload
+          const formData = new FormData();
+          formData.append("resume_file", selectedModalCvFile);
+          if (portfolioUrl) formData.append("portfolio_url", portfolioUrl);
+          if (linkedinUrl) formData.append("linkedin_url", linkedinUrl);
+          if (githubUrl) formData.append("github_url", githubUrl);
+          if (websiteUrl) formData.append("website_url", websiteUrl);
+          if (notes) formData.append("additional_notes", notes);
+          formData.append("auto_sync_jobs", autoSync ? "true" : "false");
+
+          res = await fetch("/api/profile/upload-and-analyze", {
+            method: "POST",
+            body: formData,
+          });
+        } else {
+          // JSON analyze
+          res = await fetch("/api/profile/analyze", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              portfolio_url: portfolioUrl,
+              linkedin_url: linkedinUrl,
+              github_url: githubUrl,
+              website_url: websiteUrl,
+              resume_filename: resumeSelect,
+              additional_notes: notes,
+              auto_sync_jobs: autoSync,
+            }),
+          });
+        }
+
+        data = await res.json();
         if (!res.ok) throw new Error(data.message || "Erreur lors de l'analyse");
 
-        setStep(step3, "done");
-        setStep(step4, "active");
-        setTimeout(() => setStep(step4, "done"), 400);
+        setStep(step4, "done");
+        setStep(step5, "active");
+        setTimeout(() => setStep(step5, "done"), 500);
 
         setTimeout(async () => {
-          showToast(`⚡ Profil analysé avec succès ! ${data.rescore_stats?.high_matches || 0} offres recommandées.`, "success");
-          closeProfileModal();
+          if (progBox) progBox.style.display = "none";
+          formSections.forEach(s => s.style.display = "none");
+
+          // Display Results Card inside modal
+          if (resultsBox) {
+            resultsBox.style.display = "flex";
+            const p = data.profile || {};
+            const rName = document.getElementById("result-candidate-name");
+            const rTitle = document.getElementById("result-candidate-title");
+            const rSummary = document.getElementById("result-candidate-summary");
+            const rSkills = document.getElementById("result-skills-wrap");
+            const rOffersCount = document.getElementById("result-offers-count");
+            const rJobsList = document.getElementById("result-jobs-list");
+
+            if (rName) rName.innerText = `${p.first_name || "Candidat"} ${p.last_name || ""}`.trim();
+            if (rTitle) rTitle.innerText = p.current_title || "Développeur";
+            if (rSummary) rSummary.innerText = p.summary || "Profil technique calibré avec succès.";
+
+            if (rSkills && Array.isArray(p.skills)) {
+              rSkills.innerHTML = p.skills.slice(0, 16).map(sk => 
+                `<span style="background:rgba(56,189,248,0.12); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); font-size:11px; padding:2px 8px; border-radius:6px; font-weight:600;">${escapeHtml(sk)}</span>`
+              ).join("");
+            }
+
+            const recJobs = data.recommended_jobs || [];
+            if (rOffersCount) rOffersCount.innerText = `${recJobs.length} offre(s) recommandée(s)`;
+
+            if (rJobsList) {
+              if (recJobs.length === 0) {
+                rJobsList.innerHTML = `<div style="text-align:center; padding:16px; color:#94a3b8; font-size:12px;">Aucune offre trouvée pour le moment. Le scanner continue en arrière-plan.</div>`;
+              } else {
+                rJobsList.innerHTML = recJobs.slice(0, 5).map(job => {
+                  const score = job.match_score || 0;
+                  const scoreColor = score >= 80 ? "#34d399" : (score >= 65 ? "#38bdf8" : "#fbbf24");
+                  return `
+                    <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:10px 12px; gap:10px;">
+                      <div style="flex:1; min-width:0;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                          <strong style="color:#f8fafc; font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(job.job_title)}</strong>
+                          <span style="background:${scoreColor}22; color:${scoreColor}; border:1px solid ${scoreColor}44; font-size:10px; font-weight:800; padding:1px 6px; border-radius:10px; white-space:nowrap;">${score}% Match</span>
+                        </div>
+                        <div style="font-size:11px; color:#94a3b8; margin-top:2px;">
+                          <span>${escapeHtml(job.company)}</span> • <span>${escapeHtml(job.location || "France")}</span> • <span style="text-transform:capitalize;">${escapeHtml(job.platform)}</span>
+                        </div>
+                      </div>
+                      <button type="button" class="btn-notion primary btn-apply-from-results" data-job-id="${job.id}" style="padding:4px 12px; font-size:11px; white-space:nowrap; background:linear-gradient(135deg, #059669, #10b981);">
+                        <i class="fa-solid fa-paper-plane"></i> Postuler
+                      </button>
+                    </div>
+                  `;
+                }).join("");
+
+                // Attach click listeners to individual apply buttons
+                rJobsList.querySelectorAll(".btn-apply-from-results").forEach(btn => {
+                  btn.addEventListener("click", async (ev) => {
+                    ev.stopPropagation();
+                    const jobId = btn.getAttribute("data-job-id");
+                    if (!jobId) return;
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+                    try {
+                      const applyRes = await fetch(`/api/jobs/${jobId}/apply`, { method: "POST" });
+                      const applyData = await applyRes.json();
+                      showToast(applyData.message || "Candidature lancée !", "success");
+                      btn.innerHTML = '<i class="fa-solid fa-check"></i> Envoyée';
+                      btn.style.background = "#10b981";
+                      await loadJobs();
+                    } catch (e) {
+                      showToast("Erreur candidature : " + e.message, "error");
+                      btn.disabled = false;
+                      btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Réessayer';
+                    }
+                  });
+                });
+              }
+            }
+          }
+
+          showToast(`🎉 Profil importé avec succès ! ${data.recommended_jobs?.length || 0} offres hautement recommandées.`, "success");
           await loadProfileShowcase();
           await loadJobs();
+          if (typeof loadStats === "function") await loadStats();
+
           if (submitBtn) {
             submitBtn.disabled = false;
-            submitBtn.innerHTML = '<i class="fa-solid fa-bolt"></i> Lancer l\'analyse & calibrer les offres';
+            submitBtn.innerHTML = '<i class="fa-solid fa-check"></i> Terminer';
+            submitBtn.onclick = () => closeProfileModal();
           }
-        }, 800);
+        }, 700);
 
       } catch (err) {
         showToast("Erreur analyse de profil : " + err.message, "error");
+        if (progBox) progBox.style.display = "none";
+        formSections.forEach(s => s.style.display = "");
         if (submitBtn) {
           submitBtn.disabled = false;
-          submitBtn.innerHTML = '<i class="fa-solid fa-bolt"></i> Lancer l\'analyse & calibrer les offres';
+          submitBtn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Réessayer l\'analyse';
         }
       }
     });

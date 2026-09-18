@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Press+Start+2P&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/style.css?v=4.0">
+  <link rel="stylesheet" href="/static/style.css?v=5.0">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body class="notion-dark-clean theme-light" data-color-theme="switch">
@@ -56,6 +56,13 @@
 
     <!-- Header Actions (Decluttered - Thèmes & Réglages only) -->
     <div class="steady-header-actions">
+      <!-- Import & Analyse Profil Button (Accès direct pour tout utilisateur) -->
+      <button type="button" class="steady-action-btn steady-btn-import-profile" id="btn-header-import-profile" title="Importer mon CV, GitHub, Portfolio, LinkedIn & calibrer mes offres">
+        <span class="nintendo-key-badge key-y" style="background:rgba(255,255,255,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.4);">Y</span>
+        <i class="fa-solid fa-wand-magic-sparkles" style="color:#38bdf8;"></i>
+        <span>Importer Profil</span>
+      </button>
+
       <!-- Theme & Color Palette Selector Button (Tirage aléatoire au clic, palette sur Shift+Clic ou Clic-droit) -->
       <button type="button" class="steady-action-btn steady-btn-ghost" id="btn-header-theme-selector" title="Changer aléatoirement de thème (Clic) • Ouvrir la palette (Shift+Clic ou Clic-droit)">
         <span class="nintendo-key-badge key-minus">-</span>
@@ -800,6 +807,9 @@
                 <div class="card-title-sm"><i class="fa-solid fa-star"></i> CV Actif pour les Candidatures</div>
                 <div class="active-filename-display" id="viewer-active-filename">-</div>
                 <div class="active-status-desc"><i class="fa-solid fa-circle-check"></i> Prêt pour l'envoi automatique</div>
+                <button type="button" class="btn-notion primary" id="btn-open-analyze-from-cv" style="margin-top:10px; width:100%; justify-content:center; gap:8px;">
+                  <i class="fa-solid fa-wand-magic-sparkles"></i> Analyser ce profil & Proposer des offres
+                </button>
               </div>
 
               <!-- Upload Dropzone -->
@@ -1360,16 +1370,19 @@
   <!-- ==========================================================
        MODAL ANALYSE DE PROFIL CANDIDAT (PORTFOLIO, LINKEDIN, CV)
   ========================================================== -->
+  <!-- ==========================================================
+       MODAL IMPORT MULTI-SOURCES & ANALYSE DE PROFIL (CV, GITHUB, PORTFOLIO, LINKEDIN, SITE)
+  ========================================================== -->
   <div class="profile-modal-overlay" id="profile-analyze-modal" style="display:none;">
-    <div class="profile-modal-card">
+    <div class="profile-modal-card" style="max-width: 760px; max-height: 90vh; overflow-y: auto;">
       <div class="profile-modal-head">
         <div style="display:flex; align-items:center; gap:12px;">
-          <div class="profile-modal-icon-badge">
+          <div class="profile-modal-icon-badge" style="background: linear-gradient(135deg, #0284c7, #38bdf8); color:#fff; border-color:#38bdf8;">
             <i class="fa-solid fa-wand-magic-sparkles"></i>
           </div>
           <div>
-            <h3 class="profile-modal-title">Analyser un Profil Candidat</h3>
-            <p class="profile-modal-sub">Ingestion IA de portfolio, LinkedIn ou CV pour recommander les meilleures offres</p>
+            <h3 class="profile-modal-title">Importer & Analyser Mon Profil</h3>
+            <p class="profile-modal-sub">Importez vos sources professionnelles pour extraire vos compétences et recevoir des offres sur mesure</p>
           </div>
         </div>
         <button class="btn-sheet-close" id="btn-close-profile-modal" title="Fermer (Echap)">
@@ -1377,63 +1390,168 @@
         </button>
       </div>
 
-      <form id="form-profile-analyzer" class="profile-modal-body">
-        <div class="form-field-notion">
-          <label for="input-profile-portfolio">
-            <i class="fa-solid fa-globe" style="color:#38bdf8;"></i> URL du Portfolio
-          </label>
-          <input type="url" id="input-profile-portfolio" placeholder="https://eliotlab.fr/" value="https://eliotlab.fr/">
-          <span class="field-hint" style="font-size:11px; opacity:0.7; margin-top:3px; display:block;">Scanne les projets 3D, technologies, stacks et réalisations en direct.</span>
+      <form id="form-profile-analyzer" class="profile-modal-body" style="display:flex; flex-direction:column; gap:16px;">
+        
+        <!-- SECTION 1: CV UPLOAD & SELECTION -->
+        <div class="import-profile-section">
+          <div class="import-section-title" style="display:flex; align-items:center; gap:8px; font-weight:700; font-size:13px; color:#f8fafc; margin-bottom:8px;">
+            <i class="fa-solid fa-file-pdf" style="color:#ef4444;"></i>
+            <span>1. Document CV (PDF)</span>
+          </div>
+          
+          <div class="import-cv-dropzone" id="modal-cv-dropzone" style="border:2px dashed rgba(255,255,255,0.18); border-radius:10px; padding:18px 14px; text-align:center; background:rgba(255,255,255,0.02); cursor:pointer; transition:all 0.2s ease;">
+            <input type="file" id="input-modal-cv-file" accept=".pdf" style="display:none;">
+            <div class="import-dropzone-inner" id="modal-dropzone-inner">
+              <i class="fa-solid fa-cloud-arrow-up" style="font-size:26px; color:#38bdf8; margin-bottom:8px; display:inline-block;"></i>
+              <div style="font-size:13px; color:#f8fafc; margin-bottom:4px;">
+                <strong>Glissez votre CV PDF ici</strong> ou <span style="color:#38bdf8; text-decoration:underline;">parcourez vos fichiers</span>
+              </div>
+              <div style="font-size:11px; color:#94a3b8;">Format PDF (max 10 Mo) — extraction intelligente des expériences et compétences</div>
+            </div>
+            <div class="import-selected-file-pill" id="modal-selected-file-pill" style="display:none; align-items:center; justify-content:center; gap:10px; background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.35); padding:8px 14px; border-radius:8px;">
+              <i class="fa-solid fa-file-circle-check" style="color:#10b981; font-size:18px;"></i>
+              <span id="modal-selected-file-name" style="color:#f8fafc; font-size:12.5px; font-weight:600;">nom_du_cv.pdf</span>
+              <button type="button" id="btn-modal-remove-file" title="Changer de fichier" style="background:none; border:none; color:#f87171; cursor:pointer; font-size:14px; margin-left:6px;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+          </div>
+
+          <!-- Existing CV selection fallback -->
+          <div style="display:flex; align-items:center; gap:8px; margin-top:8px; font-size:11.5px; color:#94a3b8;">
+            <span>Ou CV existant :</span>
+            <select id="select-profile-resume" class="notion-select" style="flex:1; background:rgba(255,255,255,0.05); color:#cbd5e1; border:1px solid rgba(255,255,255,0.15); padding:5px 8px; border-radius:6px; font-size:11.5px;">
+              <option value="">-- Aucun fichier (utiliser les liens en ligne uniquement) --</option>
+            </select>
+          </div>
         </div>
 
-        <div class="form-field-notion">
-          <label for="input-profile-linkedin">
-            <i class="fa-brands fa-linkedin" style="color:#60a5fa;"></i> URL du Profil LinkedIn
-          </label>
-          <input type="url" id="input-profile-linkedin" placeholder="https://www.linkedin.com/in/eliot-hantute/" value="https://www.linkedin.com/in/eliot-hantute/">
-          <span class="field-hint" style="font-size:11px; opacity:0.7; margin-top:3px; display:block;">Extrait l'intitulé exact, les expériences et la localisation.</span>
+        <!-- SECTION 2: WEB & SOCIAL LINKS (2x2 Grid) -->
+        <div class="import-profile-section">
+          <div class="import-section-title" style="display:flex; align-items:center; gap:8px; font-weight:700; font-size:13px; color:#f8fafc; margin-bottom:8px;">
+            <i class="fa-solid fa-share-nodes" style="color:#38bdf8;"></i>
+            <span>2. Liens Professionnels & En Ligne</span>
+          </div>
+          <div class="import-links-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:12px;">
+            
+            <!-- GitHub -->
+            <div class="form-field-notion link-input-card" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:10px 12px;">
+              <label for="input-profile-github" style="font-size:12px; font-weight:600; color:#cbd5e1; display:flex; align-items:center; gap:6px; margin-bottom:6px;">
+                <i class="fa-brands fa-github" style="color:#f8fafc;"></i> Profil GitHub
+              </label>
+              <input type="text" id="input-profile-github" placeholder="https://github.com/mon-pseudo" autocomplete="off" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.15); color:#fff; border-radius:6px; padding:6px 10px; font-size:12px;">
+              <span class="field-hint" style="font-size:10.5px; color:#94a3b8; margin-top:4px; display:block;">Analyse vos dépôts, langages dominants et contributions.</span>
+            </div>
+
+            <!-- Portfolio -->
+            <div class="form-field-notion link-input-card" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:10px 12px;">
+              <label for="input-profile-portfolio" style="font-size:12px; font-weight:600; color:#cbd5e1; display:flex; align-items:center; gap:6px; margin-bottom:6px;">
+                <i class="fa-solid fa-laptop-code" style="color:#38bdf8;"></i> URL Portfolio
+              </label>
+              <input type="url" id="input-profile-portfolio" placeholder="https://mon-portfolio.dev" autocomplete="off" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.15); color:#fff; border-radius:6px; padding:6px 10px; font-size:12px;">
+              <span class="field-hint" style="font-size:10.5px; color:#94a3b8; margin-top:4px; display:block;">Scanne vos projets, réalisations et stacks techniques.</span>
+            </div>
+
+            <!-- LinkedIn -->
+            <div class="form-field-notion link-input-card" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:10px 12px;">
+              <label for="input-profile-linkedin" style="font-size:12px; font-weight:600; color:#cbd5e1; display:flex; align-items:center; gap:6px; margin-bottom:6px;">
+                <i class="fa-brands fa-linkedin" style="color:#60a5fa;"></i> Profil LinkedIn
+              </label>
+              <input type="url" id="input-profile-linkedin" placeholder="https://linkedin.com/in/mon-profil" autocomplete="off" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.15); color:#fff; border-radius:6px; padding:6px 10px; font-size:12px;">
+              <span class="field-hint" style="font-size:10.5px; color:#94a3b8; margin-top:4px; display:block;">Récupère votre intitulé, vos expériences et votre région.</span>
+            </div>
+
+            <!-- Site Web / Blog -->
+            <div class="form-field-notion link-input-card" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:10px 12px;">
+              <label for="input-profile-website" style="font-size:12px; font-weight:600; color:#cbd5e1; display:flex; align-items:center; gap:6px; margin-bottom:6px;">
+                <i class="fa-solid fa-globe" style="color:#a855f7;"></i> Site Web / Blog Personnel
+              </label>
+              <input type="url" id="input-profile-website" placeholder="https://mon-site.fr" autocomplete="off" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.15); color:#fff; border-radius:6px; padding:6px 10px; font-size:12px;">
+              <span class="field-hint" style="font-size:10.5px; color:#94a3b8; margin-top:4px; display:block;">Articles, présentations personnelles et compétences.</span>
+            </div>
+
+          </div>
         </div>
 
-        <div class="form-field-notion">
-          <label for="select-profile-resume">
-            <i class="fa-solid fa-file-pdf" style="color:#ef4444;"></i> Document CV de référence
-          </label>
-          <select id="select-profile-resume" class="notion-select" style="background:#151928; color:#fff; border:1px solid rgba(255,255,255,0.15); padding:8px 12px; border-radius:6px; width:100%;">
-            <option value="CV_Eliot_Hantute-4.pdf" selected>CV_Eliot_Hantute-4.pdf (CV Actif Eliot Hantute)</option>
-          </select>
+        <!-- SECTION 3: SEARCH TARGETS & NOTES -->
+        <div class="import-profile-section">
+          <div class="import-section-title" style="display:flex; align-items:center; gap:8px; font-weight:700; font-size:13px; color:#f8fafc; margin-bottom:8px;">
+            <i class="fa-solid fa-bullseye" style="color:#facc15;"></i>
+            <span>3. Objectifs de Recherche & Localisation Souhaitée</span>
+          </div>
+          <textarea id="input-profile-notes" rows="2" style="background:rgba(255,255,255,0.04); color:#f8fafc; border:1px solid rgba(255,255,255,0.14); padding:8px 12px; border-radius:8px; width:100%; font-family:inherit; font-size:12px; resize:vertical;" placeholder="Ex: Développeur Full Stack React / Python ou Lead Front-End, ouvert au CDI ou missions Freelance en Remote / Télétravail ou sur Paris..."></textarea>
         </div>
 
-        <div class="form-field-notion">
-          <label for="input-profile-notes">
-            <i class="fa-solid fa-comment-dots" style="color:#facc15;"></i> Objectifs de recherche ou notes complémentaires
+        <!-- SECTION 4: OPTIONS -->
+        <div style="display:flex; align-items:center; gap:8px;">
+          <label class="checkbox-notion" style="font-size:12px; color:#cbd5e1; cursor:pointer; display:flex; align-items:center; gap:6px;">
+            <input type="checkbox" id="check-profile-autosync" checked>
+            <span>Synchroniser & proposer immédiatement les offres en direct sur les plateformes après analyse</span>
           </label>
-          <textarea id="input-profile-notes" rows="2" style="background:#151928; color:#fff; border:1px solid rgba(255,255,255,0.15); padding:8px 12px; border-radius:6px; width:100%; font-family:inherit; resize:vertical;" placeholder="Ex: Cible prioritaire Creative Developer Three.js / React 19 / UI Designer en CDI ou Freelance..."></textarea>
         </div>
 
         <!-- Live Step Progress Indicator -->
-        <div class="analyze-progress-box" id="analyze-progress-box" style="display:none;">
-          <div class="analyze-progress-item active" id="prog-step-1">
+        <div class="analyze-progress-box" id="analyze-progress-box" style="display:none; flex-direction:column; gap:8px; background:rgba(0,0,0,0.35); border:1px solid rgba(56,189,248,0.3); border-radius:10px; padding:14px;">
+          <div class="analyze-progress-item" id="prog-step-1">
             <i class="fa-solid fa-circle-notch fa-spin"></i>
-            <span>1. Scraping du portfolio & projets réels (Atelier Berger 3D, Nari OS...)</span>
+            <span>1. Extraction et analyse du CV (expériences, formations, stack)...</span>
           </div>
           <div class="analyze-progress-item" id="prog-step-2">
             <i class="fa-regular fa-circle"></i>
-            <span>2. Extraction sémantique des compétences clés (Three.js, React, UI/UX...)</span>
+            <span>2. Ingestion GitHub & Projets (dépôts récents, langages, contributions)...</span>
           </div>
           <div class="analyze-progress-item" id="prog-step-3">
             <i class="fa-regular fa-circle"></i>
-            <span>3. Définition des critères de recherche ciblés</span>
+            <span>3. Scraping Portfolio & Site Web (technologies, réalisations)...</span>
           </div>
           <div class="analyze-progress-item" id="prog-step-4">
             <i class="fa-regular fa-circle"></i>
-            <span>4. Recalcul et classement par pertinence de toutes les offres</span>
+            <span>4. Synthèse IA : Détection des compétences et calibration des critères de recherche...</span>
+          </div>
+          <div class="analyze-progress-item" id="prog-step-5">
+            <i class="fa-regular fa-circle"></i>
+            <span>5. Synchronisation des offres en direct et sélection des meilleures recommandations...</span>
           </div>
         </div>
 
-        <div class="profile-modal-actions">
-          <button type="button" class="drawer-ghost-btn" id="btn-cancel-profile-modal">Annuler</button>
-          <button type="submit" class="btn-primary" id="btn-run-profile-analysis">
-            <i class="fa-solid fa-bolt"></i> Lancer l'analyse & calibrer les offres
+        <!-- RESULTS / MATCHING OFFERS SHOWCASE (Visible after analysis) -->
+        <div class="analyze-results-box" id="analyze-results-box" style="display:none; flex-direction:column; gap:14px; background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.3); border-radius:12px; padding:16px;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="background:#10b981; color:#000; font-size:10px; font-weight:800; padding:2px 8px; border-radius:12px; text-transform:uppercase;">Profil Calibré</span>
+                <strong id="result-candidate-name" style="color:#fff; font-size:15px;">-</strong>
+              </div>
+              <p id="result-candidate-title" style="margin:4px 0 0 0; color:#38bdf8; font-size:13px; font-weight:600;">-</p>
+              <p id="result-candidate-summary" style="margin:4px 0 0 0; color:#cbd5e1; font-size:12px; line-height:1.4;">-</p>
+            </div>
+            <button type="button" class="btn-xs-link" id="btn-re-edit-inputs" style="color:#94a3b8; font-size:11px; white-space:nowrap; background:none; border:none; cursor:pointer;">
+              <i class="fa-solid fa-pen"></i> Modifier les sources
+            </button>
+          </div>
+
+          <!-- Skills tags -->
+          <div>
+            <div style="font-size:11px; color:#94a3b8; margin-bottom:6px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Compétences Clés Détectées</div>
+            <div class="result-skills-wrap" id="result-skills-wrap" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
+          </div>
+
+          <!-- Matching Job Offers Grid -->
+          <div style="border-top:1px solid rgba(255,255,255,0.08); padding-top:12px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+              <div style="font-size:12px; color:#f8fafc; font-weight:700;">
+                <i class="fa-solid fa-fire" style="color:#f59e0b; margin-right:4px;"></i> Offres Recommandées sur Mesure
+              </div>
+              <span id="result-offers-count" style="font-size:11px; color:#34d399; font-weight:600;">-</span>
+            </div>
+            <div class="result-jobs-list" id="result-jobs-list" style="display:flex; flex-direction:column; gap:8px; max-height:260px; overflow-y:auto; padding-right:4px;">
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-modal-actions" style="margin-top:4px; display:flex; justify-content:flex-end; gap:10px;">
+          <button type="button" class="drawer-ghost-btn" id="btn-cancel-profile-modal">Fermer</button>
+          <button type="submit" class="btn-primary" id="btn-run-profile-analysis" style="background: linear-gradient(135deg, #0284c7, #3b82f6); border-color:#38bdf8;">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Lancer l'analyse & Proposer les offres
           </button>
         </div>
       </form>
@@ -1709,6 +1827,6 @@
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  <script src="/static/app.js?v=4.9"></script>
+  <script src="/static/app.js?v=5.0"></script>
 </body>
 </html>
