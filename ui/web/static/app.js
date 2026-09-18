@@ -1059,6 +1059,7 @@ function openSidePeek(job) {
 ========================================================== */
 function setupBatchApply() {
   const btnHeaderBatch = document.getElementById("btn-header-batch-apply");
+  const btnDashLaunch = document.getElementById("btn-dash-launch-1click");
   const btnStripBatch = document.getElementById("btn-strip-apply-all");
 
   const runBatch = async () => {
@@ -1127,6 +1128,15 @@ function setupBatchApply() {
       }
     });
   }
+  if (btnDashLaunch) {
+    btnDashLaunch.addEventListener("click", () => {
+      if (typeof window.openBatchApplyModal === "function") {
+        window.openBatchApplyModal(selectedPlatform || "");
+      } else {
+        runBatch();
+      }
+    });
+  }
   if (btnStripBatch) {
     btnStripBatch.addEventListener("click", () => {
       if (typeof window.openBatchApplyModal === "function") {
@@ -1148,6 +1158,7 @@ function updateBatchCounts() {
   const indUnapplied = allJobs.filter(j => (j.platform || "").toLowerCase() === "indeed" && j.status !== "applied" && j.status !== "skipped").length;
 
   const headerCount = document.getElementById("header-batch-count");
+  const dashCount = document.getElementById("dash-main-1click-count");
   const stripCount = document.getElementById("strip-batch-count");
   const drawerCount = document.getElementById("drawer-count-all-unapplied");
   const footCount = document.getElementById("arova-foot-unapplied-count");
@@ -1164,6 +1175,7 @@ function updateBatchCounts() {
 
   const workbenchCount = document.getElementById("workbench-count-unapplied");
   if (headerCount) headerCount.innerText = unappliedTotal;
+  if (dashCount) dashCount.innerText = unappliedTotal;
   if (stripCount) stripCount.innerText = unappliedTotal;
   if (drawerCount) drawerCount.innerText = unappliedTotal;
   if (workbenchCount) workbenchCount.innerText = unappliedTotal;
@@ -4000,17 +4012,52 @@ function setupArovaExperience() {
     });
   }
 
-  // Keyboard shortcut: Escape closes all open modals / sheets
+  // Keyboard shortcuts: Escape (close), A (1-Click Apply), Y (Importer Profil), + (Réglages)
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
       const modalAdd = document.getElementById("modal-add-platform");
       if (modalAdd && modalAdd.style.display !== "none") {
         modalAdd.style.display = "none";
       }
+      const modalBatch = document.getElementById("modal-batch-apply");
+      if (modalBatch && modalBatch.style.display !== "none") {
+        modalBatch.style.display = "none";
+      }
+      const modalProfile = document.getElementById("profile-analyze-modal");
+      if (modalProfile && modalProfile.style.display !== "none") {
+        modalProfile.style.display = "none";
+      }
       closeArovaCard();
       closeCandidaturesSheet();
       closeStudioDrawer();
       closeSecondarySheet();
+      return;
+    }
+
+    // Ignore single-key shortcuts when typing in an active form element
+    const activeTag = (document.activeElement?.tagName || "").toLowerCase();
+    if (activeTag === "input" || activeTag === "textarea" || activeTag === "select" || document.activeElement?.isContentEditable) {
+      return;
+    }
+
+    if (e.key === "a" || e.key === "A") {
+      e.preventDefault();
+      const btnHeaderBatch = document.getElementById("btn-header-batch-apply");
+      if (btnHeaderBatch) {
+        btnHeaderBatch.click();
+      } else if (typeof window.openBatchApplyModal === "function") {
+        window.openBatchApplyModal(selectedPlatform || "");
+      }
+    } else if (e.key === "y" || e.key === "Y") {
+      e.preventDefault();
+      const modalProfile = document.getElementById("profile-analyze-modal");
+      if (modalProfile) {
+        if (typeof window.openProfileModal === "function") {
+          window.openProfileModal();
+        } else {
+          modalProfile.style.display = "flex";
+        }
+      }
     }
   });
 
@@ -4196,6 +4243,17 @@ function setupProfileAndMatchingExperience() {
   // Open modal buttons
   const btnHeaderImport = document.getElementById("btn-header-import-profile");
   if (btnHeaderImport) btnHeaderImport.addEventListener("click", openProfileModal);
+
+  const btnDrawerImport = document.getElementById("btn-drawer-import-profile");
+  if (btnDrawerImport) {
+    btnDrawerImport.addEventListener("click", () => {
+      closeStudioDrawer();
+      openProfileModal();
+    });
+  }
+
+  const btnSettingsImport = document.getElementById("btn-settings-open-import-profile");
+  if (btnSettingsImport) btnSettingsImport.addEventListener("click", openProfileModal);
 
   const btnOpenFromCv = document.getElementById("btn-open-analyze-from-cv");
   if (btnOpenFromCv) btnOpenFromCv.addEventListener("click", openProfileModal);
@@ -5424,9 +5482,9 @@ function initGameAudio() {
   }
 
   document.addEventListener("click", (e) => {
-    const btn = e.target.closest("button, .steady-action-btn, .zen-plat-pill, .steady-status-chip, .ludique-btn-action, .steady-cv-pill, .oneshot-banner-btn");
+    const btn = e.target.closest("button, .steady-action-btn, .zen-plat-pill, .steady-status-chip, .ludique-btn-action, .steady-cv-pill, .oneshot-banner-btn, .btn-dash-launch-1click, .drawer-btn-import-profile");
     if (btn) {
-      if (btn.id === "btn-header-batch-apply" || btn.classList.contains("steady-btn-primary")) {
+      if (btn.id === "btn-header-batch-apply" || btn.id === "btn-dash-launch-1click" || btn.classList.contains("steady-btn-primary") || btn.classList.contains("btn-dash-launch-1click")) {
         playNintendoChirp("confirm");
       } else {
         playNintendoChirp("select");

@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Press+Start+2P&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/style.css?v=5.0">
+  <link rel="stylesheet" href="/static/style.css?v=5.1">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body class="notion-dark-clean theme-light" data-color-theme="switch">
@@ -54,13 +54,13 @@
       </div>
     </div>
 
-    <!-- Header Actions (Decluttered - Thèmes & Réglages only) -->
+    <!-- Header Actions (One-Click Apply sur le Dash Principal, Thèmes & Réglages) -->
     <div class="steady-header-actions">
-      <!-- Import & Analyse Profil Button (Accès direct pour tout utilisateur) -->
-      <button type="button" class="steady-action-btn steady-btn-import-profile" id="btn-header-import-profile" title="Importer mon CV, GitHub, Portfolio, LinkedIn & calibrer mes offres">
-        <span class="nintendo-key-badge key-y" style="background:rgba(255,255,255,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.4);">Y</span>
-        <i class="fa-solid fa-wand-magic-sparkles" style="color:#38bdf8;"></i>
-        <span>Importer Profil</span>
+      <!-- One-Click Autonomous Apply Action Button (Dash Principal) -->
+      <button type="button" class="steady-action-btn steady-btn-primary arova-btn-apply-all-master" id="btn-header-batch-apply" title="Lancer toutes les candidatures automatiques en 1 Clic (Touche A)">
+        <span class="nintendo-key-badge key-a">A</span>
+        <i class="fa-solid fa-bolt"></i>
+        <span>Postuler en 1 Clic (<span id="header-batch-count">0</span>)</span>
       </button>
 
       <!-- Theme & Color Palette Selector Button (Tirage aléatoire au clic, palette sur Shift+Clic ou Clic-droit) -->
@@ -70,7 +70,7 @@
         <span>Thèmes</span>
       </button>
 
-      <!-- Réglages Menu Trigger (Ouvre le menu Réglages complet) -->
+      <!-- Réglages Menu Trigger (Ouvre le menu Réglages complet contenant l'Import Profil) -->
       <button type="button" class="steady-action-btn steady-btn-menu" id="btn-top-menu" title="Ouvrir les réglages">
         <span class="nintendo-key-badge key-plus">+</span>
         <i class="fa-solid fa-gear"></i>
@@ -80,7 +80,7 @@
       <!-- Compatibility hooks for headless scripts & tests -->
       <div style="display:none;" aria-hidden="true">
         <button type="button" id="btn-header-scan"></button>
-        <button type="button" id="btn-header-batch-apply"><span id="header-batch-count">0</span></button>
+        <button type="button" class="steady-action-btn steady-btn-import-profile" id="btn-header-import-profile"></button>
       </div>
     </div>
   </header>
@@ -360,11 +360,26 @@
       </div>
     </section>
 
-    <!-- CALM ZEN PLACEHOLDER (VISIBLE WHEN TABLE IS HIDDEN) -->
+    <!-- CALM ZEN PLACEHOLDER & 1-CLICK LAUNCH ON MAIN DASHBOARD -->
     <div class="zen-calm-state" id="zen-calm-state">
       <div class="zen-calm-icon"><i class="fa-solid fa-hand-pointer"></i></div>
-      <h3 class="zen-calm-title">Sélectionnez une plateforme ci-dessus</h3>
-      <p class="zen-calm-sub">Cliquez sur France Travail, LinkedIn ou Indeed pour ouvrir et gérer vos candidatures.</p>
+      <h3 class="zen-calm-title">Sélectionnez une plateforme ou lancez la postulation directe</h3>
+      <p class="zen-calm-sub">Cliquez sur une plateforme ci-dessus pour inspecter vos offres, ou déclenchez la postulation en 1 Clic sur toutes vos opportunités prêtes.</p>
+
+      <!-- Main Dash One-Click Launch Hero Button -->
+      <div class="zen-calm-actions-wrap">
+        <button type="button" class="btn-dash-launch-1click arova-btn-apply-all-master" id="btn-dash-launch-1click" title="Lancer toutes les candidatures automatiques en 1 Clic (Touche A)">
+          <span class="nintendo-key-badge key-a">A</span>
+          <i class="fa-solid fa-bolt"></i>
+          <span>Lancer la Postulation en 1 Clic</span>
+          <span class="dash-1click-pill-count" id="dash-main-1click-count">0</span>
+        </button>
+        <div class="zen-calm-badges-row">
+          <span class="dash-feature-pill"><i class="fa-solid fa-shield-halved" style="color:#10b981;"></i> IA Furtive Playwright</span>
+          <span class="dash-feature-pill"><i class="fa-solid fa-bolt" style="color:#38bdf8;"></i> Anti-détection mécanique</span>
+          <span class="dash-feature-pill"><i class="fa-solid fa-wand-magic-sparkles" style="color:#a855f7;"></i> Matching CV Multi-Sources</span>
+        </div>
+      </div>
     </div>
 
     <!-- ROW 2: STEADY INVOICING WORKBENCH CARD (HIDDEN BY DEFAULT, OPENS ON CLICK) -->
@@ -583,6 +598,19 @@
         </a>
       </div>
 
+      <!-- Import Profile CTA inside Settings Drawer -->
+      <button type="button" class="drawer-btn-import-profile" id="btn-drawer-import-profile" title="Importer CV (PDF), GitHub, Portfolio, LinkedIn, Site Web & analyser mon profil">
+        <div class="drawer-import-left">
+          <span class="nintendo-key-badge key-y" style="font-size:10px; padding:1px 6px; margin-right:4px;">Y</span>
+          <i class="fa-solid fa-wand-magic-sparkles" style="color:#38bdf8; font-size:14px;"></i>
+          <div class="drawer-import-text">
+            <div class="drawer-import-title">Importer &amp; Analyser mon Profil</div>
+            <div class="drawer-import-sub">CV PDF, GitHub, Portfolio, LinkedIn, Site</div>
+          </div>
+        </div>
+        <span class="drawer-import-badge"><i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+      </button>
+
       <!-- 2. Primary Action Bar (Rangé dans Réglages : 1-Click + Scan + Nuit/Jour + Refresh) -->
       <div class="drawer-section-title" style="margin-top:14px;"><i class="fa-solid fa-bolt" style="color:#10b981; margin-right:6px;"></i> Actions Rapides</div>
       <div class="drawer-action-hero">
@@ -676,9 +704,10 @@
             <i class="fa-solid fa-wand-magic-sparkles"></i>
           </div>
           <div class="nav-tile-text">
-            <div class="nav-tile-title">Profil IA & Scoring</div>
-            <div class="nav-tile-sub">Analyser portfolio/CV et calibrer les offres</div>
+            <div class="nav-tile-title">Importer Profil &amp; IA</div>
+            <div class="nav-tile-sub">Importer CV, GitHub, Portfolio, LinkedIn &amp; calibrer</div>
           </div>
+          <span class="nav-tile-badge green" style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.3);">Importer</span>
           <i class="fa-solid fa-chevron-right nav-tile-arrow"></i>
         </div>
 
@@ -886,8 +915,25 @@
         <!-- VIEW 3: CRITERES & PARAMETRES -->
         <section class="notion-view-page" id="tab-settings">
           <div class="settings-page-header">
-            <h2 class="cv-page-title"><i class="fa-solid fa-sliders"></i> Critères de Veille & Notifications</h2>
-            <p class="cv-page-sub">Ajustez les intitulés de poste, zones de recherche et alertes instantanées</p>
+            <h2 class="cv-page-title"><i class="fa-solid fa-sliders"></i> Critères de Veille &amp; Paramètres</h2>
+            <p class="cv-page-sub">Import de profil, intitulés de poste, zones de recherche et alertes instantanées</p>
+          </div>
+
+          <!-- Featured: Importer & Synchroniser le Profil Multi-Sources -->
+          <div class="notion-card profile-import-settings-card" style="margin-bottom: 20px; background: linear-gradient(135deg, rgba(56, 189, 248, 0.08), rgba(99, 102, 241, 0.05)); border: 1px solid rgba(56, 189, 248, 0.3);">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+              <div style="max-width: 620px;">
+                <div class="card-title-sm" style="display:flex; align-items:center; gap:8px; font-size:15px; font-weight:700; color: #f8fafc;">
+                  <i class="fa-solid fa-wand-magic-sparkles" style="color:#38bdf8;"></i> Importer &amp; Synchroniser Profil Multi-Sources
+                </div>
+                <p style="margin: 6px 0 0 0; font-size: 13px; line-height: 1.5; color: #cbd5e1;">
+                  Glissez votre CV (PDF), renseignez votre GitHub, Portfolio, LinkedIn ou site web. L'IA extrait automatiquement vos compétences et calibre les scores de pertinence pour recommander les meilleures offres.
+                </p>
+              </div>
+              <button type="button" class="btn-notion primary" id="btn-settings-open-import-profile" style="padding: 10px 18px; font-size: 13.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; border-radius: 8px; cursor: pointer;">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Importer Profil
+              </button>
+            </div>
           </div>
 
           <div class="settings-two-col">
@@ -1827,6 +1873,6 @@
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  <script src="/static/app.js?v=5.0"></script>
+  <script src="/static/app.js?v=5.1"></script>
 </body>
 </html>
