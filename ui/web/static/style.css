@@ -5310,8 +5310,11 @@ body:not(.theme-dark) .steady-workbench-card.theme-applied .notion-db-table tr:h
   border-color: #cbd5e1 !important;
   box-shadow: 0 10px 30px -8px rgba(15, 23, 42, 0.1), 0 2px 6px rgba(0, 0, 0, 0.04) !important;
 }
-.steady-workbench-card.theme-all .steady-workbench-title {
+body:not(.theme-dark) .steady-workbench-card.theme-all .steady-workbench-title {
   color: #0f172a !important;
+}
+body.theme-dark .steady-workbench-card.theme-all .steady-workbench-title {
+  color: #f8fafc !important;
 }
 .steady-workbench-card.theme-all .steady-count-pill {
   background: #f1f5f9 !important;
@@ -8678,613 +8681,783 @@ body:not(.theme-dark) .steady-status-chip.applied.active {
 }
 
 /* ==========================================================
-   VIDEO GAME MENU & TACTICAL HUD SCI-FI THEME
-   Immersive Cyberpunk Command Deck & Gaming Interface System
+   NINTENDO, POKÉMON & ZELDA VIDEO GAME MENU DESIGN SYSTEM
+   Chunky tactile physical 3D push-buttons, Joy-Con action badges,
+   Pokédex quest logs, Sheikah energy gauges & dialogue boxes.
 ========================================================== */
 
-/* 1. Tactical Grid & Background Atmosphere */
-body.notion-dark-clean {
-  background-color: #060913 !important;
-  background-image:
-    radial-gradient(circle at 50% 0%, rgba(0, 240, 255, 0.08) 0%, transparent 65%),
-    linear-gradient(rgba(0, 240, 255, 0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 240, 255, 0.02) 1px, transparent 1px) !important;
-  background-size: 100% 100%, 48px 48px, 48px 48px !important;
-  background-position: 0 0, -1px -1px, -1px -1px !important;
-  color: #e2e8f0;
+/* 1. Global Gaming Atmosphere & Typography */
+body,
+body.notion-dark-clean,
+body.theme-dark {
+  font-family: 'Fredoka', -apple-system, BlinkMacSystemFont, sans-serif !important;
 }
 
-/* 2. Top Header (Command Deck HUD) */
+body.notion-dark-clean {
+  background-color: #0b1120 !important;
+  background-image:
+    radial-gradient(circle at 50% -10%, rgba(0, 195, 227, 0.12) 0%, transparent 60%),
+    radial-gradient(circle at 90% 80%, rgba(230, 0, 18, 0.06) 0%, transparent 50%),
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px) !important;
+  background-size: 100% 100%, 100% 100%, 36px 36px, 36px 36px !important;
+  background-position: 0 0, 0 0, -1px -1px, -1px -1px !important;
+  color: #f1f5f9 !important;
+}
+
+body:not(.theme-dark) {
+  background-color: #f8fafc !important;
+  background-image:
+    radial-gradient(circle at 50% -10%, rgba(2, 132, 199, 0.08) 0%, transparent 60%),
+    linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.03) 1px, transparent 1px) !important;
+  background-size: 100% 100%, 32px 32px, 32px 32px !important;
+  color: #0f172a !important;
+}
+
+/* 2. Top Header (Nintendo Switch Console Top Bar) */
 body.theme-dark .steady-header,
 .steady-header {
-  background: rgba(6, 9, 19, 0.94) !important;
+  background: rgba(15, 23, 42, 0.94) !important;
   backdrop-filter: blur(20px) !important;
   -webkit-backdrop-filter: blur(20px) !important;
-  border-bottom: 1px solid rgba(0, 240, 255, 0.3) !important;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.7), 0 1px 0 rgba(0, 240, 255, 0.2) !important;
+  border-bottom: 3px solid #1e293b !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 2px 0 rgba(0, 195, 227, 0.3) !important;
   position: relative;
+  border-radius: 0 0 16px 16px;
+}
+
+body:not(.theme-dark) .steady-header {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-bottom: 3px solid #e2e8f0 !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06), 0 2px 0 #0284c7 !important;
 }
 
 .steady-header::after {
   content: '';
   position: absolute;
-  bottom: -1px;
+  bottom: -3px;
   left: 0;
   right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent 0%, rgba(0, 240, 255, 0.8) 25%, rgba(251, 191, 36, 0.8) 50%, rgba(0, 240, 255, 0.8) 75%, transparent 100%);
+  height: 3px;
+  background: linear-gradient(90deg, #e60012 0%, #ffcc00 35%, #00c3e3 70%, #10b981 100%);
   pointer-events: none;
-  opacity: 0.85;
 }
 
-/* Faction / Player Logo */
+/* Nintendo / Pokéball Player Logo */
 .steady-logo-icon {
-  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px) !important;
-  background: linear-gradient(135deg, #00f0ff 0%, #0284c7 60%, #3b82f6 100%) !important;
-  box-shadow: 0 0 16px rgba(0, 240, 255, 0.6) !important;
-  border-radius: 0 !important;
+  border-radius: 12px !important;
+  clip-path: none !important;
+  background: linear-gradient(135deg, #e60012 0%, #ff3b30 50%, #fbbf24 100%) !important;
+  box-shadow: 0 3px 0 #99000c, 0 6px 14px rgba(230, 0, 18, 0.4) !important;
+  color: #ffffff !important;
+  font-size: 18px !important;
+  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+.steady-brand-block:hover .steady-logo-icon {
+  transform: scale(1.08) rotate(-4deg);
 }
 
 .steady-brand-name {
-  font-family: 'Chakra Petch', sans-serif !important;
+  font-family: 'Fredoka', sans-serif !important;
   font-weight: 700 !important;
-  text-transform: uppercase !important;
-  letter-spacing: 1.5px !important;
-  font-size: 15px !important;
+  font-size: 17px !important;
+  letter-spacing: 0.5px !important;
   color: #ffffff !important;
-  text-shadow: 0 0 12px rgba(0, 240, 255, 0.5) !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+}
+
+body:not(.theme-dark) .steady-brand-name {
+  color: #0f172a !important;
+  text-shadow: none !important;
 }
 
 .steady-brand-sub {
-  font-family: 'Rajdhani', sans-serif !important;
-  font-weight: 600 !important;
-  letter-spacing: 1px !important;
-  text-transform: uppercase !important;
-  color: #00f0ff !important;
-  opacity: 0.85 !important;
+  font-family: 'Fredoka', sans-serif !important;
+  font-weight: 500 !important;
+  font-size: 11px !important;
+  letter-spacing: 0.3px !important;
+  color: #38bdf8 !important;
+  opacity: 0.95 !important;
 }
 
-/* Live Agent Pill */
+body:not(.theme-dark) .steady-brand-sub {
+  color: #0284c7 !important;
+}
+
+/* Live Agent Pill (Zelda Stamina / Pokémon Grass Green) */
 .steady-live-status-pill {
-  border: 1px solid rgba(0, 255, 159, 0.6) !important;
-  background: rgba(0, 255, 159, 0.1) !important;
-  color: #00ff9f !important;
-  font-family: 'Rajdhani', sans-serif !important;
-  font-weight: 700 !important;
-  letter-spacing: 1.2px !important;
-  text-transform: uppercase !important;
-  clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px) !important;
-  border-radius: 0 !important;
+  border: 2px solid #10b981 !important;
+  background: rgba(16, 185, 129, 0.18) !important;
+  color: #34d399 !important;
+  font-family: 'Fredoka', sans-serif !important;
+  font-weight: 600 !important;
+  font-size: 11px !important;
+  border-radius: 999px !important;
+  clip-path: none !important;
+  padding: 3px 10px !important;
+  box-shadow: 0 2px 0 #047857 !important;
 }
 
 .steady-live-dot {
-  background: #00ff9f !important;
-  box-shadow: 0 0 8px #00ff9f !important;
+  background: #10b981 !important;
+  box-shadow: 0 0 8px #10b981 !important;
+  animation: nintendoPulse 1.5s infinite alternate !important;
 }
 
-/* 3. Equipped CV Slot (Legendary Item Border) */
+@keyframes nintendoPulse {
+  0% { transform: scale(0.9); opacity: 0.7; }
+  100% { transform: scale(1.25); opacity: 1; filter: drop-shadow(0 0 6px #10b981); }
+}
+
+/* Active Profile CV Pill (Zelda BotW Equipment Slot) */
 .steady-cv-pill {
-  background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(10, 16, 30, 0.95) 100%) !important;
-  border: 1px solid rgba(251, 191, 36, 0.55) !important;
-  box-shadow: 0 0 14px rgba(251, 191, 36, 0.22), inset 0 0 12px rgba(251, 191, 36, 0.08) !important;
-  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px) !important;
-  border-radius: 0 !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  background: #1e293b !important;
+  border: 2px solid #fbbf24 !important;
+  border-radius: 14px !important;
+  clip-path: none !important;
+  box-shadow: 0 3px 0 #b45309, 0 4px 10px rgba(0, 0, 0, 0.3) !important;
+  padding: 5px 14px !important;
+  transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+body:not(.theme-dark) .steady-cv-pill {
+  background: #ffffff !important;
+  border: 2px solid #f59e0b !important;
+  box-shadow: 0 3px 0 #b45309, 0 2px 6px rgba(0, 0, 0, 0.08) !important;
 }
 
 .steady-cv-pill:hover {
-  border-color: #fbbf24 !important;
-  box-shadow: 0 0 22px rgba(251, 191, 36, 0.45), inset 0 0 16px rgba(251, 191, 36, 0.18) !important;
   transform: translateY(-2px) !important;
+  box-shadow: 0 5px 0 #b45309, 0 8px 14px rgba(0, 0, 0, 0.35) !important;
+  border-color: #fde047 !important;
+}
+
+.steady-cv-pill:active {
+  transform: translateY(2px) !important;
+  box-shadow: 0 1px 0 #b45309 !important;
 }
 
 .steady-cv-icon {
   color: #fbbf24 !important;
-  filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.6)) !important;
+  font-size: 15px !important;
+  filter: drop-shadow(0 2px 4px rgba(251, 191, 36, 0.4));
 }
 
 .steady-cv-label {
-  font-family: 'Rajdhani', sans-serif !important;
-  font-weight: 700 !important;
-  letter-spacing: 1.5px !important;
-  text-transform: uppercase !important;
-  color: #fbbf24 !important;
+  font-family: 'Fredoka', sans-serif !important;
+  font-weight: 500 !important;
   font-size: 10px !important;
+  text-transform: uppercase !important;
+  color: #94a3b8 !important;
 }
 
 .steady-cv-name {
-  font-family: 'Chakra Petch', sans-serif !important;
-  font-weight: 600 !important;
-  color: #ffffff !important;
-  letter-spacing: 0.5px !important;
-  font-size: 12.5px !important;
-}
-
-/* 4. Cyberpunk Cut-Corner Action Buttons */
-.steady-action-btn {
-  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px) !important;
-  border-radius: 0 !important;
-  font-family: 'Chakra Petch', sans-serif !important;
+  font-family: 'Fredoka', sans-serif !important;
   font-weight: 700 !important;
-  letter-spacing: 1px !important;
-  text-transform: uppercase !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  position: relative;
-  overflow: hidden;
+  font-size: 13px !important;
+  color: #f8fafc !important;
 }
 
-/* Ghost Buttons (Scan, Menu, Theme, Bannière) */
-.steady-action-btn.steady-btn-ghost,
-.steady-btn-theme,
-.steady-btn-menu {
-  background: rgba(10, 16, 30, 0.85) !important;
-  border: 1px solid rgba(0, 240, 255, 0.3) !important;
-  color: #e2e8f0 !important;
-  box-shadow: inset 0 0 10px rgba(0, 240, 255, 0.04) !important;
+body:not(.theme-dark) .steady-cv-name {
+  color: #0f172a !important;
 }
 
-.steady-action-btn.steady-btn-ghost:hover,
-.steady-btn-theme:hover,
-.steady-btn-menu:hover {
-  background: rgba(0, 240, 255, 0.15) !important;
-  border-color: #00f0ff !important;
-  color: #00f0ff !important;
-  box-shadow: 0 0 16px rgba(0, 240, 255, 0.4), inset 0 0 12px rgba(0, 240, 255, 0.1) !important;
-  transform: translateY(-2px) !important;
+/* 3. NINTENDO CONTROLLER KEY BADGES ([A], [Y], [+], [-]) */
+.nintendo-key-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 1;
+  margin-right: 6px;
+  vertical-align: middle;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 2px 0 rgba(0, 0, 0, 0.35);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  flex-shrink: 0;
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
 }
 
-/* Primary 1-Click Apply Button (Ultimate Ability) */
+.nintendo-key-badge.key-a {
+  background: linear-gradient(180deg, #ff4d4d 0%, #e60012 100%);
+  color: #ffffff;
+  border-color: #ff8080;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 2px 0 #99000c;
+}
+
+.nintendo-key-badge.key-y {
+  background: linear-gradient(180deg, #34d399 0%, #10b981 100%);
+  color: #ffffff;
+  border-color: #6ee7b7;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 2px 0 #047857;
+}
+
+.nintendo-key-badge.key-plus,
+.nintendo-key-badge.key-minus {
+  background: linear-gradient(180deg, #475569 0%, #334155 100%);
+  color: #f8fafc;
+  border-color: #64748b;
+  font-size: 14px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 2px 0 #1e293b;
+}
+
+/* 4. TACTILE 3D PUSH BUTTONS (CHUNKY NINTENDO BUTTONS) */
+.steady-action-btn {
+  font-family: 'Fredoka', sans-serif !important;
+  font-weight: 600 !important;
+  font-size: 13.5px !important;
+  border-radius: 999px !important;
+  clip-path: none !important;
+  padding: 8px 16px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  cursor: pointer !important;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.15s ease !important;
+  position: relative !important;
+  user-select: none !important;
+}
+
+/* Nintendo 1-Click Apply Primary CTA ([A] Postuler) */
 .steady-btn-primary,
 #btn-header-batch-apply {
-  background: linear-gradient(135deg, #00f0ff 0%, #0284c7 45%, #2563eb 100%) !important;
-  border: 1px solid #38bdf8 !important;
+  background: linear-gradient(180deg, #ff3b30 0%, #e60012 100%) !important;
   color: #ffffff !important;
-  box-shadow: 0 0 20px rgba(0, 240, 255, 0.5), inset 0 0 14px rgba(255, 255, 255, 0.35) !important;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6) !important;
+  border: 2px solid #ff6b6b !important;
+  box-shadow: 0 4px 0 #99000c, 0 6px 16px rgba(230, 0, 18, 0.4) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
 }
 
 .steady-btn-primary:hover,
 #btn-header-batch-apply:hover {
-  background: linear-gradient(135deg, #38bdf8 0%, #00f0ff 100%) !important;
-  box-shadow: 0 0 30px rgba(0, 240, 255, 0.85), inset 0 0 18px rgba(255, 255, 255, 0.6) !important;
-  transform: translateY(-2px) scale(1.02) !important;
+  transform: translateY(-2px) !important;
+  background: linear-gradient(180deg, #ff5247 0%, #f01426 100%) !important;
+  box-shadow: 0 6px 0 #99000c, 0 10px 20px rgba(230, 0, 18, 0.5) !important;
 }
 
+.steady-btn-primary:active,
+#btn-header-batch-apply:active {
+  transform: translateY(3px) !important;
+  box-shadow: 0 1px 0 #99000c, 0 2px 6px rgba(230, 0, 18, 0.3) !important;
+}
+
+/* Nintendo Ghost & Action Buttons ([Y] Scanner, [-] Bannière, [+] Menu) */
+.steady-btn-ghost,
+.steady-btn-theme,
+.steady-btn-menu {
+  background: #1e293b !important;
+  color: #f1f5f9 !important;
+  border: 2px solid #334155 !important;
+  box-shadow: 0 3px 0 #0f172a, 0 4px 10px rgba(0, 0, 0, 0.25) !important;
+}
+
+body:not(.theme-dark) .steady-btn-ghost,
+body:not(.theme-dark) .steady-btn-theme,
+body:not(.theme-dark) .steady-btn-menu {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 2px solid #cbd5e1 !important;
+  box-shadow: 0 3px 0 #94a3b8, 0 2px 6px rgba(0, 0, 0, 0.05) !important;
+}
+
+.steady-btn-ghost:hover,
+.steady-btn-theme:hover,
+.steady-btn-menu:hover {
+  transform: translateY(-2px) !important;
+  border-color: #00c3e3 !important;
+  color: #00c3e3 !important;
+  box-shadow: 0 5px 0 #0f172a, 0 6px 14px rgba(0, 195, 227, 0.25) !important;
+}
+
+body:not(.theme-dark) .steady-btn-ghost:hover,
+body:not(.theme-dark) .steady-btn-theme:hover,
+body:not(.theme-dark) .steady-btn-menu:hover {
+  border-color: #0284c7 !important;
+  color: #0284c7 !important;
+  box-shadow: 0 5px 0 #94a3b8, 0 4px 10px rgba(2, 132, 199, 0.2) !important;
+}
+
+.steady-btn-ghost:active,
+.steady-btn-theme:active,
+.steady-btn-menu:active {
+  transform: translateY(2px) !important;
+  box-shadow: 0 1px 0 #0f172a !important;
+}
+
+body:not(.theme-dark) .steady-btn-ghost:active,
+body:not(.theme-dark) .steady-btn-theme:active,
+body:not(.theme-dark) .steady-btn-menu:active {
+  box-shadow: 0 1px 0 #94a3b8 !important;
+}
+
+/* Badge count inside 1-Click Apply button */
 .steady-action-badge {
-  background: #fbbf24 !important;
-  color: #000000 !important;
-  font-family: 'Chakra Petch', sans-serif !important;
-  font-weight: 800 !important;
-  box-shadow: 0 0 10px rgba(251, 191, 36, 0.7) !important;
-  clip-path: polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px) !important;
-  border-radius: 0 !important;
+  background: #ffcc00 !important;
+  color: #0f172a !important;
+  font-family: 'Fredoka', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 11px !important;
+  border-radius: 999px !important;
+  padding: 2px 7px !important;
+  box-shadow: 0 2px 0 #b45309 !important;
+  border: none !important;
 }
 
-/* 5. HUD Panels & Tactical Cards */
+/* 5. ZELDA BOTW SHEIKAH SLATE & POKÉMON DIALOGUE CARDS */
+.steady-card,
 .steady-workbench-card,
-.steady-kpi-card,
-.steady-table-container,
-.notion-db-table {
-  background: rgba(8, 13, 25, 0.9) !important;
-  border: 1px solid rgba(0, 240, 255, 0.2) !important;
-  box-shadow: 0 12px 36px -8px rgba(0, 0, 0, 0.75), inset 0 0 24px rgba(0, 240, 255, 0.02) !important;
-  border-radius: 14px !important;
+.zen-calm-state,
+.zen-hud-bar {
+  border-radius: 20px !important;
+  clip-path: none !important;
+  border: 2px solid #334155 !important;
+  box-shadow: 0 6px 0 #0f172a, 0 12px 28px rgba(0, 0, 0, 0.35) !important;
+  position: relative !important;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
 }
 
-/* Corner Bracket Accents on Main Card */
-.steady-workbench-card {
-  position: relative;
+body.theme-dark .steady-card,
+body.theme-dark .steady-workbench-card,
+body.theme-dark .zen-calm-state,
+body.theme-dark .zen-hud-bar {
+  background: #1e293b !important;
 }
 
-.steady-workbench-card::before {
-  content: '';
-  position: absolute;
-  top: -1px;
-  left: -1px;
-  width: 14px;
-  height: 14px;
-  border-top: 2px solid #00f0ff;
-  border-left: 2px solid #00f0ff;
-  pointer-events: none;
-  border-top-left-radius: 14px;
+body:not(.theme-dark) .steady-card,
+body:not(.theme-dark) .steady-workbench-card,
+body:not(.theme-dark) .zen-calm-state,
+body:not(.theme-dark) .zen-hud-bar {
+  background: #ffffff !important;
+  border: 2px solid #e2e8f0 !important;
+  box-shadow: 0 6px 0 #cbd5e1, 0 8px 20px rgba(0, 0, 0, 0.06) !important;
 }
 
-.steady-workbench-card::after {
-  content: '';
-  position: absolute;
-  top: -1px;
-  right: -1px;
-  width: 14px;
-  height: 14px;
-  border-top: 2px solid #00f0ff;
-  border-right: 2px solid #00f0ff;
-  pointer-events: none;
-  border-top-right-radius: 14px;
+/* Pokémon Dialogue Box Framing for Zen Calm State */
+.zen-calm-state {
+  border: 3px solid #00c3e3 !important;
+  box-shadow: 0 6px 0 #0284c7, 0 12px 30px rgba(0, 195, 227, 0.2) !important;
+  padding: 24px !important;
 }
 
-/* 6. KPI Cards (Player Stats HUD) */
-.steady-kpi-card {
-  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px) !important;
-  border-radius: 0 !important;
-  transition: all 0.2s ease !important;
+body:not(.theme-dark) .zen-calm-state {
+  border: 3px solid #0284c7 !important;
+  box-shadow: 0 6px 0 #0369a1, 0 10px 24px rgba(2, 132, 199, 0.15) !important;
 }
 
-.steady-kpi-card:hover {
-  border-color: rgba(0, 240, 255, 0.5) !important;
-  box-shadow: 0 8px 24px rgba(0, 240, 255, 0.15) !important;
-  transform: translateY(-2px);
-}
-
-.steady-kpi-value {
-  font-family: 'Chakra Petch', sans-serif !important;
+.zen-calm-title {
+  font-family: 'Fredoka', sans-serif !important;
   font-weight: 700 !important;
-  letter-spacing: -0.5px !important;
-  color: #ffffff !important;
-  text-shadow: 0 0 12px rgba(0, 240, 255, 0.4) !important;
+  font-size: 20px !important;
+  color: #f8fafc !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
 }
 
-.steady-kpi-label {
-  font-family: 'Rajdhani', sans-serif !important;
-  font-weight: 700 !important;
-  letter-spacing: 1.5px !important;
-  text-transform: uppercase !important;
-  color: #94a3b8 !important;
-  font-size: 11px !important;
+body:not(.theme-dark) .zen-calm-title {
+  color: #0f172a !important;
 }
 
-/* 7. Mission Board Table (Candidatures Styled as Tactical Quests) */
-.steady-status-chips-bar {
-  border-bottom: 1px solid rgba(0, 240, 255, 0.2) !important;
-  padding-bottom: 12px !important;
+.zen-calm-title::before {
+  content: '▶ ';
+  color: #ffcc00;
+  font-size: 14px;
+  animation: nintendoBlink 1s infinite alternate;
 }
 
-.steady-status-chip {
-  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px) !important;
-  border-radius: 0 !important;
-  font-family: 'Chakra Petch', sans-serif !important;
-  font-weight: 600 !important;
-  letter-spacing: 0.8px !important;
-  text-transform: uppercase !important;
-  font-size: 11px !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  background: rgba(10, 16, 28, 0.6) !important;
-  color: #94a3b8 !important;
-  transition: all 0.2s ease !important;
+@keyframes nintendoBlink {
+  0% { transform: translateX(0); opacity: 0.6; }
+  100% { transform: translateX(3px); opacity: 1; }
 }
 
-.steady-status-chip:hover {
-  background: rgba(0, 240, 255, 0.08) !important;
-  border-color: rgba(0, 240, 255, 0.35) !important;
-  color: #00f0ff !important;
+.zen-calm-desc {
+  font-family: 'Fredoka', sans-serif !important;
+  font-weight: 400 !important;
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+  color: #cbd5e1 !important;
 }
 
-.steady-status-chip.active {
-  background: rgba(0, 240, 255, 0.15) !important;
-  border-color: #00f0ff !important;
-  color: #00f0ff !important;
-  box-shadow: 0 0 14px rgba(0, 240, 255, 0.3) !important;
+body:not(.theme-dark) .zen-calm-desc {
+  color: #475569 !important;
 }
 
-.steady-status-chip.applied.active {
-  background: rgba(0, 255, 159, 0.15) !important;
-  border-color: #00ff9f !important;
-  color: #00ff9f !important;
-  box-shadow: 0 0 16px rgba(0, 255, 159, 0.35) !important;
-}
-
-.steady-status-chip.skipped.active {
-  background: rgba(251, 191, 36, 0.15) !important;
-  border-color: #fbbf24 !important;
-  color: #fbbf24 !important;
-  box-shadow: 0 0 16px rgba(251, 191, 36, 0.35) !important;
-}
-
-/* Table Headers (Tactical Data Columns) */
-.steady-table th {
-  font-family: 'Rajdhani', sans-serif !important;
-  font-weight: 700 !important;
-  letter-spacing: 1.5px !important;
-  text-transform: uppercase !important;
-  color: #38bdf8 !important;
-  font-size: 11px !important;
-  background: rgba(5, 8, 16, 0.95) !important;
-  border-bottom: 1px solid rgba(0, 240, 255, 0.3) !important;
-}
-
-/* Table Rows Hover (Holographic Scanline) */
-.steady-table tbody tr:hover {
-  background: rgba(0, 240, 255, 0.05) !important;
-  box-shadow: inset 3px 0 0 #00f0ff !important;
-}
-
-/* Status Pills in Table */
-.steady-table .steady-status-pill.status-applied {
-  background: rgba(0, 255, 159, 0.12) !important;
-  border: 1px solid #00ff9f !important;
-  color: #00ff9f !important;
-  font-family: 'Rajdhani', sans-serif !important;
-  font-weight: 700 !important;
-  letter-spacing: 1px !important;
-  text-transform: uppercase !important;
-  clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px) !important;
-  border-radius: 0 !important;
-  box-shadow: 0 0 8px rgba(0, 255, 159, 0.25) !important;
-}
-
-.steady-table .steady-badge-quick {
-  background: rgba(0, 240, 255, 0.12) !important;
-  border: 1px solid rgba(0, 240, 255, 0.6) !important;
-  color: #00f0ff !important;
-  font-family: 'Rajdhani', sans-serif !important;
-  font-weight: 700 !important;
-  letter-spacing: 1px !important;
-  clip-path: polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px) !important;
-  border-radius: 0 !important;
-}
-
-.steady-score-badge {
-  font-family: 'Chakra Petch', sans-serif !important;
-  font-weight: 700 !important;
-  border-radius: 4px !important;
-}
-
-/* Action Buttons inside Table */
-.steady-table-actions .steady-table-btn {
-  clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px) !important;
-  border-radius: 0 !important;
-  font-family: 'Chakra Petch', sans-serif !important;
-  font-weight: 700 !important;
-  letter-spacing: 0.6px !important;
-  text-transform: uppercase !important;
-  font-size: 11px !important;
-}
-
-.steady-table-actions .steady-btn-postuler {
-  background: linear-gradient(135deg, #00f0ff 0%, #0284c7 100%) !important;
-  border: 1px solid #38bdf8 !important;
-  color: #ffffff !important;
-  box-shadow: 0 0 10px rgba(0, 240, 255, 0.4) !important;
-}
-
-.steady-table-actions .steady-btn-postuler:hover {
-  background: linear-gradient(135deg, #38bdf8 0%, #00f0ff 100%) !important;
-  box-shadow: 0 0 16px rgba(0, 240, 255, 0.7) !important;
-  transform: translateY(-1px);
-}
-
-/* 8. Circular Progress Hero (Cockpit Radar Integration) */
-.ludique-header-row .ludique-tag {
-  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px) !important;
-  border-radius: 0 !important;
-  font-family: 'Chakra Petch', sans-serif !important;
-  font-weight: 700 !important;
-  letter-spacing: 1px !important;
-  text-transform: uppercase !important;
-}
-
-.ludique-btn-action {
-  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px) !important;
-  border-radius: 0 !important;
-  font-family: 'Chakra Petch', sans-serif !important;
-  font-weight: 700 !important;
-  letter-spacing: 1px !important;
-  text-transform: uppercase !important;
-}
-
-.ludique-target-card,
-.ludique-console-card {
-  border-radius: 12px !important;
-  border: 1px solid rgba(0, 240, 255, 0.25) !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(0, 240, 255, 0.03) !important;
-}
-
-.ludique-circular-counters .ludique-counter-card {
-  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px) !important;
-  border-radius: 0 !important;
-  border-color: rgba(0, 240, 255, 0.2) !important;
-}
-
-.ludique-counter-val {
-  font-family: 'Chakra Petch', sans-serif !important;
-  font-weight: 700 !important;
-}
-
-.ludique-counter-lbl {
-  font-family: 'Rajdhani', sans-serif !important;
-  font-weight: 700 !important;
-  letter-spacing: 1.2px !important;
-  text-transform: uppercase !important;
-}
-
-/* 9. Cover Banner Controls (Sci-Fi Holographic Overlay) */
-.oneshot-banner-btn {
-  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px) !important;
-  border-radius: 0 !important;
-  font-family: 'Chakra Petch', sans-serif !important;
-  font-weight: 700 !important;
-  letter-spacing: 0.8px !important;
-  text-transform: uppercase !important;
-  background: rgba(6, 9, 19, 0.85) !important;
-  border: 1px solid rgba(0, 240, 255, 0.3) !important;
-  color: #e2e8f0 !important;
-}
-
-.oneshot-banner-btn:hover {
-  background: rgba(0, 240, 255, 0.2) !important;
-  border-color: #00f0ff !important;
-  color: #00f0ff !important;
-  box-shadow: 0 0 14px rgba(0, 240, 255, 0.4) !important;
-}
-
-/* 10. Side Drawer (Character Menu / Codex Panel) */
-.steady-drawer-panel {
-  background: rgba(6, 10, 20, 0.96) !important;
-  backdrop-filter: blur(28px) !important;
-  border-left: 1px solid rgba(0, 240, 255, 0.35) !important;
-  box-shadow: -12px 0 40px rgba(0, 0, 0, 0.85), -1px 0 0 rgba(0, 240, 255, 0.2) !important;
-}
-
-.steady-drawer-header {
-  border-bottom: 1px solid rgba(0, 240, 255, 0.25) !important;
-}
-
-.steady-drawer-title {
-  font-family: 'Chakra Petch', sans-serif !important;
-  font-weight: 700 !important;
-  letter-spacing: 1px !important;
-  text-transform: uppercase !important;
-  color: #ffffff !important;
-}
-
-.steady-tab-btn {
-  font-family: 'Chakra Petch', sans-serif !important;
-  font-weight: 600 !important;
-  letter-spacing: 1px !important;
-  text-transform: uppercase !important;
-  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px) !important;
-}
-
-.steady-tab-btn.active {
-  background: rgba(0, 240, 255, 0.15) !important;
-  border-color: #00f0ff !important;
-  color: #00f0ff !important;
-  box-shadow: 0 0 12px rgba(0, 240, 255, 0.3) !important;
-}
-
-/* 11. Platform Selector Pills (Quest Destination Selectors) */
+/* 6. POKÉMON TYPE BADGES (PLATFORM SELECTOR PILLS) */
 .zen-plat-pill {
-  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px) !important;
-  border-radius: 0 !important;
-  font-family: 'Chakra Petch', sans-serif !important;
-  font-weight: 700 !important;
-  letter-spacing: 0.8px !important;
-  text-transform: uppercase !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  background: rgba(8, 13, 24, 0.85) !important;
-  border: 1px solid rgba(0, 240, 255, 0.25) !important;
+  border-radius: 12px !important;
+  font-family: 'Fredoka', sans-serif !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  padding: 6px 14px !important;
+  border: 2px solid #334155 !important;
+  box-shadow: 0 3px 0 #0f172a !important;
+  cursor: pointer !important;
+  transition: all 0.12s ease !important;
+  background: #1e293b !important;
+  color: #e2e8f0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+body:not(.theme-dark) .zen-plat-pill {
+  background: #ffffff !important;
+  border: 2px solid #cbd5e1 !important;
+  box-shadow: 0 3px 0 #94a3b8 !important;
+  color: #1e293b !important;
 }
 
 .zen-plat-pill:hover {
-  transform: translateY(-2px) scale(1.02) !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 12px rgba(0, 240, 255, 0.3) !important;
-  border-color: #00f0ff !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 5px 0 #0f172a !important;
 }
 
-.zen-plat-badge {
-  font-family: 'Chakra Petch', sans-serif !important;
-  font-weight: 800 !important;
-  clip-path: polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px) !important;
-  border-radius: 0 !important;
+body:not(.theme-dark) .zen-plat-pill:hover {
+  box-shadow: 0 5px 0 #94a3b8 !important;
 }
 
-/* 12. Zen Calm State (Empty Mission Briefing Room) */
-body.notion-dark-clean .zen-calm-state,
-body.theme-dark .zen-calm-state {
-  background: rgba(8, 13, 24, 0.9) !important;
-  border: 1px dashed rgba(0, 240, 255, 0.35) !important;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7), inset 0 0 25px rgba(0, 240, 255, 0.03) !important;
-  border-radius: 16px !important;
+.zen-plat-pill:active {
+  transform: translateY(2px) !important;
+  box-shadow: 0 1px 0 #0f172a !important;
 }
 
-body.notion-dark-clean .zen-calm-title,
-body.theme-dark .zen-calm-title {
-  font-family: 'Chakra Petch', sans-serif !important;
+/* Checked Pokémon Type Badges */
+.zen-plat-pill.active,
+.zen-plat-pill:has(input:checked) {
+  border-color: #ffcc00 !important;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.25) 0%, rgba(245, 158, 11, 0.15) 100%) !important;
+  color: #fbbf24 !important;
+  box-shadow: 0 3px 0 #b45309, 0 4px 12px rgba(251, 191, 36, 0.25) !important;
+}
+
+/* WTTJ (Electric / Psychic Gold) */
+.zen-plat-pill[data-platform="wttj"].active,
+.zen-plat-pill[data-platform="wttj"]:has(input:checked) {
+  border-color: #ffcc00 !important;
+  color: #ffcc00 !important;
+  box-shadow: 0 3px 0 #b45309 !important;
+}
+
+/* France Travail (Water Cyan) */
+.zen-plat-pill[data-platform="francetravail"].active,
+.zen-plat-pill[data-platform="francetravail"]:has(input:checked) {
+  border-color: #00c3e3 !important;
+  color: #00c3e3 !important;
+  box-shadow: 0 3px 0 #0284c7 !important;
+}
+
+/* Indeed (Dark Steel) */
+.zen-plat-pill[data-platform="indeed"].active,
+.zen-plat-pill[data-platform="indeed"]:has(input:checked) {
+  border-color: #38bdf8 !important;
+  color: #38bdf8 !important;
+  box-shadow: 0 3px 0 #0284c7 !important;
+}
+
+/* Apec (Grass Emerald) */
+.zen-plat-pill[data-platform="apec"].active,
+.zen-plat-pill[data-platform="apec"]:has(input:checked) {
+  border-color: #10b981 !important;
+  color: #10b981 !important;
+  box-shadow: 0 3px 0 #047857 !important;
+}
+
+/* 7. SHEIKAH ENERGY CORE (CIRCULAR PROGRESS HERO) */
+.steady-hero-banner,
+.ludique-progress-hero {
+  border-radius: 24px !important;
+  background: #0f172a !important;
+  border: 3px solid #00c3e3 !important;
+  box-shadow: 0 8px 0 #0284c7, 0 16px 36px rgba(0, 195, 227, 0.25) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+body:not(.theme-dark) .steady-hero-banner,
+body:not(.theme-dark) .ludique-progress-hero {
+  background: #ffffff !important;
+  border: 3px solid #0284c7 !important;
+  box-shadow: 0 8px 0 #0369a1, 0 12px 28px rgba(2, 132, 199, 0.15) !important;
+}
+
+.steady-hero-banner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #00c3e3, #10b981, #ffcc00, #e60012);
+}
+
+/* Circular Gauge Display */
+.ludique-gauge-circle-wrap {
+  filter: drop-shadow(0 0 16px rgba(0, 195, 227, 0.4)) !important;
+}
+
+.ludique-gauge-pct-huge,
+.steady-hero-stat-value {
+  font-family: 'Fredoka', sans-serif !important;
   font-weight: 700 !important;
+  color: #00c3e3 !important;
+  text-shadow: 0 2px 10px rgba(0, 195, 227, 0.5) !important;
+}
+
+body:not(.theme-dark) .ludique-gauge-pct-huge,
+body:not(.theme-dark) .steady-hero-stat-value {
+  color: #0284c7 !important;
+  text-shadow: none !important;
+}
+
+.ludique-gauge-status-live,
+.steady-hero-stat-label {
+  font-family: 'Fredoka', sans-serif !important;
+  font-weight: 600 !important;
+  font-size: 12px !important;
   text-transform: uppercase !important;
   letter-spacing: 1px !important;
+  color: #38bdf8 !important;
+}
+
+/* 8. POKÉDEX QUEST LOG & WORKBENCH TABLE */
+.steady-workbench-card {
+  border-radius: 20px !important;
+  overflow: hidden !important;
+}
+
+.steady-workbench-header {
+  background: linear-gradient(90deg, #1e293b 0%, #0f172a 100%) !important;
+  border-bottom: 2px solid #334155 !important;
+  padding: 16px 20px !important;
+}
+
+body:not(.theme-dark) .steady-workbench-header {
+  background: linear-gradient(90deg, #f8fafc 0%, #f1f5f9 100%) !important;
+  border-bottom: 2px solid #e2e8f0 !important;
+}
+
+.steady-workbench-title {
+  font-family: 'Fredoka', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 17px !important;
+  color: #f8fafc !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+body.theme-dark #workbench-active-title,
+body.theme-dark .steady-workbench-title {
   color: #f8fafc !important;
 }
 
-body.notion-dark-clean .zen-calm-sub,
-body.theme-dark .zen-calm-sub {
-  font-family: 'Rajdhani', sans-serif !important;
-  font-weight: 600 !important;
+body:not(.theme-dark) #workbench-active-title,
+body:not(.theme-dark) .steady-workbench-title {
+  color: #0f172a !important;
+}
+
+.steady-workbench-title i {
+  color: #ffcc00 !important;
+  filter: drop-shadow(0 2px 4px rgba(251, 191, 36, 0.5));
+}
+
+/* Table styling: Pokédex / Quest List */
+.notion-db-table,
+.steady-table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  width: 100% !important;
+  font-family: 'Fredoka', sans-serif !important;
+}
+
+.notion-db-table th,
+.steady-table th {
+  background: #0f172a !important;
+  color: #38bdf8 !important;
+  font-family: 'Fredoka', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 12px !important;
+  text-transform: uppercase !important;
   letter-spacing: 0.8px !important;
-  color: #94a3b8 !important;
+  padding: 12px 14px !important;
+  border-bottom: 2px solid #334155 !important;
 }
 
-body.notion-dark-clean .zen-calm-icon,
-body.theme-dark .zen-calm-icon {
-  background: rgba(0, 240, 255, 0.12) !important;
-  border: 1px solid rgba(0, 240, 255, 0.4) !important;
-  color: #00f0ff !important;
-  box-shadow: 0 0 16px rgba(0, 240, 255, 0.3) !important;
-  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px) !important;
-  border-radius: 0 !important;
+body:not(.theme-dark) .notion-db-table th,
+body:not(.theme-dark) .steady-table th {
+  background: #f1f5f9 !important;
+  color: #0284c7 !important;
+  border-bottom: 2px solid #cbd5e1 !important;
 }
 
-/* 13. Dark Mode Video Game Mission Board (Tableau de Quêtes) */
-body.theme-dark .steady-workbench-card,
-body.notion-dark-clean .steady-workbench-card {
-  background: rgba(8, 13, 25, 0.96) !important;
-  border: 1px solid rgba(0, 240, 255, 0.3) !important;
-  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.85), inset 0 0 30px rgba(0, 240, 255, 0.03) !important;
+.notion-db-table td,
+.steady-table td {
+  background: #1e293b !important;
+  color: #f1f5f9 !important;
+  font-family: 'Fredoka', sans-serif !important;
+  font-weight: 500 !important;
+  font-size: 13px !important;
+  padding: 10px 14px !important;
+  border-bottom: 1px solid #334155 !important;
+  transition: background 0.1s ease !important;
 }
 
-body.theme-dark .steady-workbench-header,
-body.notion-dark-clean .steady-workbench-header {
-  background: rgba(5, 8, 16, 0.98) !important;
-  border-bottom: 1px solid rgba(0, 240, 255, 0.25) !important;
+body:not(.theme-dark) .notion-db-table td,
+body:not(.theme-dark) .steady-table td {
+  background: #ffffff !important;
+  color: #1e293b !important;
+  border-bottom: 1px solid #f1f5f9 !important;
 }
 
-body.theme-dark .steady-workbench-title,
-body.notion-dark-clean .steady-workbench-title {
-  font-family: 'Chakra Petch', sans-serif !important;
+.notion-db-table tr:hover td,
+.steady-table tr:hover td {
+  background: rgba(0, 195, 227, 0.12) !important;
+}
+
+body:not(.theme-dark) .notion-db-table tr:hover td,
+body:not(.theme-dark) .steady-table tr:hover td {
+  background: rgba(2, 132, 199, 0.08) !important;
+}
+
+/* 9. POKÉMON / ZELDA STATUS BADGES */
+/* Applied: [ATTRAPÉ !] / [ACCOMPLIE] (Green Heart Vial) */
+.steady-status-chip.applied,
+.steady-badge-applied,
+.notion-db-badge.applied {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(5, 150, 105, 0.3) 100%) !important;
+  border: 2px solid #10b981 !important;
+  color: #34d399 !important;
+  font-family: 'Fredoka', sans-serif !important;
   font-weight: 700 !important;
-  letter-spacing: 1px !important;
-  text-transform: uppercase !important;
+  font-size: 11.5px !important;
+  border-radius: 999px !important;
+  padding: 3px 10px !important;
+  box-shadow: 0 2px 0 #047857 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+}
+
+/* In Progress / Pending: [EN COURS] (Pikachu Yellow) */
+.steady-status-chip.pending,
+.steady-badge-pending,
+.notion-db-badge.pending {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.25) 0%, rgba(217, 119, 6, 0.25) 100%) !important;
+  border: 2px solid #fbbf24 !important;
+  color: #fde047 !important;
+  font-family: 'Fredoka', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 11.5px !important;
+  border-radius: 999px !important;
+  padding: 3px 10px !important;
+  box-shadow: 0 2px 0 #b45309 !important;
+}
+
+/* Match Score: Pokémon Trainer Rank / Level Badge (LV. 95 ★) */
+.steady-score-badge,
+.notion-db-score {
+  background: linear-gradient(180deg, #ffcc00 0%, #f59e0b 100%) !important;
+  color: #0f172a !important;
+  font-family: 'Fredoka', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 12px !important;
+  border-radius: 8px !important;
+  padding: 3px 8px !important;
+  box-shadow: 0 2px 0 #b45309 !important;
+  text-shadow: none !important;
+}
+
+/* Counter Pills on Tabs ([14] Offres) */
+.steady-count-pill {
+  font-family: 'Fredoka', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 11px !important;
+  border-radius: 999px !important;
+  clip-path: none !important;
+  background: #334155 !important;
+  border: 1px solid #475569 !important;
+  color: #f8fafc !important;
+  padding: 2px 8px !important;
+}
+
+body.theme-dark .steady-count-pill {
+  background: rgba(0, 195, 227, 0.2) !important;
+  border-color: #00c3e3 !important;
+  color: #38bdf8 !important;
+}
+
+/* 10. NOTION BANNER CONTROLS (NINTENDO STYLE PUSH BUTTONS) */
+.oneshot-banner-btn {
+  font-family: 'Fredoka', sans-serif !important;
+  font-weight: 600 !important;
+  font-size: 12px !important;
+  border-radius: 999px !important;
+  background: rgba(15, 23, 42, 0.85) !important;
+  color: #f8fafc !important;
+  border: 2px solid #334155 !important;
+  box-shadow: 0 3px 0 #0f172a !important;
+  padding: 6px 12px !important;
+  transition: all 0.12s ease !important;
+}
+
+.oneshot-banner-btn:hover {
+  transform: translateY(-2px) !important;
+  border-color: #ffcc00 !important;
+  color: #ffcc00 !important;
+  box-shadow: 0 5px 0 #0f172a !important;
+}
+
+.oneshot-banner-btn:active {
+  transform: translateY(2px) !important;
+  box-shadow: 0 1px 0 #0f172a !important;
+}
+
+/* 11. MODAL DIALOGS (ZELDA BOTW PAUSE SCREEN & POKÉDEX INSPECTION) */
+.steady-modal-card,
+.modal-content {
+  border-radius: 24px !important;
+  border: 3px solid #00c3e3 !important;
+  background: #0f172a !important;
+  box-shadow: 0 10px 0 #0284c7, 0 20px 50px rgba(0, 0, 0, 0.6) !important;
+  font-family: 'Fredoka', sans-serif !important;
+}
+
+body:not(.theme-dark) .steady-modal-card,
+body:not(.theme-dark) .modal-content {
+  background: #ffffff !important;
+  border: 3px solid #0284c7 !important;
+  box-shadow: 0 10px 0 #0369a1, 0 16px 40px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* 12. DRAWER MENU (NINTENDO SWITCH HOME OVERLAY) */
+.steady-drawer-panel {
+  background: #0f172a !important;
+  border-left: 3px solid #00c3e3 !important;
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5) !important;
+  font-family: 'Fredoka', sans-serif !important;
+}
+
+.steady-drawer-title {
+  font-family: 'Fredoka', sans-serif !important;
+  font-weight: 700 !important;
+  color: #f8fafc !important;
+}
+
+.steady-tab-btn {
+  font-family: 'Fredoka', sans-serif !important;
+  font-weight: 600 !important;
+  border-radius: 12px !important;
+  clip-path: none !important;
+}
+
+.steady-tab-btn.active {
+  background: #10b981 !important;
   color: #ffffff !important;
-  text-shadow: 0 0 10px rgba(0, 240, 255, 0.4) !important;
+  box-shadow: 0 3px 0 #047857 !important;
 }
-
-body.theme-dark .steady-count-pill,
-body.notion-dark-clean .steady-count-pill {
-  font-family: 'Chakra Petch', sans-serif !important;
-  font-weight: 700 !important;
-  clip-path: polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px) !important;
-  border-radius: 0 !important;
-  background: rgba(0, 240, 255, 0.15) !important;
-  border: 1px solid rgba(0, 240, 255, 0.4) !important;
-  color: #00f0ff !important;
-}
-
-body.theme-dark .steady-toolbar,
-body.notion-dark-clean .steady-toolbar {
-  background: rgba(6, 10, 20, 0.95) !important;
-  border-bottom: 1px solid rgba(0, 240, 255, 0.2) !important;
-}
-
-body.theme-dark .notion-db-table,
-body.notion-dark-clean .notion-db-table {
-  background: #080d1a !important;
-}
-
-body.theme-dark .notion-db-table th,
-body.notion-dark-clean .notion-db-table th {
-  background: #050812 !important;
-  color: #00f0ff !important;
-  font-family: 'Rajdhani', sans-serif !important;
-  font-weight: 700 !important;
-  letter-spacing: 1.5px !important;
-  text-transform: uppercase !important;
-  border-bottom: 1px solid rgba(0, 240, 255, 0.3) !important;
-}
-
-body.theme-dark .notion-db-table td,
-body.notion-dark-clean .notion-db-table td {
-  background: #080d1a !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
-  color: #e2e8f0 !important;
-}
-
-body.theme-dark .notion-db-table tr:hover td,
-body.notion-dark-clean .notion-db-table tr:hover td {
-  background: rgba(0, 240, 255, 0.06) !important;
-}
-
-
-
-
-
-
-

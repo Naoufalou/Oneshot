@@ -5327,14 +5327,14 @@ function setupBannerCustomizer() {
 }
 
 /* ==========================================================
-   TACTILE GAMING UI SOUND EFFECTS (WEB AUDIO API SYNTH)
-   Zero external dependencies, pure native procedural audio
+   NINTENDO & POKÉMON PROCEDURAL AUDIO SYNTH (WEB AUDIO API)
+   Iconic Nintendo Switch two-tone menu ping & Zelda chime
 ========================================================== */
 function initGameAudio() {
   let audioCtx = null;
   const isMuted = localStorage.getItem("oneshot_audio_mute") === "true";
 
-  function playCyberChirp(freq1 = 880, freq2 = 1320, duration = 0.035) {
+  function playNintendoChirp(type = "select") {
     if (isMuted) return;
     try {
       if (!audioCtx) {
@@ -5343,28 +5343,57 @@ function initGameAudio() {
       if (audioCtx.state === "suspended") {
         audioCtx.resume();
       }
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(freq1, audioCtx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(freq2, audioCtx.currentTime + duration);
-      gain.gain.setValueAtTime(0.035, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start();
-      osc.stop(audioCtx.currentTime + duration);
+
+      const now = audioCtx.currentTime;
+
+      if (type === "confirm") {
+        // Joy-Con Confirm / Zelda Item Ding (Arpeggio: E5 -> G#5 -> B5 -> E6)
+        const notes = [659.25, 830.61, 987.77, 1318.51];
+        notes.forEach((freq, idx) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(freq, now + idx * 0.04);
+          gain.gain.setValueAtTime(0.04, now + idx * 0.04);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.04 + 0.08);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now + idx * 0.04);
+          osc.stop(now + idx * 0.04 + 0.08);
+        });
+      } else {
+        // Classic Switch / Pokémon Menu Ding: crisp two-tone B5 -> E6
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(987.77, now);
+        osc.frequency.setValueAtTime(1318.51, now + 0.025);
+        gain.gain.setValueAtTime(0.035, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.065);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.065);
+      }
     } catch (_) {}
   }
 
   document.addEventListener("click", (e) => {
-    const btn = e.target.closest("button, .steady-action-btn, .zen-plat-pill, .steady-status-chip, .ludique-btn-action, .steady-cv-pill");
+    const btn = e.target.closest("button, .steady-action-btn, .zen-plat-pill, .steady-status-chip, .ludique-btn-action, .steady-cv-pill, .oneshot-banner-btn");
     if (btn) {
-      playCyberChirp(920, 1480, 0.035);
+      if (btn.id === "btn-header-batch-apply" || btn.classList.contains("steady-btn-primary")) {
+        playNintendoChirp("confirm");
+      } else {
+        playNintendoChirp("select");
+      }
+      btn.classList.remove("nintendo-press");
+      void btn.offsetWidth; // trigger reflow
+      btn.classList.add("nintendo-press");
     }
   });
 
-  window.playCyberChirp = playCyberChirp;
+  window.playNintendoChirp = playNintendoChirp;
+  window.playCyberChirp = playNintendoChirp;
 }
 
 
