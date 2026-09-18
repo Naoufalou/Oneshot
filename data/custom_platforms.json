@@ -1,1 +1,26 @@
-[]
+[
+  {
+    "id": "freework",
+    "name": "Freework",
+    "category": "Freelance & Mission",
+    "url": "https://www.free-work.com//",
+    "login_url": "https://www.free-work.com//",
+    "search_url": "",
+    "notes": "eliot.hantute@gmail.com / Ght2lamdma",
+    "icon": "fa-globe",
+    "created_at": "2026-09-18T13:40:18.301444",
+    "is_connected": false
+  },
+  {
+    "id": "collective_work",
+    "name": "Collective Work",
+    "category": "Freelance & Mission",
+    "url": "https://app.collective.work",
+    "login_url": "https://app.collective.work",
+    "search_url": "",
+    "notes": "",
+    "icon": "fa-globe",
+    "created_at": "2026-09-18T13:40:48.482839",
+    "is_connected": false
+  }
+]

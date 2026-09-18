@@ -9519,177 +9519,738 @@ body.theme-light .steady-table tr:hover td {
   background: #f1f5f9 !important;
 }
 
-/* 1. THEME: SWITCH OLED (Classique) */
-body[data-color-theme="switch"] .steady-header::after {
-  background: linear-gradient(90deg, #e60012 0%, #ffcc00 35%, #00c3e3 70%, #10b981 100%) !important;
+/* ==========================================================
+   DEEP GAME UNIVERSE THEMES: WALLPAPERS & COLORED SECTIONS
+========================================================== */
+
+/* ----------------------------------------------------------
+   1. SUPER MARIO (Royaume Champignon : Bleu Salopette & Rouge Mario)
+---------------------------------------------------------- */
+body[data-color-theme="mario"] {
+  background: linear-gradient(rgba(240, 249, 255, 0.84), rgba(224, 242, 254, 0.88)), url('/static/themes/mario-bg.jpg') no-repeat center top fixed !important;
+  background-size: cover !important;
 }
+body[data-color-theme="mario"].theme-dark {
+  background: linear-gradient(rgba(15, 23, 42, 0.86), rgba(15, 23, 42, 0.92)), url('/static/themes/mario-bg.jpg') no-repeat center top fixed !important;
+  background-size: cover !important;
+}
+
+/* Mario Header: Mario Red & Star Gold */
+body[data-color-theme="mario"] .steady-header {
+  background: linear-gradient(135deg, #e52521 0%, #b71c1c 100%) !important;
+  border-bottom: 4px solid #facc15 !important;
+  box-shadow: 0 4px 20px rgba(229, 37, 33, 0.35) !important;
+}
+body[data-color-theme="mario"] .steady-header .steady-brand-name {
+  color: #ffffff !important;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+}
+body[data-color-theme="mario"] .steady-header .steady-brand-sub {
+  color: #fef08a !important;
+}
+body[data-color-theme="mario"] .steady-header .steady-live-status-pill {
+  background: rgba(0, 0, 0, 0.25) !important;
+  color: #fef08a !important;
+  border: 1px solid #facc15 !important;
+}
+body[data-color-theme="mario"] .steady-header .steady-logo-icon {
+  background: linear-gradient(135deg, #facc15 0%, #eab308 100%) !important;
+  color: #b71c1c !important;
+  box-shadow: 0 3px 0 #ca8a04 !important;
+}
+body[data-color-theme="mario"] .steady-cv-pill {
+  background: linear-gradient(135deg, #1d4ed8, #1e3a8a) !important;
+  border: 2px solid #60a5fa !important;
+  color: #ffffff !important;
+  box-shadow: 0 3px 0 #1e3a8a !important;
+}
+body[data-color-theme="mario"] .steady-cv-pill .steady-cv-label {
+  color: #fef08a !important;
+}
+body[data-color-theme="mario"] .steady-cv-pill .steady-cv-name {
+  color: #ffffff !important;
+}
+body[data-color-theme="mario"] .steady-header .steady-btn-ghost,
+body[data-color-theme="mario"] .steady-header .steady-btn-theme,
+body[data-color-theme="mario"] .steady-header .steady-btn-menu {
+  background: rgba(0, 0, 0, 0.3) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  color: #ffffff !important;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.5) !important;
+}
+body[data-color-theme="mario"] .steady-btn-primary,
+body[data-color-theme="mario"] #btn-header-batch-apply {
+  background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%) !important;
+  border: 2px solid #93c5fd !important;
+  box-shadow: 0 4px 0 #1e3a8a, 0 6px 16px rgba(29, 78, 216, 0.45) !important;
+}
+
+/* Mario 4 Stats Cards: Colored Sections */
+body[data-color-theme="mario"] .steady-kpi-card:nth-child(1) {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%) !important;
+  border: 2px solid #ef4444 !important;
+  box-shadow: 0 4px 0 #dc2626 !important;
+}
+body[data-color-theme="mario"] .steady-kpi-card:nth-child(1) .steady-kpi-label { color: #991b1b !important; }
+body[data-color-theme="mario"] .steady-kpi-card:nth-child(1) .steady-kpi-value { color: #dc2626 !important; }
+
+body[data-color-theme="mario"] .steady-card-applied {
+  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%) !important;
+  border: 2px solid #22c55e !important;
+  box-shadow: 0 4px 0 #16a34a !important;
+}
+body[data-color-theme="mario"] .steady-card-applied .steady-kpi-label { color: #166534 !important; }
+body[data-color-theme="mario"] .steady-card-applied .steady-kpi-value { color: #15803d !important; }
+
+body[data-color-theme="mario"] .steady-card-1click {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%) !important;
+  border: 2px solid #3b82f6 !important;
+  box-shadow: 0 4px 0 #2563eb !important;
+}
+body[data-color-theme="mario"] .steady-card-1click .steady-kpi-label { color: #1e40af !important; }
+body[data-color-theme="mario"] .steady-card-1click .steady-kpi-value { color: #1d4ed8 !important; }
+
+body[data-color-theme="mario"] .steady-card-platforms {
+  background: linear-gradient(135deg, #fef9c3 0%, #fef08a 100%) !important;
+  border: 2px solid #eab308 !important;
+  box-shadow: 0 4px 0 #ca8a04 !important;
+}
+body[data-color-theme="mario"] .steady-card-platforms .steady-kpi-label { color: #854d0e !important; }
+body[data-color-theme="mario"] .steady-card-platforms .steady-kpi-value { color: #a16207 !important; }
+
+/* Mario Dark mode stats cards */
+body[data-color-theme="mario"].theme-dark .steady-kpi-card:nth-child(1) {
+  background: linear-gradient(135deg, #450a0a, #7f1d1d) !important;
+  border-color: #ef4444 !important;
+  box-shadow: 0 4px 0 #991b1b !important;
+}
+body[data-color-theme="mario"].theme-dark .steady-kpi-card:nth-child(1) .steady-kpi-label { color: #fca5a5 !important; }
+body[data-color-theme="mario"].theme-dark .steady-kpi-card:nth-child(1) .steady-kpi-value { color: #fee2e2 !important; }
+
+body[data-color-theme="mario"].theme-dark .steady-card-applied {
+  background: linear-gradient(135deg, #052e16, #14532d) !important;
+  border-color: #22c55e !important;
+  box-shadow: 0 4px 0 #15803d !important;
+}
+body[data-color-theme="mario"].theme-dark .steady-card-applied .steady-kpi-label { color: #86efac !important; }
+body[data-color-theme="mario"].theme-dark .steady-card-applied .steady-kpi-value { color: #dcfce7 !important; }
+
+body[data-color-theme="mario"].theme-dark .steady-card-1click {
+  background: linear-gradient(135deg, #172554, #1e3a8a) !important;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 4px 0 #1d4ed8 !important;
+}
+body[data-color-theme="mario"].theme-dark .steady-card-1click .steady-kpi-label { color: #93c5fd !important; }
+body[data-color-theme="mario"].theme-dark .steady-card-1click .steady-kpi-value { color: #dbeafe !important; }
+
+body[data-color-theme="mario"].theme-dark .steady-card-platforms {
+  background: linear-gradient(135deg, #422006, #713f12) !important;
+  border-color: #eab308 !important;
+  box-shadow: 0 4px 0 #ca8a04 !important;
+}
+body[data-color-theme="mario"].theme-dark .steady-card-platforms .steady-kpi-label { color: #fde047 !important; }
+body[data-color-theme="mario"].theme-dark .steady-card-platforms .steady-kpi-value { color: #fef9c3 !important; }
+
+/* Mario Central Cockpit: Overalls Blue & Mario Red 3D frame */
+body[data-color-theme="mario"] .zen-calm-state {
+  background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 50%, #0038a8 100%) !important;
+  border: 3px solid #e52521 !important;
+  box-shadow: 0 8px 0 #b71c1c, 0 16px 36px rgba(37, 99, 235, 0.35) !important;
+  color: #ffffff !important;
+}
+body[data-color-theme="mario"] .zen-calm-title {
+  color: #ffffff !important;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+body[data-color-theme="mario"] .zen-calm-sub {
+  color: #fef08a !important;
+}
+body[data-color-theme="mario"] .zen-calm-icon {
+  background: #facc15 !important;
+  color: #1e3a8a !important;
+  box-shadow: 0 4px 0 #ca8a04, 0 0 16px rgba(250, 204, 21, 0.5) !important;
+}
+
+/* Mario Workbench Card & Table */
+body[data-color-theme="mario"] .steady-workbench-card {
+  border: 3px solid #e52521 !important;
+  box-shadow: 0 8px 0 #b71c1c, 0 16px 36px rgba(229, 37, 33, 0.2) !important;
+}
+body[data-color-theme="mario"] .steady-workbench-card .steady-workbench-header,
+body[data-color-theme="mario"] .steady-workbench-card.theme-ft .steady-workbench-header,
+body[data-color-theme="mario"] .steady-workbench-card.theme-li .steady-workbench-header,
+body[data-color-theme="mario"] .steady-workbench-card.theme-ind .steady-workbench-header,
+body[data-color-theme="mario"] .steady-workbench-card.theme-applied .steady-workbench-header,
+body:not(.theme-dark)[data-color-theme="mario"] .steady-workbench-card.theme-ft .steady-workbench-header,
+body:not(.theme-dark)[data-color-theme="mario"] .steady-workbench-card.theme-li .steady-workbench-header,
+body:not(.theme-dark)[data-color-theme="mario"] .steady-workbench-card.theme-ind .steady-workbench-header,
+body:not(.theme-dark)[data-color-theme="mario"] .steady-workbench-card.theme-applied .steady-workbench-header,
+body.theme-dark[data-color-theme="mario"] .steady-workbench-card.theme-ft .steady-workbench-header,
+body.theme-dark[data-color-theme="mario"] .steady-workbench-card.theme-li .steady-workbench-header,
+body.theme-dark[data-color-theme="mario"] .steady-workbench-card.theme-ind .steady-workbench-header,
+body.theme-dark[data-color-theme="mario"] .steady-workbench-card.theme-applied .steady-workbench-header {
+  background: linear-gradient(135deg, #e52521 0%, #b71c1c 100%) !important;
+  border-bottom: 3px solid #facc15 !important;
+}
+body[data-color-theme="mario"] .steady-workbench-card .steady-workbench-title,
+body[data-color-theme="mario"] #workbench-active-title {
+  color: #ffffff !important;
+}
+body[data-color-theme="mario"] #sheet-current-count {
+  background: #facc15 !important;
+  color: #1e3a8a !important;
+  font-weight: 800 !important;
+}
+body[data-color-theme="mario"] .steady-workbench-card .notion-db-table th,
+body[data-color-theme="mario"] .steady-workbench-card .steady-table th,
+body:not(.theme-dark)[data-color-theme="mario"] .steady-workbench-card .notion-db-table th,
+body:not(.theme-dark)[data-color-theme="mario"] .steady-workbench-card .steady-table th,
+body:not(.theme-dark)[data-color-theme="mario"] .steady-workbench-card.theme-ft .notion-db-table th,
+body:not(.theme-dark)[data-color-theme="mario"] .steady-workbench-card.theme-li .notion-db-table th,
+body:not(.theme-dark)[data-color-theme="mario"] .steady-workbench-card.theme-ind .notion-db-table th,
+body:not(.theme-dark)[data-color-theme="mario"] .steady-workbench-card.theme-applied .notion-db-table th {
+  background: #1e40af !important;
+  color: #ffffff !important;
+  border-bottom: 3px solid #facc15 !important;
+}
+
+
+/* ----------------------------------------------------------
+   2. THE LEGEND OF ZELDA (Tears of the Kingdom : Vert Sonau & Or Céleste)
+---------------------------------------------------------- */
+body[data-color-theme="zelda"] {
+  background: linear-gradient(rgba(240, 253, 244, 0.85), rgba(236, 253, 245, 0.90)), url('/static/themes/zelda-bg.jpg') no-repeat center top fixed !important;
+  background-size: cover !important;
+}
+body[data-color-theme="zelda"].theme-dark {
+  background: linear-gradient(rgba(6, 44, 34, 0.88), rgba(2, 44, 34, 0.94)), url('/static/themes/zelda-bg.jpg') no-repeat center top fixed !important;
+  background-size: cover !important;
+}
+
+/* Zelda Header */
+body[data-color-theme="zelda"] .steady-header {
+  background: linear-gradient(135deg, #0b3b2c 0%, #064e3b 100%) !important;
+  border-bottom: 4px solid #d97706 !important;
+  box-shadow: 0 4px 20px rgba(6, 78, 59, 0.35) !important;
+}
+body[data-color-theme="zelda"] .steady-header .steady-brand-name {
+  color: #ffffff !important;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+}
+body[data-color-theme="zelda"] .steady-header .steady-brand-sub {
+  color: #6ee7b7 !important;
+}
+body[data-color-theme="zelda"] .steady-header .steady-live-status-pill {
+  background: rgba(0, 0, 0, 0.25) !important;
+  color: #6ee7b7 !important;
+  border: 1px solid #10b981 !important;
+}
+body[data-color-theme="zelda"] .steady-header .steady-logo-icon {
+  background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%) !important;
+  color: #064e3b !important;
+  box-shadow: 0 3px 0 #b45309 !important;
+}
+body[data-color-theme="zelda"] .steady-cv-pill {
+  background: linear-gradient(135deg, #065f46, #047857) !important;
+  border: 2px solid #6ee7b7 !important;
+  color: #ffffff !important;
+  box-shadow: 0 3px 0 #064e3b !important;
+}
+body[data-color-theme="zelda"] .steady-cv-pill .steady-cv-label { color: #fde047 !important; }
+body[data-color-theme="zelda"] .steady-cv-pill .steady-cv-name { color: #ffffff !important; }
+body[data-color-theme="zelda"] .steady-header .steady-btn-ghost,
+body[data-color-theme="zelda"] .steady-header .steady-btn-theme,
+body[data-color-theme="zelda"] .steady-header .steady-btn-menu {
+  background: rgba(0, 0, 0, 0.3) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.5) !important;
+}
+body[data-color-theme="zelda"] .steady-btn-primary,
+body[data-color-theme="zelda"] #btn-header-batch-apply {
+  background: linear-gradient(180deg, #10b981 0%, #059669 100%) !important;
+  border: 2px solid #6ee7b7 !important;
+  box-shadow: 0 4px 0 #047857, 0 6px 16px rgba(16, 185, 129, 0.45) !important;
+}
+
+/* Zelda Stats Cards */
+body[data-color-theme="zelda"] .steady-kpi-card:nth-child(1) {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%) !important;
+  border: 2px solid #10b981 !important;
+  box-shadow: 0 4px 0 #059669 !important;
+}
+body[data-color-theme="zelda"] .steady-kpi-card:nth-child(1) .steady-kpi-label { color: #065f46 !important; }
+body[data-color-theme="zelda"] .steady-kpi-card:nth-child(1) .steady-kpi-value { color: #047857 !important; }
+
+body[data-color-theme="zelda"] .steady-card-applied {
+  background: linear-gradient(135deg, #fefce8 0%, #fef9c3 100%) !important;
+  border: 2px solid #eab308 !important;
+  box-shadow: 0 4px 0 #ca8a04 !important;
+}
+body[data-color-theme="zelda"] .steady-card-applied .steady-kpi-label { color: #854d0e !important; }
+body[data-color-theme="zelda"] .steady-card-applied .steady-kpi-value { color: #a16207 !important; }
+
+body[data-color-theme="zelda"] .steady-card-1click {
+  background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%) !important;
+  border: 2px solid #14b8a6 !important;
+  box-shadow: 0 4px 0 #0d9488 !important;
+}
+body[data-color-theme="zelda"] .steady-card-1click .steady-kpi-label { color: #115e59 !important; }
+body[data-color-theme="zelda"] .steady-card-1click .steady-kpi-value { color: #0f766e !important; }
+
+body[data-color-theme="zelda"] .steady-card-platforms {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%) !important;
+  border: 2px solid #22c55e !important;
+  box-shadow: 0 4px 0 #16a34a !important;
+}
+body[data-color-theme="zelda"] .steady-card-platforms .steady-kpi-label { color: #166534 !important; }
+body[data-color-theme="zelda"] .steady-card-platforms .steady-kpi-value { color: #15803d !important; }
+
+/* Zelda Cockpit */
+body[data-color-theme="zelda"] .zen-calm-state {
+  background: linear-gradient(135deg, #064e3b 0%, #0b3b2c 100%) !important;
+  border: 3px solid #d97706 !important;
+  box-shadow: 0 8px 0 #b45309, 0 16px 36px rgba(16, 185, 129, 0.3) !important;
+  color: #f0fdf4 !important;
+}
+body[data-color-theme="zelda"] .zen-calm-title { color: #ffffff !important; }
+body[data-color-theme="zelda"] .zen-calm-sub { color: #6ee7b7 !important; }
+body[data-color-theme="zelda"] .zen-calm-icon {
+  background: #d97706 !important;
+  color: #f0fdf4 !important;
+  box-shadow: 0 4px 0 #b45309, 0 0 16px rgba(217, 119, 6, 0.5) !important;
+}
+
+/* Zelda Workbench Card */
+body[data-color-theme="zelda"] .steady-workbench-card {
+  border: 3px solid #064e3b !important;
+  box-shadow: 0 8px 0 #0b3b2c !important;
+}
+body[data-color-theme="zelda"] .steady-workbench-card .steady-workbench-header,
+body:not(.theme-dark)[data-color-theme="zelda"] .steady-workbench-card.theme-ft .steady-workbench-header,
+body:not(.theme-dark)[data-color-theme="zelda"] .steady-workbench-card.theme-li .steady-workbench-header,
+body:not(.theme-dark)[data-color-theme="zelda"] .steady-workbench-card.theme-ind .steady-workbench-header,
+body:not(.theme-dark)[data-color-theme="zelda"] .steady-workbench-card.theme-applied .steady-workbench-header,
+body.theme-dark[data-color-theme="zelda"] .steady-workbench-card.theme-ft .steady-workbench-header,
+body.theme-dark[data-color-theme="zelda"] .steady-workbench-card.theme-li .steady-workbench-header,
+body.theme-dark[data-color-theme="zelda"] .steady-workbench-card.theme-ind .steady-workbench-header,
+body.theme-dark[data-color-theme="zelda"] .steady-workbench-card.theme-applied .steady-workbench-header {
+  background: linear-gradient(135deg, #064e3b 0%, #0b3b2c 100%) !important;
+  border-bottom: 3px solid #d97706 !important;
+}
+body[data-color-theme="zelda"] .steady-workbench-card .steady-workbench-title,
+body[data-color-theme="zelda"] #workbench-active-title { color: #ffffff !important; }
+body[data-color-theme="zelda"] .steady-workbench-card .notion-db-table th,
+body[data-color-theme="zelda"] .steady-workbench-card .steady-table th,
+body:not(.theme-dark)[data-color-theme="zelda"] .steady-workbench-card .notion-db-table th,
+body:not(.theme-dark)[data-color-theme="zelda"] .steady-workbench-card .steady-table th,
+body:not(.theme-dark)[data-color-theme="zelda"] .steady-workbench-card.theme-ft .notion-db-table th,
+body:not(.theme-dark)[data-color-theme="zelda"] .steady-workbench-card.theme-li .notion-db-table th,
+body:not(.theme-dark)[data-color-theme="zelda"] .steady-workbench-card.theme-ind .notion-db-table th,
+body:not(.theme-dark)[data-color-theme="zelda"] .steady-workbench-card.theme-applied .notion-db-table th {
+  background: #022c22 !important;
+  color: #6ee7b7 !important;
+  border-bottom: 3px solid #d97706 !important;
+}
+
+
+/* ----------------------------------------------------------
+   3. POKÉMON KANTO (Rouge Pokéball & Jaune Pikachu)
+---------------------------------------------------------- */
+body[data-color-theme="pokemon"] {
+  background: linear-gradient(rgba(254, 242, 242, 0.85), rgba(254, 242, 242, 0.90)), url('/static/themes/pokemon-bg.jpg') no-repeat center top fixed !important;
+  background-size: cover !important;
+}
+body[data-color-theme="pokemon"].theme-dark {
+  background: linear-gradient(rgba(24, 24, 27, 0.88), rgba(15, 23, 42, 0.94)), url('/static/themes/pokemon-bg.jpg') no-repeat center top fixed !important;
+  background-size: cover !important;
+}
+
+/* Pokemon Header */
+body[data-color-theme="pokemon"] .steady-header {
+  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%) !important;
+  border-bottom: 4px solid #facc15 !important;
+  box-shadow: 0 4px 20px rgba(220, 38, 38, 0.35) !important;
+}
+body[data-color-theme="pokemon"] .steady-header .steady-brand-name { color: #ffffff !important; }
+body[data-color-theme="pokemon"] .steady-header .steady-brand-sub { color: #fef08a !important; }
+body[data-color-theme="pokemon"] .steady-cv-pill {
+  background: linear-gradient(135deg, #1e293b, #0f172a) !important;
+  border: 2px solid #facc15 !important;
+  color: #ffffff !important;
+  box-shadow: 0 3px 0 #ca8a04 !important;
+}
+body[data-color-theme="pokemon"] .steady-cv-pill .steady-cv-label { color: #facc15 !important; }
+body[data-color-theme="pokemon"] .steady-cv-pill .steady-cv-name { color: #ffffff !important; }
+body[data-color-theme="pokemon"] .steady-header .steady-btn-ghost,
+body[data-color-theme="pokemon"] .steady-header .steady-btn-theme,
+body[data-color-theme="pokemon"] .steady-header .steady-btn-menu {
+  background: rgba(0, 0, 0, 0.3) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.5) !important;
+}
+body[data-color-theme="pokemon"] .steady-btn-primary,
+body[data-color-theme="pokemon"] #btn-header-batch-apply {
+  background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%) !important;
+  border: 2px solid #fca5a5 !important;
+  box-shadow: 0 4px 0 #991b1b, 0 6px 16px rgba(220, 38, 38, 0.45) !important;
+}
+
+/* Pokemon Stats Cards */
+body[data-color-theme="pokemon"] .steady-kpi-card:nth-child(1) {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%) !important;
+  border: 2px solid #ef4444 !important;
+  box-shadow: 0 4px 0 #dc2626 !important;
+}
+body[data-color-theme="pokemon"] .steady-card-applied {
+  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%) !important;
+  border: 2px solid #22c55e !important;
+  box-shadow: 0 4px 0 #16a34a !important;
+}
+body[data-color-theme="pokemon"] .steady-card-1click {
+  background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%) !important;
+  border: 2px solid #0284c7 !important;
+  box-shadow: 0 4px 0 #0369a1 !important;
+}
+body[data-color-theme="pokemon"] .steady-card-platforms {
+  background: linear-gradient(135deg, #fef9c3 0%, #fef08a 100%) !important;
+  border: 2px solid #eab308 !important;
+  box-shadow: 0 4px 0 #ca8a04 !important;
+}
+
+/* Pokemon Cockpit */
+body[data-color-theme="pokemon"] .zen-calm-state {
+  background: linear-gradient(135deg, #991b1b 0%, #dc2626 50%, #1e293b 50%, #0f172a 100%) !important;
+  border: 3px solid #facc15 !important;
+  box-shadow: 0 8px 0 #ca8a04, 0 16px 36px rgba(220, 38, 38, 0.35) !important;
+  color: #ffffff !important;
+}
+body[data-color-theme="pokemon"] .zen-calm-title { color: #ffffff !important; }
+body[data-color-theme="pokemon"] .zen-calm-sub { color: #fef08a !important; }
+body[data-color-theme="pokemon"] .zen-calm-icon {
+  background: #facc15 !important;
+  color: #991b1b !important;
+  box-shadow: 0 4px 0 #ca8a04 !important;
+}
+
+/* Pokemon Workbench Card */
+body[data-color-theme="pokemon"] .steady-workbench-card {
+  border: 3px solid #dc2626 !important;
+  box-shadow: 0 8px 0 #991b1b !important;
+}
+body[data-color-theme="pokemon"] .steady-workbench-card .steady-workbench-header,
+body:not(.theme-dark)[data-color-theme="pokemon"] .steady-workbench-card.theme-ft .steady-workbench-header,
+body:not(.theme-dark)[data-color-theme="pokemon"] .steady-workbench-card.theme-li .steady-workbench-header,
+body:not(.theme-dark)[data-color-theme="pokemon"] .steady-workbench-card.theme-ind .steady-workbench-header,
+body:not(.theme-dark)[data-color-theme="pokemon"] .steady-workbench-card.theme-applied .steady-workbench-header,
+body.theme-dark[data-color-theme="pokemon"] .steady-workbench-card.theme-ft .steady-workbench-header,
+body.theme-dark[data-color-theme="pokemon"] .steady-workbench-card.theme-li .steady-workbench-header,
+body.theme-dark[data-color-theme="pokemon"] .steady-workbench-card.theme-ind .steady-workbench-header,
+body.theme-dark[data-color-theme="pokemon"] .steady-workbench-card.theme-applied .steady-workbench-header {
+  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%) !important;
+  border-bottom: 3px solid #facc15 !important;
+}
+body[data-color-theme="pokemon"] .steady-workbench-card .steady-workbench-title,
+body[data-color-theme="pokemon"] #workbench-active-title { color: #ffffff !important; }
+body[data-color-theme="pokemon"] .steady-workbench-card .notion-db-table th,
+body[data-color-theme="pokemon"] .steady-workbench-card .steady-table th,
+body:not(.theme-dark)[data-color-theme="pokemon"] .steady-workbench-card .notion-db-table th,
+body:not(.theme-dark)[data-color-theme="pokemon"] .steady-workbench-card .steady-table th,
+body:not(.theme-dark)[data-color-theme="pokemon"] .steady-workbench-card.theme-ft .notion-db-table th,
+body:not(.theme-dark)[data-color-theme="pokemon"] .steady-workbench-card.theme-li .notion-db-table th,
+body:not(.theme-dark)[data-color-theme="pokemon"] .steady-workbench-card.theme-ind .notion-db-table th,
+body:not(.theme-dark)[data-color-theme="pokemon"] .steady-workbench-card.theme-applied .notion-db-table th {
+  background: #1e293b !important;
+  color: #facc15 !important;
+  border-bottom: 3px solid #dc2626 !important;
+}
+
+
+/* ----------------------------------------------------------
+   4. KIRBY PASTEL DREAM (Rose Bonbon & Nuages Étoilés)
+---------------------------------------------------------- */
+body[data-color-theme="kirby"] {
+  background: linear-gradient(rgba(253, 242, 248, 0.84), rgba(250, 232, 255, 0.88)), url('/static/themes/kirby-bg.jpg') no-repeat center top fixed !important;
+  background-size: cover !important;
+}
+body[data-color-theme="kirby"].theme-dark {
+  background: linear-gradient(rgba(49, 10, 40, 0.88), rgba(30, 10, 35, 0.94)), url('/static/themes/kirby-bg.jpg') no-repeat center top fixed !important;
+  background-size: cover !important;
+}
+
+/* Kirby Header */
+body[data-color-theme="kirby"] .steady-header {
+  background: linear-gradient(135deg, #f472b6 0%, #db2777 100%) !important;
+  border-bottom: 4px solid #fde047 !important;
+  box-shadow: 0 4px 20px rgba(219, 39, 119, 0.35) !important;
+}
+body[data-color-theme="kirby"] .steady-header .steady-brand-name { color: #ffffff !important; }
+body[data-color-theme="kirby"] .steady-header .steady-brand-sub { color: #fdf2f8 !important; }
+body[data-color-theme="kirby"] .steady-cv-pill {
+  background: linear-gradient(135deg, #c084fc, #a855f7) !important;
+  border: 2px solid #fde047 !important;
+  color: #ffffff !important;
+  box-shadow: 0 3px 0 #7e22ce !important;
+}
+body[data-color-theme="kirby"] .steady-cv-pill .steady-cv-label { color: #fde047 !important; }
+body[data-color-theme="kirby"] .steady-cv-pill .steady-cv-name { color: #ffffff !important; }
+body[data-color-theme="kirby"] .steady-btn-primary,
+body[data-color-theme="kirby"] #btn-header-batch-apply {
+  background: linear-gradient(180deg, #f472b6 0%, #db2777 100%) !important;
+  border: 2px solid #f9a8d4 !important;
+  box-shadow: 0 4px 0 #9d174d, 0 6px 16px rgba(219, 39, 119, 0.45) !important;
+}
+
+/* Kirby Stats Cards */
+body[data-color-theme="kirby"] .steady-kpi-card:nth-child(1) {
+  background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%) !important;
+  border: 2px solid #f472b6 !important;
+  box-shadow: 0 4px 0 #db2777 !important;
+}
+body[data-color-theme="kirby"] .steady-card-applied {
+  background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%) !important;
+  border: 2px solid #c084fc !important;
+  box-shadow: 0 4px 0 #a855f7 !important;
+}
+body[data-color-theme="kirby"] .steady-card-1click {
+  background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%) !important;
+  border: 2px solid #2dd4bf !important;
+  box-shadow: 0 4px 0 #0d9488 !important;
+}
+body[data-color-theme="kirby"] .steady-card-platforms {
+  background: linear-gradient(135deg, #fefce8 0%, #fef9c3 100%) !important;
+  border: 2px solid #fde047 !important;
+  box-shadow: 0 4px 0 #ca8a04 !important;
+}
+
+/* Kirby Cockpit */
+body[data-color-theme="kirby"] .zen-calm-state {
+  background: linear-gradient(135deg, #f472b6 0%, #c084fc 100%) !important;
+  border: 3px solid #fde047 !important;
+  box-shadow: 0 8px 0 #db2777, 0 16px 36px rgba(244, 114, 182, 0.35) !important;
+  color: #ffffff !important;
+}
+body[data-color-theme="kirby"] .zen-calm-title { color: #ffffff !important; }
+body[data-color-theme="kirby"] .zen-calm-sub { color: #fdf2f8 !important; }
+body[data-color-theme="kirby"] .zen-calm-icon {
+  background: #fde047 !important;
+  color: #db2777 !important;
+  box-shadow: 0 4px 0 #ca8a04 !important;
+}
+
+/* Kirby Workbench */
+body[data-color-theme="kirby"] .steady-workbench-card {
+  border: 3px solid #f472b6 !important;
+  box-shadow: 0 8px 0 #db2777 !important;
+}
+body[data-color-theme="kirby"] .steady-workbench-card .steady-workbench-header,
+body:not(.theme-dark)[data-color-theme="kirby"] .steady-workbench-card.theme-ft .steady-workbench-header,
+body:not(.theme-dark)[data-color-theme="kirby"] .steady-workbench-card.theme-li .steady-workbench-header,
+body:not(.theme-dark)[data-color-theme="kirby"] .steady-workbench-card.theme-ind .steady-workbench-header,
+body:not(.theme-dark)[data-color-theme="kirby"] .steady-workbench-card.theme-applied .steady-workbench-header,
+body.theme-dark[data-color-theme="kirby"] .steady-workbench-card.theme-ft .steady-workbench-header,
+body.theme-dark[data-color-theme="kirby"] .steady-workbench-card.theme-li .steady-workbench-header,
+body.theme-dark[data-color-theme="kirby"] .steady-workbench-card.theme-ind .steady-workbench-header,
+body.theme-dark[data-color-theme="kirby"] .steady-workbench-card.theme-applied .steady-workbench-header {
+  background: linear-gradient(135deg, #f472b6 0%, #db2777 100%) !important;
+  border-bottom: 3px solid #fde047 !important;
+}
+body[data-color-theme="kirby"] .steady-workbench-card .steady-workbench-title,
+body[data-color-theme="kirby"] #workbench-active-title { color: #ffffff !important; }
+body[data-color-theme="kirby"] .steady-workbench-card .notion-db-table th,
+body[data-color-theme="kirby"] .steady-workbench-card .steady-table th,
+body:not(.theme-dark)[data-color-theme="kirby"] .steady-workbench-card .notion-db-table th,
+body:not(.theme-dark)[data-color-theme="kirby"] .steady-workbench-card .steady-table th,
+body:not(.theme-dark)[data-color-theme="kirby"] .steady-workbench-card.theme-ft .notion-db-table th,
+body:not(.theme-dark)[data-color-theme="kirby"] .steady-workbench-card.theme-li .notion-db-table th,
+body:not(.theme-dark)[data-color-theme="kirby"] .steady-workbench-card.theme-ind .notion-db-table th,
+body:not(.theme-dark)[data-color-theme="kirby"] .steady-workbench-card.theme-applied .notion-db-table th {
+  background: #581c87 !important;
+  color: #fbcfe8 !important;
+  border-bottom: 3px solid #f472b6 !important;
+}
+
+
+/* ----------------------------------------------------------
+   5. TOKYO CYBER NEON (Néon Cyan Synthwave & Magenta)
+---------------------------------------------------------- */
+body[data-color-theme="cyberpunk"] {
+  background: linear-gradient(rgba(10, 6, 24, 0.86), rgba(15, 8, 38, 0.92)), url('/static/themes/cyberpunk-bg.jpg') no-repeat center top fixed !important;
+  background-size: cover !important;
+}
+
+/* Cyberpunk Header */
+body[data-color-theme="cyberpunk"] .steady-header {
+  background: linear-gradient(135deg, #12072b 0%, #1e0d42 100%) !important;
+  border-bottom: 4px solid #00f0ff !important;
+  box-shadow: 0 4px 25px rgba(0, 240, 255, 0.35) !important;
+}
+body[data-color-theme="cyberpunk"] .steady-header .steady-brand-name { color: #ffffff !important; }
+body[data-color-theme="cyberpunk"] .steady-header .steady-brand-sub { color: #00f0ff !important; }
+body[data-color-theme="cyberpunk"] .steady-cv-pill {
+  background: linear-gradient(135deg, #27104e, #13072b) !important;
+  border: 2px solid #00f0ff !important;
+  color: #ffffff !important;
+  box-shadow: 0 3px 0 #0284c7 !important;
+}
+body[data-color-theme="cyberpunk"] .steady-cv-pill .steady-cv-label { color: #f43f5e !important; }
+body[data-color-theme="cyberpunk"] .steady-btn-primary,
+body[data-color-theme="cyberpunk"] #btn-header-batch-apply {
+  background: linear-gradient(180deg, #38bdf8 0%, #00c3e3 100%) !important;
+  border: 2px solid #7dd3fc !important;
+  box-shadow: 0 4px 0 #0369a1, 0 6px 16px rgba(0, 195, 227, 0.5) !important;
+}
+
+/* Cyberpunk Stats Cards */
+body[data-color-theme="cyberpunk"] .steady-kpi-card {
+  background: linear-gradient(135deg, #110926 0%, #1a0f38 100%) !important;
+  box-shadow: 0 4px 0 #070314, 0 8px 20px rgba(0, 0, 0, 0.4) !important;
+}
+body[data-color-theme="cyberpunk"] .steady-kpi-card:nth-child(1) { border: 2px solid #00f0ff !important; }
+body[data-color-theme="cyberpunk"] .steady-kpi-card:nth-child(1) .steady-kpi-value { color: #00f0ff !important; }
+body[data-color-theme="cyberpunk"] .steady-card-applied { border: 2px solid #10b981 !important; }
+body[data-color-theme="cyberpunk"] .steady-card-applied .steady-kpi-value { color: #10b981 !important; }
+body[data-color-theme="cyberpunk"] .steady-card-1click { border: 2px solid #f43f5e !important; }
+body[data-color-theme="cyberpunk"] .steady-card-1click .steady-kpi-value { color: #f43f5e !important; }
+body[data-color-theme="cyberpunk"] .steady-card-platforms { border: 2px solid #fbbf24 !important; }
+body[data-color-theme="cyberpunk"] .steady-card-platforms .steady-kpi-value { color: #fbbf24 !important; }
+
+/* Cyberpunk Cockpit */
+body[data-color-theme="cyberpunk"] .zen-calm-state {
+  background: linear-gradient(135deg, #180b33 0%, #291054 100%) !important;
+  border: 3px solid #00f0ff !important;
+  box-shadow: 0 0 30px rgba(0, 240, 255, 0.35), 0 8px 0 #070314 !important;
+  color: #ffffff !important;
+}
+body[data-color-theme="cyberpunk"] .zen-calm-title { color: #ffffff !important; }
+body[data-color-theme="cyberpunk"] .zen-calm-sub { color: #38bdf8 !important; }
+body[data-color-theme="cyberpunk"] .zen-calm-icon {
+  background: #00f0ff !important;
+  color: #12072b !important;
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.6) !important;
+}
+
+/* Cyberpunk Workbench */
+body[data-color-theme="cyberpunk"] .steady-workbench-card {
+  border: 3px solid #00f0ff !important;
+  box-shadow: 0 8px 0 #070314 !important;
+}
+body[data-color-theme="cyberpunk"] .steady-workbench-card .steady-workbench-header,
+body:not(.theme-dark)[data-color-theme="cyberpunk"] .steady-workbench-card.theme-ft .steady-workbench-header,
+body:not(.theme-dark)[data-color-theme="cyberpunk"] .steady-workbench-card.theme-li .steady-workbench-header,
+body:not(.theme-dark)[data-color-theme="cyberpunk"] .steady-workbench-card.theme-ind .steady-workbench-header,
+body:not(.theme-dark)[data-color-theme="cyberpunk"] .steady-workbench-card.theme-applied .steady-workbench-header,
+body.theme-dark[data-color-theme="cyberpunk"] .steady-workbench-card.theme-ft .steady-workbench-header,
+body.theme-dark[data-color-theme="cyberpunk"] .steady-workbench-card.theme-li .steady-workbench-header,
+body.theme-dark[data-color-theme="cyberpunk"] .steady-workbench-card.theme-ind .steady-workbench-header,
+body.theme-dark[data-color-theme="cyberpunk"] .steady-workbench-card.theme-applied .steady-workbench-header {
+  background: linear-gradient(135deg, #180b33 0%, #291054 100%) !important;
+  border-bottom: 3px solid #00f0ff !important;
+}
+body[data-color-theme="cyberpunk"] .steady-workbench-card .steady-workbench-title,
+body[data-color-theme="cyberpunk"] #workbench-active-title { color: #ffffff !important; }
+body[data-color-theme="cyberpunk"] .steady-workbench-card .notion-db-table th,
+body[data-color-theme="cyberpunk"] .steady-workbench-card .steady-table th,
+body:not(.theme-dark)[data-color-theme="cyberpunk"] .steady-workbench-card .notion-db-table th,
+body:not(.theme-dark)[data-color-theme="cyberpunk"] .steady-workbench-card .steady-table th,
+body:not(.theme-dark)[data-color-theme="cyberpunk"] .steady-workbench-card.theme-ft .notion-db-table th,
+body:not(.theme-dark)[data-color-theme="cyberpunk"] .steady-workbench-card.theme-li .notion-db-table th,
+body:not(.theme-dark)[data-color-theme="cyberpunk"] .steady-workbench-card.theme-ind .notion-db-table th,
+body:not(.theme-dark)[data-color-theme="cyberpunk"] .steady-workbench-card.theme-applied .notion-db-table th {
+  background: #090314 !important;
+  color: #00f0ff !important;
+  border-bottom: 2px solid #f43f5e !important;
+}
+
+
+/* ----------------------------------------------------------
+   6. NINTENDO SWITCH OLED (Rouge Joy-Con & Bleu Cyan)
+---------------------------------------------------------- */
+body[data-color-theme="switch"] .steady-header {
+  background: linear-gradient(90deg, #e60012 0%, #1e293b 50%, #00c3e3 100%) !important;
+  border-bottom: 4px solid #ffcc00 !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
+}
+body[data-color-theme="switch"] .steady-header .steady-brand-name { color: #ffffff !important; }
 body[data-color-theme="switch"] .steady-btn-primary,
 body[data-color-theme="switch"] #btn-header-batch-apply {
   background: linear-gradient(180deg, #ff3b30 0%, #e60012 100%) !important;
   border: 2px solid #ff6b6b !important;
   box-shadow: 0 4px 0 #99000c, 0 6px 16px rgba(230, 0, 18, 0.4) !important;
 }
-body[data-color-theme="switch"] .steady-logo-icon {
-  background: linear-gradient(135deg, #e60012 0%, #ff3b30 50%, #fbbf24 100%) !important;
-  box-shadow: 0 3px 0 #99000c !important;
+body[data-color-theme="switch"] .zen-calm-state {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+  border-left: 8px solid #e60012 !important;
+  border-right: 8px solid #00c3e3 !important;
+  border-top: 3px solid #334155 !important;
+  border-bottom: 3px solid #334155 !important;
+  box-shadow: 0 8px 0 #0f172a, 0 16px 36px rgba(0,0,0,0.25) !important;
+  color: #ffffff !important;
 }
-body[data-color-theme="switch"] .zen-calm-state,
-body[data-color-theme="switch"] .steady-hero-banner {
-  border-color: #00c3e3 !important;
+body[data-color-theme="switch"] .zen-calm-title { color: #ffffff !important; }
+body[data-color-theme="switch"] .zen-calm-sub { color: #38bdf8 !important; }
+body[data-color-theme="switch"] .steady-workbench-header {
+  background: linear-gradient(90deg, #e60012 0%, #1e293b 50%, #00c3e3 100%) !important;
+  border-bottom: 3px solid #ffcc00 !important;
 }
+body[data-color-theme="switch"] .steady-workbench-title { color: #ffffff !important; }
 
-/* 2. THEME: POKEMON KANTO (Rouge & Or) */
-body[data-color-theme="pokemon"] .steady-header::after {
-  background: linear-gradient(90deg, #ef4444 0%, #f59e0b 45%, #ffffff 50%, #f59e0b 55%, #ef4444 100%) !important;
-}
-body[data-color-theme="pokemon"] .steady-btn-primary,
-body[data-color-theme="pokemon"] #btn-header-batch-apply {
-  background: linear-gradient(180deg, #f87171 0%, #dc2626 100%) !important;
-  border: 2px solid #fca5a5 !important;
-  box-shadow: 0 4px 0 #991b1b, 0 6px 16px rgba(220, 38, 38, 0.4) !important;
-}
-body[data-color-theme="pokemon"] .steady-logo-icon {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #f59e0b 100%) !important;
-  box-shadow: 0 3px 0 #991b1b !important;
-}
-body[data-color-theme="pokemon"] .zen-calm-state,
-body[data-color-theme="pokemon"] .steady-hero-banner {
-  border-color: #ef4444 !important;
-  box-shadow: 0 6px 0 #991b1b, 0 12px 28px rgba(239, 68, 68, 0.2) !important;
-}
-body[data-color-theme="pokemon"] .steady-cv-pill {
-  border-color: #f59e0b !important;
-  box-shadow: 0 3px 0 #b45309 !important;
-}
 
-/* 3. THEME: ZELDA TOTK (Sonau Cyan & Or Céleste) */
-body[data-color-theme="zelda"] .steady-header::after {
-  background: linear-gradient(90deg, #06b6d4 0%, #10b981 40%, #fbbf24 75%, #06b6d4 100%) !important;
+/* ----------------------------------------------------------
+   7. POKÉMON ÉMERAUDE (Vert Forêt de Jade & Rayquaza)
+---------------------------------------------------------- */
+body[data-color-theme="emerald"] {
+  background: linear-gradient(rgba(240, 253, 244, 0.86), rgba(220, 252, 231, 0.90)), url('/static/themes/zelda-bg.jpg') no-repeat center top fixed !important;
+  background-size: cover !important;
 }
-body[data-color-theme="zelda"] .steady-btn-primary,
-body[data-color-theme="zelda"] #btn-header-batch-apply {
-  background: linear-gradient(180deg, #22d3ee 0%, #0891b2 100%) !important;
-  border: 2px solid #67e8f9 !important;
-  box-shadow: 0 4px 0 #164e63, 0 6px 16px rgba(8, 145, 178, 0.4) !important;
+body[data-color-theme="emerald"].theme-dark {
+  background: linear-gradient(rgba(2, 44, 34, 0.88), rgba(6, 44, 34, 0.94)), url('/static/themes/zelda-bg.jpg') no-repeat center top fixed !important;
+  background-size: cover !important;
 }
-body[data-color-theme="zelda"] .steady-logo-icon {
-  background: linear-gradient(135deg, #06b6d4 0%, #0891b2 50%, #10b981 100%) !important;
-  box-shadow: 0 3px 0 #164e63 !important;
+body[data-color-theme="emerald"] .steady-header {
+  background: linear-gradient(135deg, #064e3b 0%, #047857 100%) !important;
+  border-bottom: 4px solid #84cc16 !important;
+  box-shadow: 0 4px 20px rgba(6, 78, 59, 0.35) !important;
 }
-body[data-color-theme="zelda"] .zen-calm-state,
-body[data-color-theme="zelda"] .steady-hero-banner {
-  border-color: #06b6d4 !important;
-  box-shadow: 0 6px 0 #0e7490, 0 12px 28px rgba(6, 182, 212, 0.2) !important;
+body[data-color-theme="emerald"] .steady-header .steady-brand-name { color: #ffffff !important; }
+body[data-color-theme="emerald"] .zen-calm-state {
+  background: linear-gradient(135deg, #064e3b 0%, #022c22 100%) !important;
+  border: 3px solid #10b981 !important;
+  box-shadow: 0 8px 0 #047857 !important;
+  color: #ffffff !important;
 }
-body[data-color-theme="zelda"] .steady-cv-pill {
-  border-color: #10b981 !important;
-  box-shadow: 0 3px 0 #047857 !important;
+body[data-color-theme="emerald"] .steady-workbench-header {
+  background: linear-gradient(135deg, #064e3b 0%, #047857 100%) !important;
+  border-bottom: 3px solid #84cc16 !important;
 }
+body[data-color-theme="emerald"] .steady-workbench-title { color: #ffffff !important; }
 
-/* 4. THEME: SUPER MARIO (Royaume Champignon) */
-body[data-color-theme="mario"] .steady-header::after {
-  background: linear-gradient(90deg, #dc2626 0%, #2563eb 50%, #facc15 100%) !important;
-}
-body[data-color-theme="mario"] .steady-btn-primary,
-body[data-color-theme="mario"] #btn-header-batch-apply {
-  background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%) !important;
-  border: 2px solid #fca5a5 !important;
-  box-shadow: 0 4px 0 #7f1d1d, 0 6px 16px rgba(220, 38, 38, 0.4) !important;
-}
-body[data-color-theme="mario"] .steady-logo-icon {
-  background: linear-gradient(135deg, #dc2626 0%, #2563eb 50%, #facc15 100%) !important;
-  box-shadow: 0 3px 0 #7f1d1d !important;
-}
-body[data-color-theme="mario"] .zen-calm-state,
-body[data-color-theme="mario"] .steady-hero-banner {
-  border-color: #2563eb !important;
-  box-shadow: 0 6px 0 #1d4ed8, 0 12px 28px rgba(37, 99, 235, 0.2) !important;
-}
 
-/* 5. THEME: KIRBY PASTEL DREAM */
-body[data-color-theme="kirby"] .steady-header::after {
-  background: linear-gradient(90deg, #ec4899 0%, #a855f7 50%, #38bdf8 100%) !important;
+/* ----------------------------------------------------------
+   8. NOCTALI DARK MOON (Noir Obsidian & Anneaux Dorés)
+---------------------------------------------------------- */
+body[data-color-theme="midnight"] {
+  background: linear-gradient(rgba(10, 14, 26, 0.92), rgba(15, 23, 42, 0.96)), url('/static/themes/cyberpunk-bg.jpg') no-repeat center top fixed !important;
+  background-size: cover !important;
 }
-body[data-color-theme="kirby"] .steady-btn-primary,
-body[data-color-theme="kirby"] #btn-header-batch-apply {
-  background: linear-gradient(180deg, #f472b6 0%, #db2777 100%) !important;
-  border: 2px solid #f9a8d4 !important;
-  box-shadow: 0 4px 0 #9d174d, 0 6px 16px rgba(219, 39, 119, 0.4) !important;
+body[data-color-theme="midnight"] .steady-header {
+  background: linear-gradient(135deg, #090d16 0%, #0f172a 100%) !important;
+  border-bottom: 4px solid #fbbf24 !important;
+  box-shadow: 0 4px 20px rgba(251, 191, 36, 0.25) !important;
 }
-body[data-color-theme="kirby"] .steady-logo-icon {
-  background: linear-gradient(135deg, #ec4899 0%, #f472b6 50%, #a855f7 100%) !important;
-  box-shadow: 0 3px 0 #9d174d !important;
+body[data-color-theme="midnight"] .steady-header .steady-brand-name { color: #ffffff !important; }
+body[data-color-theme="midnight"] .zen-calm-state {
+  background: linear-gradient(135deg, #090d16 0%, #1e1b4b 100%) !important;
+  border: 3px solid #fbbf24 !important;
+  box-shadow: 0 0 25px rgba(251, 191, 36, 0.3), 0 8px 0 #78350f !important;
+  color: #ffffff !important;
 }
-body[data-color-theme="kirby"] .zen-calm-state,
-body[data-color-theme="kirby"] .steady-hero-banner {
-  border-color: #ec4899 !important;
-  box-shadow: 0 6px 0 #be185d, 0 12px 28px rgba(236, 72, 153, 0.2) !important;
+body[data-color-theme="midnight"] .steady-workbench-header {
+  background: linear-gradient(135deg, #090d16 0%, #111827 100%) !important;
+  border-bottom: 3px solid #fbbf24 !important;
 }
-body[data-color-theme="kirby"] .steady-cv-pill {
-  border-color: #a855f7 !important;
-  box-shadow: 0 3px 0 #7e22ce !important;
-}
-
-/* 6. THEME: POKEMON EMERAUDE */
-body[data-color-theme="emerald"] .steady-header::after {
-  background: linear-gradient(90deg, #059669 0%, #10b981 50%, #84cc16 100%) !important;
-}
-body[data-color-theme="emerald"] .steady-btn-primary,
-body[data-color-theme="emerald"] #btn-header-batch-apply {
-  background: linear-gradient(180deg, #34d399 0%, #059669 100%) !important;
-  border: 2px solid #6ee7b7 !important;
-  box-shadow: 0 4px 0 #065f46, 0 6px 16px rgba(5, 150, 105, 0.4) !important;
-}
-body[data-color-theme="emerald"] .steady-logo-icon {
-  background: linear-gradient(135deg, #10b981 0%, #059669 50%, #84cc16 100%) !important;
-  box-shadow: 0 3px 0 #065f46 !important;
-}
-body[data-color-theme="emerald"] .zen-calm-state,
-body[data-color-theme="emerald"] .steady-hero-banner {
-  border-color: #10b981 !important;
-  box-shadow: 0 6px 0 #047857, 0 12px 28px rgba(16, 185, 129, 0.2) !important;
-}
-
-/* 7. THEME: TOKYO CYBER NEON */
-body[data-color-theme="cyberpunk"] .steady-header::after {
-  background: linear-gradient(90deg, #00f0ff 0%, #f43f5e 50%, #a855f7 100%) !important;
-}
-body[data-color-theme="cyberpunk"] .steady-btn-primary,
-body[data-color-theme="cyberpunk"] #btn-header-batch-apply {
-  background: linear-gradient(180deg, #38bdf8 0%, #00c3e3 100%) !important;
-  border: 2px solid #7dd3fc !important;
-  box-shadow: 0 4px 0 #0369a1, 0 6px 16px rgba(0, 195, 227, 0.4) !important;
-}
-body[data-color-theme="cyberpunk"] .steady-logo-icon {
-  background: linear-gradient(135deg, #00f0ff 0%, #f43f5e 50%, #a855f7 100%) !important;
-  box-shadow: 0 3px 0 #0369a1 !important;
-}
-body[data-color-theme="cyberpunk"] .zen-calm-state,
-body[data-color-theme="cyberpunk"] .steady-hero-banner {
-  border-color: #00f0ff !important;
-  box-shadow: 0 6px 0 #0284c7, 0 12px 28px rgba(0, 240, 255, 0.2) !important;
-}
-
-/* 8. THEME: NOCTALI DARK MOON */
-body[data-color-theme="midnight"] .steady-header::after {
-  background: linear-gradient(90deg, #fbbf24 0%, #6366f1 50%, #fbbf24 100%) !important;
-}
-body[data-color-theme="midnight"] .steady-btn-primary,
-body[data-color-theme="midnight"] #btn-header-batch-apply {
-  background: linear-gradient(180deg, #fbbf24 0%, #d97706 100%) !important;
-  border: 2px solid #fde047 !important;
-  color: #0f172a !important;
-  box-shadow: 0 4px 0 #78350f, 0 6px 16px rgba(251, 191, 36, 0.4) !important;
-}
-body[data-color-theme="midnight"] .steady-logo-icon {
-  background: linear-gradient(135deg, #fbbf24 0%, #6366f1 100%) !important;
-  box-shadow: 0 3px 0 #78350f !important;
-}
-body[data-color-theme="midnight"] .zen-calm-state,
-body[data-color-theme="midnight"] .steady-hero-banner {
-  border-color: #fbbf24 !important;
-  box-shadow: 0 6px 0 #b45309, 0 12px 28px rgba(251, 191, 36, 0.2) !important;
-}
+body[data-color-theme="midnight"] .steady-workbench-title { color: #ffffff !important; }
 
 /* ==========================================================
    THEME SELECTOR MODAL UI STYLES
