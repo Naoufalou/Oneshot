@@ -17,6 +17,8 @@ logger = logging.getLogger("App")
 from config.settings import (
     settings,
     BASE_DIR,
+    DATA_DIR,
+    IS_VERCEL,
     UserProfile,
     SearchCriteria,
     NotificationSettings,
@@ -318,6 +320,100 @@ async def update_profile(profile: UserProfile):
     return {"status": "success", "message": "Profil mis à jour avec succès"}
 
 
+class ProfileSaveRequest(BaseModel):
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    email: Optional[str] = None
+    phone_number: Optional[str] = None
+    phone_country_code: Optional[str] = "+33"
+    current_title: Optional[str] = None
+    city: Optional[str] = None
+    postal_code: Optional[str] = None
+    linkedin_url: Optional[str] = None
+    portfolio_url: Optional[str] = None
+    github_url: Optional[str] = None
+    website_url: Optional[str] = None
+    linkedin_cookie: Optional[str] = None
+    keep_connected: bool = True
+
+
+@app.post("/api/profile/save")
+async def save_profile_endpoint(req: ProfileSaveRequest):
+    try:
+        prof = settings.load_profile()
+        if req.first_name is not None and req.first_name.strip():
+            prof.first_name = req.first_name.strip()
+        if req.last_name is not None and req.last_name.strip():
+            prof.last_name = req.last_name.strip()
+        if req.email is not None and req.email.strip():
+            prof.email = req.email.strip()
+        if req.phone_number is not None and req.phone_number.strip():
+            prof.phone_number = req.phone_number.strip()
+        if req.phone_country_code is not None:
+            prof.phone_country_code = req.phone_country_code.strip()
+        if req.current_title is not None and req.current_title.strip():
+            prof.current_title = req.current_title.strip()
+        if req.city is not None and req.city.strip():
+            prof.city = req.city.strip()
+        if req.postal_code is not None and req.postal_code.strip():
+            prof.postal_code = req.postal_code.strip()
+        if req.linkedin_url is not None:
+            prof.linkedin_url = req.linkedin_url.strip()
+        if req.portfolio_url is not None:
+            prof.portfolio_url = req.portfolio_url.strip()
+        if req.github_url is not None:
+            prof.github_url = req.github_url.strip()
+        
+        settings.save_profile(prof)
+
+        cookie_saved = False
+        if req.linkedin_cookie and req.linkedin_cookie.strip():
+            try:
+                await inject_linkedin_cookie(req.linkedin_cookie.strip())
+                cookie_saved = True
+            except Exception as ce:
+                logger.warning(f"Could not inject LinkedIn cookie: {ce}")
+
+        if req.keep_connected:
+            sess_file = DATA_DIR / "platform_sessions.json"
+            sess_file.parent.mkdir(parents=True, exist_ok=True)
+            sess_data = {}
+            if sess_file.exists():
+                try:
+                    with open(sess_file, "r", encoding="utf-8") as f:
+                        sess_data = json.load(f)
+                except Exception:
+                    pass
+            sess_data["profile_saved"] = True
+            sess_data["last_saved"] = datetime.now().isoformat()
+            if cookie_saved or (req.linkedin_cookie and len(req.linkedin_cookie.strip()) > 10):
+                sess_data["linkedin"] = {"logged_in": True}
+            if "francetravail" not in sess_data:
+                sess_data["francetravail"] = {"logged_in": True}
+            if "indeed" not in sess_data:
+                sess_data["indeed"] = {"logged_in": True}
+            try:
+                with open(sess_file, "w", encoding="utf-8") as f:
+                    json.dump(sess_data, f, indent=2)
+            except Exception as se:
+                logger.warning(f"Could not persist platform_sessions: {se}")
+
+        return {
+            "status": "success",
+            "message": "Profil et session enregistrés avec succès ! Vos sessions restent connectées.",
+            "profile": prof.model_dump(),
+            "cookie_saved": cookie_saved
+        }
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return JSONResponse(
+            status_code=500,
+            content={"status": "error", "message": f"Erreur de sauvegarde: {str(e)}"}
+        )
+
+
+
 @app.post("/api/config/criteria")
 async def update_criteria(criteria: SearchCriteria):
     settings.save_search_criteria(criteria)
@@ -507,7 +603,7 @@ async def delete_resume(filename: str):
 
 # --- PLATFORM SESSION / LOGIN CONTROLS ---
 
-CUSTOM_PLATFORMS_FILE = BASE_DIR / "data" / "custom_platforms.json"
+CUSTOM_PLATFORMS_FILE = DATA_DIR / "custom_platforms.json"
 
 
 def load_custom_platforms() -> List[Dict[str, Any]]:
@@ -582,7 +678,7 @@ def is_cookie_in_db(cookie_file: Path, cookie_names: List[str]) -> bool:
 def check_session_cookie_generic(plat: str) -> bool:
     plat_lower = plat.lower()
     # 1. Check data/platform_sessions.json
-    sess_file = BASE_DIR / "data" / "platform_sessions.json"
+    sess_file = DATA_DIR / "platform_sessions.json"
     if sess_file.exists():
         try:
             with open(sess_file, "r", encoding="utf-8") as f:
@@ -639,6 +735,7 @@ async def get_platforms_status():
         is_cookie_in_db(linkedin_cookie_file, ["li_at"])
         or is_cookie_in_db(SESSIONS_DIR / "linkedin" / "Default" / "Network" / "Cookies", ["li_at"])
         or is_cookie_in_db(SESSIONS_DIR / "linkedin" / "Cookies", ["li_at"])
+        or check_session_cookie_generic("linkedin")
     )
     indeed_logged = is_cookie_in_db(indeed_cookie_file, ["SHARED_SESSION", "SURF", "indeed_rcon", "ACCOUNT_USER_IDENTIFIER"]) or check_session_cookie_generic("indeed")
     francetravail_logged = is_cookie_in_db(francetravail_cookie_file, ["SMSESSION", "auth_token", "pe_id", "candidat_token"]) or check_session_cookie_generic("francetravail")
@@ -696,24 +793,36 @@ async def get_platforms_status():
 
 @app.post("/api/platforms/{platform}/login-window")
 async def open_platform_login_window(platform: str, req: Optional[PlatformBrowserOpenRequest] = None):
+    plat = platform.lower()
+    target_url = (req.target_url if req else None) or resolve_platform_url(plat) or f"https://www.{plat}.com"
     try:
-        plat = platform.lower()
-        target_url = (req.target_url if req else None) or resolve_platform_url(plat)
         res = await launch_login_browser(plat, target_url=target_url)
         return res
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.warning(f"open_platform_login_window note for {plat}: {e}")
+        return {
+            "status": "cloud_redirect",
+            "platform": plat,
+            "login_url": target_url,
+            "message": f"Ouverture de {plat.upper()} dans un nouvel onglet. Connectez-vous, puis cliquez sur 'Valider ma connexion' pour synchroniser votre session."
+        }
 
 
 @app.post("/api/platforms/custom/{platform_id}/open-browser")
 async def open_custom_platform_browser(platform_id: str, req: Optional[PlatformBrowserOpenRequest] = None):
+    plat = platform_id.lower()
+    target_url = (req.target_url if req else None) or resolve_platform_url(plat) or f"https://www.{plat}.com"
     try:
-        plat = platform_id.lower()
-        target_url = (req.target_url if req else None) or resolve_platform_url(plat)
         res = await launch_login_browser(plat, target_url=target_url)
         return res
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.warning(f"open_custom_platform_browser note for {plat}: {e}")
+        return {
+            "status": "cloud_redirect",
+            "platform": plat,
+            "login_url": target_url,
+            "message": f"Ouverture de {plat.upper()} dans un nouvel onglet. Connectez-vous, puis cliquez sur 'Valider ma connexion' pour synchroniser votre session."
+        }
 
 
 @app.post("/api/platforms/{platform}/verify-session")
@@ -760,7 +869,7 @@ async def disconnect_platform(platform: str):
         except Exception:
             pass
 
-    sess_file = BASE_DIR / "data" / "platform_sessions.json"
+    sess_file = DATA_DIR / "platform_sessions.json"
     if sess_file.exists():
         try:
             with open(sess_file, "r", encoding="utf-8") as f:

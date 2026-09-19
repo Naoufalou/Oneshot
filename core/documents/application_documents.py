@@ -10,14 +10,7 @@ import logging
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
-from config.settings import UserProfile, SearchCriteria, BASE_DIR, settings
-from core.documents.cv_builder import build_ats_cv_pdf
-from core.documents.cover_letter_builder import build_cover_letter_pdf, build_cover_letter_text
-from core.storage.db import db
-
-logger = logging.getLogger("ApplicationDocuments")
-
-GENERATED_DIR = BASE_DIR / "data" / "generated"
+from config.settings import UserProfile, SearchCriteria, BASE_DIR, settings, GENERATED_DIR
 
 
 def prepare_application_documents(

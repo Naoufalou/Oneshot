@@ -1399,12 +1399,14 @@ function setupFilters() {
     });
   }
 
-  // Card 4: Plateformes Actives -> Open full candidatures table across platforms
+  // Card 4: Plateformes Actives -> Open Plateformes & Connexions (Onglet Sessions & Comptes)
   const kpiPlatformsCard = document.getElementById("steady-kpi-card-platforms");
   if (kpiPlatformsCard) {
     kpiPlatformsCard.style.cursor = "pointer";
     kpiPlatformsCard.addEventListener("click", () => {
-      openZenTable("", "");
+      if (typeof window.openSecondarySheet === "function") {
+        window.openSecondarySheet("tab-platforms");
+      }
     });
   }
 
@@ -1413,16 +1415,26 @@ function setupFilters() {
     chip.style.cursor = "pointer";
     chip.addEventListener("click", (e) => {
       e.stopPropagation();
-      const chipText = chip.innerText.toLowerCase();
-      if (chipText.includes("ft") || chipText.includes("france")) {
-        openZenTable("francetravail", "");
-      } else if (chipText.includes("li") || chipText.includes("linkedin")) {
-        openZenTable("linkedin", "");
-      } else if (chipText.includes("indeed")) {
-        openZenTable("indeed", "");
-      } else {
-        openZenTable("", "");
+      if (typeof window.openSecondarySheet === "function") {
+        window.openSecondarySheet("tab-platforms");
       }
+      const chipText = chip.innerText.toLowerCase();
+      let targetCardId = "card-plat-linkedin";
+      if (chipText.includes("ft") || chipText.includes("france")) {
+        targetCardId = "card-plat-francetravail";
+      } else if (chipText.includes("li") || chipText.includes("linkedin")) {
+        targetCardId = "card-plat-linkedin";
+      } else if (chipText.includes("indeed")) {
+        targetCardId = "card-plat-indeed";
+      }
+      setTimeout(() => {
+        const targetEl = document.getElementById(targetCardId);
+        if (targetEl) {
+          targetEl.scrollIntoView({ behavior: "smooth", block: "center" });
+          targetEl.classList.add("highlight-flash");
+          setTimeout(() => targetEl.classList.remove("highlight-flash"), 2200);
+        }
+      }, 250);
     });
   });
 
@@ -2354,8 +2366,14 @@ function bindPlatformActionButtons(scope = document) {
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.detail || "Échec de l'ouverture");
-        showToast(data.message || `Fenêtre Chromium ouverte pour ${plat.toUpperCase()}`, "info");
-        btn.innerHTML = '<i class="fa-solid fa-window-restore"></i> Navigateur ouvert (Actif)';
+        if (data.status === "cloud_redirect" || data.login_url) {
+          window.open(data.login_url, "_blank");
+          showToast(data.message || `Page de connexion ${plat.toUpperCase()} ouverte dans un nouvel onglet. Connectez-vous puis cliquez sur 'Valider ma connexion'.`, "info");
+          btn.innerHTML = '<i class="fa-solid fa-arrow-up-right-from-square"></i> Onglet ouvert (Connectez-vous)';
+        } else {
+          showToast(data.message || `Fenêtre Chromium ouverte pour ${plat.toUpperCase()}`, "info");
+          btn.innerHTML = '<i class="fa-solid fa-window-restore"></i> Navigateur ouvert (Actif)';
+        }
       } catch (e) {
         showToast("Erreur d'ouverture : " + e.message, "error");
         btn.innerHTML = '<i class="fa-solid fa-window-restore"></i> Ouvrir Chromium';
@@ -2511,7 +2529,129 @@ function setupPlatformsManager() {
   const btnHeaderPlatforms = document.getElementById("btn-header-platforms");
   if (btnHeaderPlatforms) {
     btnHeaderPlatforms.addEventListener("click", () => {
-      switchViewTab("tab-platforms");
+      if (typeof window.openSecondarySheet === "function") {
+        window.openSecondarySheet("tab-platforms");
+      } else {
+        switchViewTab("tab-platforms");
+      }
+    });
+  }
+
+  // Initialisation du formulaire de Profil Candidat & Session Persistante
+  setupPersistentProfileForm();
+}
+
+async function loadPersistentProfileForm() {
+  try {
+    const res = await fetch("/api/profile/current");
+    if (!res.ok) return;
+    const data = await res.json();
+    const p = data.profile || {};
+
+    const inFirst = document.getElementById("plat-profile-first-name");
+    const inLast = document.getElementById("plat-profile-last-name");
+    const inEmail = document.getElementById("plat-profile-email");
+    const inPhone = document.getElementById("plat-profile-phone");
+    const inTitle = document.getElementById("plat-profile-title");
+    const inCity = document.getElementById("plat-profile-city");
+    const inLiUrl = document.getElementById("plat-profile-linkedin-url");
+    const inPort = document.getElementById("plat-profile-portfolio-url");
+
+    if (inFirst && !inFirst.value) inFirst.value = p.first_name || "";
+    if (inLast && !inLast.value) inLast.value = p.last_name || "";
+    if (inEmail && !inEmail.value) inEmail.value = p.email || "";
+    if (inPhone && !inPhone.value) inPhone.value = p.phone_number || "";
+    if (inTitle && !inTitle.value) inTitle.value = p.current_title || "";
+    if (inCity && !inCity.value) inCity.value = p.city || "";
+    if (inLiUrl && !inLiUrl.value) inLiUrl.value = p.linkedin_url || "";
+    if (inPort && !inPort.value) inPort.value = p.portfolio_url || "";
+  } catch (e) {
+    console.warn("Could not load persistent profile fields:", e);
+  }
+}
+
+function setupPersistentProfileForm() {
+  loadPersistentProfileForm();
+
+  const form = document.getElementById("form-persistent-profile");
+  const btnToggleCookie = document.getElementById("btn-toggle-cookie-visibility");
+  const cookieInput = document.getElementById("plat-profile-linkedin-cookie");
+
+  if (btnToggleCookie && cookieInput) {
+    btnToggleCookie.addEventListener("click", () => {
+      const isPwd = cookieInput.type === "password";
+      cookieInput.type = isPwd ? "text" : "password";
+      btnToggleCookie.innerHTML = isPwd ? '<i class="fa-solid fa-eye-slash"></i>' : '<i class="fa-solid fa-eye"></i>';
+    });
+  }
+
+  if (form) {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById("btn-save-persistent-profile");
+      const feedback = document.getElementById("persistent-profile-feedback");
+      const originalBtnHtml = btn ? btn.innerHTML : "";
+
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sauvegarde en cours...';
+      }
+
+      const payload = {
+        first_name: document.getElementById("plat-profile-first-name")?.value.trim() || "",
+        last_name: document.getElementById("plat-profile-last-name")?.value.trim() || "",
+        email: document.getElementById("plat-profile-email")?.value.trim() || "",
+        phone_number: document.getElementById("plat-profile-phone")?.value.trim() || "",
+        current_title: document.getElementById("plat-profile-title")?.value.trim() || "",
+        city: document.getElementById("plat-profile-city")?.value.trim() || "",
+        linkedin_url: document.getElementById("plat-profile-linkedin-url")?.value.trim() || "",
+        portfolio_url: document.getElementById("plat-profile-portfolio-url")?.value.trim() || "",
+        linkedin_cookie: document.getElementById("plat-profile-linkedin-cookie")?.value.trim() || "",
+        keep_connected: document.getElementById("check-keep-session-connected")?.checked ?? true,
+      };
+
+      try {
+        const res = await fetch("/api/profile/save", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (res.ok && data.status === "success") {
+          if (feedback) {
+            feedback.style.display = "inline-block";
+            feedback.innerText = "✓ Profil & session sauvegardés !";
+            setTimeout(() => { feedback.style.display = "none"; }, 5000);
+          }
+          if (typeof showToast === "function") {
+            showToast("✓ Profil candidat et sessions sauvegardés avec succès ! Vous restez connecté.", "success");
+          }
+          // Refresh views & statuses immediately
+          if (typeof loadPlatformsStatus === "function") await loadPlatformsStatus();
+          const elName = document.getElementById("drawer-profile-fullname");
+          const elTitle = document.getElementById("drawer-profile-title");
+          const elInitials = document.getElementById("drawer-profile-initials");
+          if (elName && payload.first_name) elName.innerText = `${payload.first_name} ${payload.last_name}`.trim();
+          if (elTitle && payload.current_title) elTitle.innerText = payload.current_title;
+          if (elInitials && payload.first_name) {
+            elInitials.innerText = `${payload.first_name[0] || 'E'}${payload.last_name[0] || 'H'}`.toUpperCase();
+          }
+        } else {
+          if (typeof showToast === "function") {
+            showToast(data.message || "Erreur lors de la sauvegarde du profil", "error");
+          }
+        }
+      } catch (err) {
+        console.error("Save profile error:", err);
+        if (typeof showToast === "function") {
+          showToast("Erreur de connexion lors de la sauvegarde du profil", "error");
+        }
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = originalBtnHtml;
+        }
+      }
     });
   }
 }
@@ -2569,6 +2709,23 @@ async function loadPlatformsStatus() {
     const corePlatforms = ["francetravail", "linkedin", "indeed"];
     const activeCore = corePlatforms.filter(id => Boolean(data[id]?.logged_in)).length;
     if (steadyPlatCount) steadyPlatCount.innerText = `${activeCore} / 3`;
+
+    // Update Persistent Profile card status badge in tab-platforms
+    const sessBadge = document.getElementById("profile-session-status-badge");
+    const sessText = document.getElementById("profile-session-status-text");
+    if (sessBadge && sessText) {
+      if (activeCore > 0) {
+        sessBadge.style.background = "rgba(16, 185, 129, 0.15)";
+        sessBadge.style.color = "#34d399";
+        sessBadge.style.borderColor = "rgba(16, 185, 129, 0.3)";
+        sessText.innerText = `${activeCore} / 3 Sessions Actives`;
+      } else {
+        sessBadge.style.background = "rgba(239, 68, 68, 0.12)";
+        sessBadge.style.color = "#f87171";
+        sessBadge.style.borderColor = "rgba(239, 68, 68, 0.3)";
+        sessText.innerText = "Non Connecté (0/3)";
+      }
+    }
 
     const ftChip = document.querySelector(".steady-dot.ft")?.closest(".steady-plat-chip");
     const liChip = document.querySelector(".steady-dot.li")?.closest(".steady-plat-chip");
@@ -3554,12 +3711,19 @@ function setupArovaExperience() {
     const meta = getPlatformMeta(selectedPlatform);
 
     if (cardWidget) {
-      // Keep card serene obsidian dark glass across all platform views
-      cardWidget.classList.remove("arova-theme-red", "arova-theme-blue", "arova-theme-green", "arova-theme-colored", "arova-theme-emerald");
-      cardWidget.classList.add("arova-theme-black");
-      cardWidget.style.backgroundColor = "";
-      cardWidget.style.color = "";
-      cardWidget.style.borderColor = "";
+      cardWidget.classList.remove("arova-theme-black", "arova-theme-red", "arova-theme-blue", "arova-theme-green", "arova-theme-colored", "arova-theme-emerald");
+      const targetTheme = meta ? (meta.themeClass || "arova-theme-black") : "arova-theme-black";
+      cardWidget.classList.add(targetTheme);
+
+      if (meta && meta.color) {
+        cardWidget.style.setProperty("--plat-custom-glow", meta.color + "40");
+        cardWidget.style.setProperty("--plat-custom-border", meta.color + "88");
+        cardWidget.style.setProperty("--plat-theme-color", meta.color);
+      } else {
+        cardWidget.style.removeProperty("--plat-custom-glow");
+        cardWidget.style.removeProperty("--plat-custom-border");
+        cardWidget.style.removeProperty("--plat-theme-color");
+      }
     }
 
     // Sync dock button active state
@@ -3878,6 +4042,19 @@ function setupArovaExperience() {
     const targetPage = document.getElementById(tabId);
     if (targetPage) targetPage.classList.add("active");
 
+    // Dynamic distinct color theme on secondary sheet window
+    const sheetCard = secondaryOverlay ? secondaryOverlay.querySelector(".secondary-sheet-card") : null;
+    if (sheetCard) {
+      sheetCard.classList.remove("sheet-theme-cv", "sheet-theme-platforms", "sheet-theme-settings");
+      if (tabId === "tab-cv") {
+        sheetCard.classList.add("sheet-theme-cv");
+      } else if (tabId === "tab-platforms") {
+        sheetCard.classList.add("sheet-theme-platforms");
+      } else if (tabId === "tab-settings") {
+        sheetCard.classList.add("sheet-theme-settings");
+      }
+    }
+
     // Sync Steady Top Nav buttons
     document.querySelectorAll(".steady-nav-btn").forEach(b => b.classList.remove("active"));
     if (tabId === "tab-cv") {
@@ -3973,7 +4150,7 @@ function setupArovaExperience() {
       try {
         const res = await fetch("/api/jobs/sync-realtime", { method: "POST" });
         const data = await res.json();
-        showToast(`🎉 Scan terminé : ${data.new_jobs_detected || 0} nouvelles offres trouvées en direct !`, "success");
+        showToast(`🎉 Scan terminé : ${data.new_count || data.new_jobs_detected || 0} nouvelles offres trouvées en direct !`, "success");
         await loadJobs();
       } catch (err) {
         showToast("Erreur lors du scan : " + err.message, "error");

@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Press+Start+2P&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/style.css?v=5.1">
+  <link rel="stylesheet" href="/static/style.css?v=5.2">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body class="notion-dark-clean theme-light" data-color-theme="switch">
@@ -1054,6 +1054,94 @@
             </div>
           </div>
 
+          <!-- Card: Mon Profil Candidat & Session Persistante -->
+          <div class="notion-card persistent-profile-card" id="persistent-profile-card" style="margin-bottom: 24px; background: linear-gradient(135deg, rgba(14, 165, 233, 0.09) 0%, rgba(99, 102, 241, 0.06) 100%); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 16px; padding: 22px 24px; box-shadow: 0 10px 30px -10px rgba(2, 132, 199, 0.2);">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; margin-bottom: 16px;">
+              <div>
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <div style="width:34px; height:34px; border-radius:10px; background:linear-gradient(135deg, #0284c7, #38bdf8); display:flex; align-items:center; justify-content:center; color:#fff; font-size:16px;">
+                    <i class="fa-solid fa-id-badge"></i>
+                  </div>
+                  <div>
+                    <h3 style="margin:0; font-size:16px; font-weight:700; color:#f8fafc;">Mon Profil Candidat &amp; Session Persistante</h3>
+                    <p style="margin:2px 0 0 0; font-size:12.5px; color:#cbd5e1;">Renseignez vos coordonnées et votre session pour postuler en 1 Clic et rester connecté en continu</p>
+                  </div>
+                </div>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="profile-session-status-badge" id="profile-session-status-badge" style="display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600; padding:5px 12px; border-radius:20px; background:rgba(16, 185, 129, 0.15); color:#34d399; border:1px solid rgba(16, 185, 129, 0.3);">
+                  <span class="dot" style="width:8px; height:8px; border-radius:50%; background:#10b981; display:inline-block;"></span>
+                  <span id="profile-session-status-text">Session Prête &amp; Active</span>
+                </span>
+              </div>
+            </div>
+
+            <form id="form-persistent-profile" style="display:flex; flex-direction:column; gap:14px;">
+              <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">
+                <div>
+                  <label for="plat-profile-first-name" style="display:block; font-size:11.5px; font-weight:600; color:#cbd5e1; margin-bottom:4px;"><i class="fa-solid fa-user"></i> Prénom</label>
+                  <input type="text" id="plat-profile-first-name" placeholder="Ex: Eliot" style="width:100%; background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.15); color:#fff; border-radius:8px; padding:7px 11px; font-size:12.5px;">
+                </div>
+                <div>
+                  <label for="plat-profile-last-name" style="display:block; font-size:11.5px; font-weight:600; color:#cbd5e1; margin-bottom:4px;"><i class="fa-solid fa-signature"></i> Nom</label>
+                  <input type="text" id="plat-profile-last-name" placeholder="Ex: Hantute" style="width:100%; background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.15); color:#fff; border-radius:8px; padding:7px 11px; font-size:12.5px;">
+                </div>
+                <div>
+                  <label for="plat-profile-email" style="display:block; font-size:11.5px; font-weight:600; color:#cbd5e1; margin-bottom:4px;"><i class="fa-solid fa-envelope"></i> Email de contact &amp; candidature</label>
+                  <input type="email" id="plat-profile-email" placeholder="Ex: eliot.hantute@gmail.com" style="width:100%; background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.15); color:#fff; border-radius:8px; padding:7px 11px; font-size:12.5px;">
+                </div>
+                <div>
+                  <label for="plat-profile-phone" style="display:block; font-size:11.5px; font-weight:600; color:#cbd5e1; margin-bottom:4px;"><i class="fa-solid fa-phone"></i> Téléphone</label>
+                  <input type="tel" id="plat-profile-phone" placeholder="Ex: 07 75 03 68 75" style="width:100%; background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.15); color:#fff; border-radius:8px; padding:7px 11px; font-size:12.5px;">
+                </div>
+              </div>
+
+              <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">
+                <div>
+                  <label for="plat-profile-title" style="display:block; font-size:11.5px; font-weight:600; color:#cbd5e1; margin-bottom:4px;"><i class="fa-solid fa-briefcase"></i> Métier / Titre visé</label>
+                  <input type="text" id="plat-profile-title" placeholder="Ex: Creative Developer &amp; UI Designer" style="width:100%; background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.15); color:#fff; border-radius:8px; padding:7px 11px; font-size:12.5px;">
+                </div>
+                <div>
+                  <label for="plat-profile-city" style="display:block; font-size:11.5px; font-weight:600; color:#cbd5e1; margin-bottom:4px;"><i class="fa-solid fa-location-dot"></i> Ville / Région</label>
+                  <input type="text" id="plat-profile-city" placeholder="Ex: Paris" style="width:100%; background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.15); color:#fff; border-radius:8px; padding:7px 11px; font-size:12.5px;">
+                </div>
+                <div>
+                  <label for="plat-profile-linkedin-url" style="display:block; font-size:11.5px; font-weight:600; color:#cbd5e1; margin-bottom:4px;"><i class="fa-brands fa-linkedin"></i> Profil LinkedIn</label>
+                  <input type="url" id="plat-profile-linkedin-url" placeholder="https://linkedin.com/in/mon-profil" style="width:100%; background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.15); color:#fff; border-radius:8px; padding:7px 11px; font-size:12.5px;">
+                </div>
+                <div>
+                  <label for="plat-profile-portfolio-url" style="display:block; font-size:11.5px; font-weight:600; color:#cbd5e1; margin-bottom:4px;"><i class="fa-solid fa-globe"></i> Portfolio / Site Web</label>
+                  <input type="url" id="plat-profile-portfolio-url" placeholder="https://mon-portfolio.fr" style="width:100%; background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.15); color:#fff; border-radius:8px; padding:7px 11px; font-size:12.5px;">
+                </div>
+              </div>
+
+              <!-- LinkedIn li_at Cookie Section for Direct Staying Connected -->
+              <div style="background:rgba(2, 132, 199, 0.1); border:1px dashed rgba(56, 189, 248, 0.35); border-radius:10px; padding:12px 14px;">
+                <label for="plat-profile-linkedin-cookie" style="display:flex; align-items:center; justify-content:space-between; font-size:11.5px; font-weight:600; color:#cbd5e1; margin-bottom:4px;">
+                  <span><i class="fa-solid fa-key" style="color:#38bdf8;"></i> Cookie de session LinkedIn (<code>li_at</code>) pour rester connecté en continu</span>
+                  <span style="color:#94a3b8; font-weight:normal; font-size:11px;">Optionnel si déjà connecté dans Chromium</span>
+                </label>
+                <div style="display:flex; gap:8px;">
+                  <input type="password" id="plat-profile-linkedin-cookie" placeholder="Collez votre cookie li_at ici (ex: AQEDAT...)" style="flex:1; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.15); color:#fff; border-radius:8px; padding:7px 11px; font-size:12px; font-family:monospace;">
+                  <button type="button" class="btn-notion" id="btn-toggle-cookie-visibility" title="Afficher/Masquer le cookie" style="padding:0 10px; background:rgba(255,255,255,0.08);"><i class="fa-solid fa-eye"></i></button>
+                </div>
+              </div>
+
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-top:4px;">
+                <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; font-size:12.5px; color:#e2e8f0;">
+                  <input type="checkbox" id="check-keep-session-connected" checked style="accent-color:#0284c7; width:16px; height:16px;">
+                  <span><strong>Garder ma session connectée en continu</strong> (persistance automatique dans <code>data/browser_sessions</code>)</span>
+                </label>
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <span id="persistent-profile-feedback" style="font-size:12px; color:#34d399; font-weight:600; display:none;"></span>
+                  <button type="submit" class="btn-notion primary" id="btn-save-persistent-profile" style="background:linear-gradient(135deg, #0284c7, #3b82f6); border-color:#38bdf8; font-weight:700; padding:9px 18px; border-radius:8px; display:inline-flex; align-items:center; gap:8px; cursor:pointer;">
+                    <i class="fa-solid fa-floppy-disk"></i> Sauvegarder mon Profil &amp; Rester Connecté
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+
           <!-- Platform Search & Add Row -->
           <div class="platforms-search-bar-row">
             <div class="platforms-search-input-box">
@@ -1873,6 +1961,6 @@
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  <script src="/static/app.js?v=5.1"></script>
+  <script src="/static/app.js?v=5.2"></script>
 </body>
 </html>
