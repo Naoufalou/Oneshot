@@ -208,7 +208,7 @@ function initLudiqueProgress() {
   if (btnViewApplied) {
     btnViewApplied.addEventListener("click", () => {
       if (typeof window.openZenTable === "function") {
-        window.openZenTable("", "applied");
+        window.openZenTable("", "applied", true);
       }
     });
   }
@@ -218,7 +218,7 @@ function initLudiqueProgress() {
   if (cardSuccess) {
     cardSuccess.style.cursor = "pointer";
     cardSuccess.addEventListener("click", () => {
-      if (typeof window.openZenTable === "function") window.openZenTable("", "applied");
+      if (typeof window.openZenTable === "function") window.openZenTable("", "applied", true);
     });
   }
 
@@ -529,8 +529,8 @@ function setupTabs() {
 
 function switchViewTab(tabId) {
   if (tabId === "tab-table") {
-    if (typeof window.openCandidaturesSheet === "function") {
-      window.openCandidaturesSheet("");
+    if (typeof window.openZenTable === "function") {
+      window.openZenTable("", "");
     }
     return;
   }
@@ -542,7 +542,10 @@ function switchViewTab(tabId) {
   }
 
   document.querySelectorAll(".view-tab-btn").forEach(b => b.classList.remove("active"));
-  document.querySelectorAll(".notion-view-page").forEach(p => p.classList.remove("active"));
+  const secOverlay = document.getElementById("secondary-sheet-overlay");
+  if (secOverlay) {
+    secOverlay.querySelectorAll(".notion-view-page").forEach(p => p.classList.remove("active"));
+  }
 
   const activeBtn = document.querySelector(`.view-tab-btn[data-tab='${tabId}']`);
   const activePage = document.getElementById(tabId);
@@ -1319,10 +1322,15 @@ function setupFilters() {
       const targetStatus = chip.getAttribute("data-status-tab") || "";
       selectedStatus = targetStatus;
 
-      // When selecting 'applied', reset platform constraint so all applied jobs across platforms are shown
+      // When selecting 'applied', reset platform constraint and clear search so all applied jobs across platforms are shown
       if (selectedStatus === "applied") {
         selectedPlatform = "";
         filterOnly1Click = false;
+        searchQuery = "";
+        const searchInput = document.getElementById("search-query");
+        if (searchInput) searchInput.value = "";
+        const clearBtn = document.getElementById("btn-clear-search");
+        if (clearBtn) clearBtn.style.display = "none";
         if (chip1Click) chip1Click.classList.remove("active");
       }
 
@@ -1339,19 +1347,26 @@ function setupFilters() {
         }
       });
 
+      // Ensure tab-table is active & visible
+      const tabTable = document.getElementById("tab-table");
+      if (tabTable) {
+        tabTable.classList.add("active");
+        tabTable.style.display = "block";
+      }
+
       renderJobsTable();
     });
   });
 
   // Zen Platform Hub Pills (Always Open & Switch Table on click)
   document.querySelectorAll(".zen-plat-pill").forEach(pill => {
-    pill.addEventListener("click", (e) => {
+    pill.addEventListener("click", async (e) => {
       e.stopPropagation();
       const isApplied = pill.getAttribute("data-status-filter") === "applied" || pill.id === "btn-plat-applied";
       const targetPlat = isApplied ? "" : (pill.getAttribute("data-platform") || "");
       const targetStatus = isApplied ? "applied" : "";
 
-      openZenTable(targetPlat, targetStatus);
+      await openZenTable(targetPlat, targetStatus, true);
     });
   });
 
@@ -1716,6 +1731,20 @@ function renderJobsTable() {
   if (steadyKpiTotal) steadyKpiTotal.innerText = allJobs.length;
   if (steadyKpiApplied) steadyKpiApplied.innerText = countApplied;
   if (steadyKpi1Click) steadyKpi1Click.innerText = count1Click;
+
+  // Immediately refresh pill badge counters
+  const pCountApplied = document.getElementById("plat-count-applied");
+  if (pCountApplied) pCountApplied.innerText = countApplied;
+  if (typeof updateBatchCounts === "function") {
+    updateBatchCounts();
+  }
+
+  // Ensure table section is displayed
+  const tabTable = document.getElementById("tab-table");
+  if (tabTable) {
+    tabTable.classList.add("active");
+    tabTable.style.display = "block";
+  }
 
   // Dynamic counts on Dock CTAs and Top Brand
   const countAll = allJobs.length;
@@ -3782,49 +3811,48 @@ function setupArovaExperience() {
   };
 
   // Helper: Open / close Zen table workbench
-  window.openZenTable = async function(platformKey, statusFilter) {
+  window.openZenTable = async function(platformKey, statusFilter, forceReload = false) {
     selectedPlatform = platformKey !== undefined ? platformKey : "";
     selectedStatus = statusFilter !== undefined ? statusFilter : "";
 
-    // Ensure allJobs is loaded in memory
-    if (!allJobs || allJobs.length === 0) {
-      await loadJobs();
+    // Close secondary sheet overlay and studio drawer if open so pointer events and layout are free
+    if (typeof window.closeSecondarySheet === "function") {
+      window.closeSecondarySheet();
     }
+    if (typeof window.closeStudioDrawer === "function") {
+      window.closeStudioDrawer();
+    }
+    closeArovaCard();
 
     // When viewing applied candidatures, ensure clean display without conflicting 1-click or search filters
     if (selectedStatus === "applied") {
       selectedPlatform = platformKey || "";
       filterOnly1Click = false;
+      searchQuery = "";
+      const searchInput = document.getElementById("search-query");
+      if (searchInput) searchInput.value = "";
+      const clearBtn = document.getElementById("btn-clear-search");
+      if (clearBtn) clearBtn.style.display = "none";
       const chip1Click = document.getElementById("filter-chip-1click");
       if (chip1Click) chip1Click.classList.remove("active");
+    }
 
-      // Verify all applied jobs are in memory; fetch if missing
-      const inMemApplied = allJobs.filter(j => j.status === "applied");
-      if (inMemApplied.length === 0) {
-        try {
-          const r = await fetch('/api/applications?status=applied&limit=500');
-          const data = await r.json();
-          if (data && data.length > 0) {
-            data.forEach(aj => {
-              const idx = allJobs.findIndex(j => j.id === aj.id);
-              if (idx >= 0) allJobs[idx] = aj;
-              else allJobs.push(aj);
-            });
-          }
-        } catch (err) {
-          console.warn("Could not fetch applied applications:", err);
-        }
-      }
+    // Ensure allJobs is loaded in memory and fresh
+    if (!allJobs || allJobs.length === 0 || forceReload || selectedStatus === "applied") {
+      await loadJobs(false);
     }
 
     const workbench = document.getElementById("steady-workbench");
     const calmState = document.getElementById("zen-calm-state");
     const activeTitle = document.getElementById("workbench-active-title");
+    const tabTable = document.getElementById("tab-table");
 
-    // Close floating cards and drawers
-    closeArovaCard();
-    if (typeof window.closeStudioDrawer === "function") {
-      window.closeStudioDrawer();
+    // Ensure the table section is ALWAYS active and visible
+    if (tabTable) {
+      tabTable.classList.add("active");
+      tabTable.style.display = "block";
+      tabTable.style.visibility = "visible";
+      tabTable.style.opacity = "1";
     }
 
     // If hero progress is open and not currently in active animation, minimize it so workbench table has full prominence
@@ -3875,17 +3903,20 @@ function setupArovaExperience() {
 
     // Set friendly dynamic title
     if (activeTitle) {
+      const countApplied = allJobs.filter(j => j.status === "applied").length;
       if (selectedStatus === "applied") {
-        const countApplied = allJobs.filter(j => j.status === "applied").length;
-        activeTitle.innerHTML = `<i class="fa-solid fa-circle-check" style="color:#059669;margin-right:8px;"></i> Candidatures postulées (${countApplied})`;
+        activeTitle.innerHTML = `<i class="fa-solid fa-circle-check" style="color:#059669;margin-right:8px;"></i> Candidatures postulées avec succès (${countApplied})`;
       } else if (selectedPlatform === "francetravail") {
-        activeTitle.innerHTML = `<span class="steady-dot ft" style="display:inline-block;margin-right:8px;"></span> France Travail`;
+        const ftCount = allJobs.filter(j => (j.platform || "").toLowerCase() === "francetravail").length;
+        activeTitle.innerHTML = `<span class="steady-dot ft" style="display:inline-block;margin-right:8px;"></span> France Travail (${ftCount})`;
       } else if (selectedPlatform === "linkedin") {
-        activeTitle.innerHTML = `<span class="steady-dot li" style="display:inline-block;margin-right:8px;"></span> LinkedIn`;
+        const liCount = allJobs.filter(j => (j.platform || "").toLowerCase() === "linkedin").length;
+        activeTitle.innerHTML = `<span class="steady-dot li" style="display:inline-block;margin-right:8px;"></span> LinkedIn (${liCount})`;
       } else if (selectedPlatform === "indeed") {
-        activeTitle.innerHTML = `<span class="steady-dot ind" style="display:inline-block;margin-right:8px;"></span> Indeed`;
+        const indCount = allJobs.filter(j => (j.platform || "").toLowerCase() === "indeed").length;
+        activeTitle.innerHTML = `<span class="steady-dot ind" style="display:inline-block;margin-right:8px;"></span> Indeed (${indCount})`;
       } else {
-        activeTitle.innerHTML = `<i class="fa-solid fa-layer-group" style="color:#0f172a;margin-right:8px;"></i> Toutes les opportunités`;
+        activeTitle.innerHTML = `<i class="fa-solid fa-layer-group" style="color:#0f172a;margin-right:8px;"></i> Toutes les opportunités (${allJobs.length})`;
       }
     }
 
@@ -4038,7 +4069,10 @@ function setupArovaExperience() {
     closeCandidaturesSheet();
     closeArovaCard();
 
-    document.querySelectorAll(".notion-view-page").forEach(p => p.classList.remove("active"));
+    const secOverlay = secondaryOverlay || document.getElementById("secondary-sheet-overlay");
+    if (secOverlay) {
+      secOverlay.querySelectorAll(".notion-view-page").forEach(p => p.classList.remove("active"));
+    }
     const targetPage = document.getElementById(tabId);
     if (targetPage) targetPage.classList.add("active");
 
@@ -5122,10 +5156,10 @@ function setupBatchApplyExperience() {
           window.ParticleProgress3D.complete(true, `🎉 Session terminée : ${status.success_count || 0} offre(s) postulée(s) avec succès !`);
         }
         showToast(`🎉 Session terminée : ${status.success_count || 0} offre(s) postulée(s) avec succès !`, "success");
-        await loadJobs();
+        await loadJobs(false);
         // Automatically open the workbench dashboard with candidatures!
         if (typeof window.openZenTable === "function") {
-          window.openZenTable("", status.success_count > 0 ? "applied" : "");
+          window.openZenTable("", "applied", true);
         }
       }
     } catch (e) {

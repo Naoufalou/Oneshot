@@ -508,6 +508,15 @@ button:disabled,
   display: block;
 }
 
+#steady-workbench #tab-table,
+#steady-workbench .steady-workbench-table-section,
+#steady-workbench .notion-view-page {
+  display: block !important;
+  width: 100% !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
 /* ==========================================================
    DATABASE TOOLBAR, SPOTLIGHT SEARCH & SEGMENTED CONTROLS
 ========================================================== */
@@ -5449,6 +5458,16 @@ body.theme-dark .dash-feature-pill {
   scroll-margin-top: 84px;
 }
 
+/* Steady workbench table section is always block and fully visible inside the card */
+#steady-workbench #tab-table,
+#steady-workbench .steady-workbench-table-section,
+#steady-workbench .notion-view-page {
+  display: block !important;
+  width: 100% !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
 /* ==========================================================
    DYNAMIC PLATFORM THEMED WORKBENCH TABLE
 ========================================================== */
@@ -9523,6 +9542,14 @@ body:not(.theme-dark) .zen-plat-pill:hover {
   box-shadow: 0 3px 0 #0284c7 !important;
 }
 
+/* LinkedIn */
+.zen-plat-pill[data-platform="linkedin"].active,
+.zen-plat-pill[data-platform="linkedin"]:has(input:checked) {
+  border-color: #0284c7 !important;
+  color: #0284c7 !important;
+  box-shadow: 0 3px 0 #0369a1 !important;
+}
+
 /* Indeed (Dark Steel) */
 .zen-plat-pill[data-platform="indeed"].active,
 .zen-plat-pill[data-platform="indeed"]:has(input:checked) {
@@ -9537,6 +9564,30 @@ body:not(.theme-dark) .zen-plat-pill:hover {
   border-color: #10b981 !important;
   color: #10b981 !important;
   box-shadow: 0 3px 0 #047857 !important;
+}
+
+/* Postulées (Émeraude Vibrant) */
+.zen-plat-pill.zen-pill-applied.active,
+.zen-plat-pill[data-status-filter="applied"].active {
+  border-color: #10b981 !important;
+  color: #059669 !important;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(5, 150, 105, 0.15) 100%) !important;
+  box-shadow: 0 3px 0 #047857, 0 4px 12px rgba(16, 185, 129, 0.25) !important;
+}
+
+.zen-pill-applied .zen-plat-badge {
+  background: #d1fae5 !important;
+  color: #047857 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 20px !important;
+}
+
+.zen-pill-applied.active .zen-plat-badge {
+  background: #047857 !important;
+  color: #ffffff !important;
+  display: inline-flex !important;
 }
 
 /* 7. SHEIKAH ENERGY CORE (CIRCULAR PROGRESS HERO) */
