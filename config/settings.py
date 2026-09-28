@@ -168,6 +168,7 @@ class Settings(BaseSettings):
     app_env: str = "development"
     headless_browser: bool = True
     human_in_the_loop: bool = False  # Automated background applications without manual blocker
+    browser_ws_endpoint: Optional[str] = None  # WebSocket endpoint for remote browser (e.g. Browserless.io)
     
     # LLM Settings
     llm_provider: str = "gemini"  # "gemini", "openai", "ollama"

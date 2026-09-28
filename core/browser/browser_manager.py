@@ -7,7 +7,7 @@ from typing import Optional, Union
 from playwright.async_api import async_playwright, BrowserContext, Page, Playwright, Locator
 from playwright_stealth import Stealth
 from core.browser.human_actions import HumanActions
-from config.settings import settings, SESSIONS_DIR, SCREENSHOTS_DIR
+from config.settings import settings, SESSIONS_DIR, SCREENSHOTS_DIR, IS_VERCEL
 
 logger = logging.getLogger("BrowserManager")
 
@@ -97,6 +97,23 @@ class BrowserManager:
         viewport_w = random.randint(1260, 1320)
         viewport_h = random.randint(880, 930)
 
+        # 1. Connect to remote browser (e.g. Browserless.io / Cloud Chromium) if configured
+        ws_endpoint = getattr(settings, "browser_ws_endpoint", None) or os.getenv("BROWSER_WS_ENDPOINT")
+        if ws_endpoint:
+            logger.info(f"Connecting to remote browser endpoint for {self.platform_name}: {ws_endpoint}")
+            self.browser = await self.playwright.chromium.connect(ws_endpoint)
+            self.context = await self.browser.new_context(
+                viewport={"width": viewport_w, "height": viewport_h},
+                user_agent=user_agent,
+                locale="fr-FR",
+                timezone_id="Europe/Paris",
+            )
+            self.page = await self.context.new_page()
+            await self._setup_stealth_and_human()
+            logger.info(f"Remote Browser connected for {self.platform_name}")
+            return self.page
+
+        # 2. Local browser launch
         chrome_args = [
             "--disable-blink-features=AutomationControlled",
             "--no-sandbox",
@@ -107,29 +124,44 @@ class BrowserManager:
             f"--window-size={viewport_w},{viewport_h}",
         ]
 
-        if persistent:
-            self.context = await self.playwright.chromium.launch_persistent_context(
-                user_data_dir=str(self.session_dir),
-                headless=is_headless,
-                viewport={"width": viewport_w, "height": viewport_h},
-                user_agent=user_agent,
-                locale="fr-FR",
-                timezone_id="Europe/Paris",
-                args=chrome_args,
-            )
-            self.page = self.context.pages[0] if self.context.pages else await self.context.new_page()
-        else:
-            self.browser = await self.playwright.chromium.launch(
-                headless=is_headless,
-                args=chrome_args,
-            )
-            self.context = await self.browser.new_context(
-                viewport={"width": viewport_w, "height": viewport_h},
-                user_agent=user_agent,
-                locale="fr-FR",
-                timezone_id="Europe/Paris",
-            )
-            self.page = await self.context.new_page()
+        try:
+            if persistent:
+                self.context = await self.playwright.chromium.launch_persistent_context(
+                    user_data_dir=str(self.session_dir),
+                    headless=is_headless,
+                    viewport={"width": viewport_w, "height": viewport_h},
+                    user_agent=user_agent,
+                    locale="fr-FR",
+                    timezone_id="Europe/Paris",
+                    args=chrome_args,
+                )
+                self.page = self.context.pages[0] if self.context.pages else await self.context.new_page()
+            else:
+                self.browser = await self.playwright.chromium.launch(
+                    headless=is_headless,
+                    args=chrome_args,
+                )
+                self.context = await self.browser.new_context(
+                    viewport={"width": viewport_w, "height": viewport_h},
+                    user_agent=user_agent,
+                    locale="fr-FR",
+                    timezone_id="Europe/Paris",
+                )
+                self.page = await self.context.new_page()
+        except Exception as e:
+            err_msg = str(e)
+            if "Executable doesn't exist" in err_msg or "playwright install" in err_msg:
+                if IS_VERCEL or os.getenv("VERCEL") or os.getenv("AWS_LAMBDA_FUNCTION_NAME"):
+                    raise RuntimeError(
+                        "Chromium n'est pas disponible sur Vercel Serverless (fonctions AWS Lambda éphémères). "
+                        "Pour postuler en 1-clic : (1) Lancez Oneshot en local (http://127.0.0.1:8000 via npm run dev), OU "
+                        "(2) configurez un navigateur distant via la variable BROWSER_WS_ENDPOINT (ex: Browserless.io) sur Vercel."
+                    ) from e
+                else:
+                    raise RuntimeError(
+                        "Le navigateur Chromium n'est pas installé sur cette machine. Lancez 'playwright install chromium' dans votre terminal."
+                    ) from e
+            raise
 
         await self._setup_stealth_and_human()
 

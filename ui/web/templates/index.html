@@ -63,6 +63,13 @@
         <span>Postuler en 1 Clic (<span id="header-batch-count">0</span>)</span>
       </button>
 
+      <!-- Agences Web B2B Outreach Shortcut -->
+      <button type="button" class="steady-action-btn steady-btn-agencies" id="btn-header-agencies" title="Prospection Agences Web & Démarchage B2B (Touche G)">
+        <span class="nintendo-key-badge key-g" style="background:#10b981; color:#fff;">G</span>
+        <i class="fa-solid fa-bullseye" style="color: #10b981;"></i>
+        <span>Agences (<span id="header-agencies-count">18</span>)</span>
+      </button>
+
       <!-- Theme & Color Palette Selector Button (Tirage aléatoire au clic, palette sur Shift+Clic ou Clic-droit) -->
       <button type="button" class="steady-action-btn steady-btn-ghost" id="btn-header-theme-selector" title="Changer aléatoirement de thème (Clic) • Ouvrir la palette (Shift+Clic ou Clic-droit)">
         <span class="nintendo-key-badge key-minus">-</span>
@@ -302,19 +309,21 @@
       </div>
 
       <!-- Card 4: Plateformes Actives -->
-      <div class="steady-kpi-card steady-card-platforms" id="steady-kpi-card-platforms" title="Cliquer pour voir les plateformes">
+      <div class="steady-kpi-card steady-card-platforms" id="steady-kpi-card-platforms" title="Cliquer pour voir et configurer les plateformes">
         <div class="steady-kpi-top">
           <span class="steady-kpi-label">Plateformes Actives</span>
           <span class="steady-kpi-icon-wrap platforms"><i class="fa-solid fa-shield-halved"></i></span>
         </div>
         <div class="steady-kpi-body">
-          <div class="steady-kpi-value" id="steady-kpi-platforms-count">3 / 3</div>
+          <div class="steady-kpi-value" id="steady-kpi-platforms-count">5 / 5</div>
         </div>
         <div class="steady-kpi-foot">
-          <div class="steady-kpi-platform-pills">
-            <span class="steady-plat-chip online" title="France Travail : Connecté"><span class="steady-dot ft"></span> FT</span>
-            <span class="steady-plat-chip online" title="LinkedIn : Connecté"><span class="steady-dot li"></span> LI</span>
-            <span class="steady-plat-chip online" title="Indeed : Connecté"><span class="steady-dot ind"></span> Indeed</span>
+          <div class="steady-kpi-platform-pills" id="steady-kpi-platform-pills">
+            <span class="steady-plat-chip online" data-plat="francetravail" title="France Travail : Connecté"><span class="steady-dot ft"></span> FT</span>
+            <span class="steady-plat-chip online" data-plat="linkedin" title="LinkedIn : Connecté"><span class="steady-dot li"></span> LI</span>
+            <span class="steady-plat-chip online" data-plat="indeed" title="Indeed : Connecté"><span class="steady-dot ind"></span> Indeed</span>
+            <span class="steady-plat-chip online" data-plat="freework" title="Freework : Connecté"><span class="steady-dot fw"></span> Freework</span>
+            <span class="steady-plat-chip online" data-plat="collective_work" title="Collective Work : Connecté"><span class="steady-dot cw"></span> Collective</span>
           </div>
         </div>
       </div>
@@ -322,7 +331,7 @@
 
     <!-- COLORED PLATFORM TABS (COMME AVANT - VIBRANT & ADHD ZEN) -->
     <section class="zen-platform-hub" id="zen-platform-hub">
-      <div class="zen-platform-pills-row">
+      <div class="zen-platform-pills-row" id="zen-platform-pills-row">
         <!-- Toutes -->
         <button type="button" class="zen-plat-pill zen-pill-all" data-platform="" id="btn-plat-all" title="Afficher toutes les candidatures">
           <i class="fa-solid fa-layer-group"></i>
@@ -349,6 +358,20 @@
           <i class="fa-solid fa-circle-nodes"></i>
           <span class="zen-plat-label">Indeed</span>
           <span class="zen-plat-badge" id="plat-count-ind">0</span>
+        </button>
+
+        <!-- Freework (Violet Tech) -->
+        <button type="button" class="zen-plat-pill zen-pill-freework" data-platform="freework" id="btn-plat-freework" title="Afficher les opportunités Freework">
+          <i class="fa-solid fa-laptop-code"></i>
+          <span class="zen-plat-label">Freework</span>
+          <span class="zen-plat-badge" id="plat-count-freework">0</span>
+        </button>
+
+        <!-- Collective Work (Cyan / Teal) -->
+        <button type="button" class="zen-plat-pill zen-pill-collective_work" data-platform="collective_work" id="btn-plat-collective_work" title="Afficher les opportunités Collective Work">
+          <i class="fa-solid fa-users"></i>
+          <span class="zen-plat-label">Collective Work</span>
+          <span class="zen-plat-badge" id="plat-count-collective_work">0</span>
         </button>
 
         <!-- Postulées (Émeraude) -->
@@ -721,6 +744,19 @@
             <div class="nav-tile-sub">Preuves de transmission et suivi des envois</div>
           </div>
           <span class="nav-tile-badge emerald" id="drawer-count-applied-badge">0</span>
+          <i class="fa-solid fa-chevron-right nav-tile-arrow"></i>
+        </div>
+
+        <!-- Tile 6b: Prospection Agences Web & Démarchage B2B -->
+        <div class="studio-nav-tile" id="menu-tile-agencies" role="button" tabindex="0">
+          <div class="nav-tile-icon emerald" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">
+            <i class="fa-solid fa-bullseye"></i>
+          </div>
+          <div class="nav-tile-text">
+            <div class="nav-tile-title">Prospection Agences Web</div>
+            <div class="nav-tile-sub">Démarchage B2B renfort front & intégration</div>
+          </div>
+          <span class="nav-tile-badge emerald" id="drawer-agencies-badge">18</span>
           <i class="fa-solid fa-chevron-right nav-tile-arrow"></i>
         </div>
 
@@ -1337,6 +1373,152 @@
             </div>
           </div>
         </section>
+
+        <!-- VIEW 4: PROSPECTION AGENCES WEB & DEMARCHAGE B2B -->
+        <section class="notion-view-page" id="tab-agencies">
+          <div class="agency-page-header">
+            <div class="agency-page-title-row">
+              <div class="agency-title-icon-wrap">
+                <i class="fa-solid fa-bullseye"></i>
+              </div>
+              <div class="agency-title-text-wrap">
+                <div class="agency-title-badge-row">
+                  <span class="agency-pill-accent"><i class="fa-solid fa-bolt"></i> Démarchage B2B Rentable</span>
+                  <span class="agency-pill-quota" id="agency-quota-pill"><i class="fa-solid fa-shield-halved"></i> Quota Sécurité : 15 - 20 max / jour</span>
+                </div>
+                <h2 class="cv-page-title">Prospection Agences Web & Studios Créatifs</h2>
+                <p class="cv-page-sub">
+                  Trouvez des agences et DA débordés ayant un trop-plein de maquettes Figma à intégrer. Envoyez en 1 clic des propositions de renfort directes, courtes et ciblées (React, Tailwind, Three.js, corrections front).
+                </p>
+              </div>
+            </div>
+
+            <!-- Global Action Bar -->
+            <div class="agency-header-actions-bar">
+              <button type="button" class="btn-notion primary" id="btn-batch-send-agencies" title="Envoyer automatiquement le quota du jour aux agences en attente">
+                <i class="fa-solid fa-paper-plane"></i>
+                <span>Envoyer le Quota du Jour (<span id="btn-batch-quota-count">15</span> mails)</span>
+              </button>
+              <button type="button" class="btn-notion" id="btn-open-template-modal" title="Personnaliser le pitch et le template qui s'adapte au nom de chaque agence">
+                <i class="fa-solid fa-wand-magic-sparkles" style="color: #a78bfa;"></i>
+                <span>Template du Pitch</span>
+              </button>
+              <button type="button" class="btn-notion" id="btn-scan-agencies" title="Lancer le crawler pour détecter de nouvelles agences web et extraire leurs emails">
+                <i class="fa-solid fa-satellite-dish"></i>
+                <span id="btn-scan-text">Détecter de nouvelles agences</span>
+              </button>
+              <button type="button" class="btn-notion" id="btn-open-add-agency-modal" title="Ajouter une agence manuellement">
+                <i class="fa-solid fa-plus"></i>
+                <span>Ajouter</span>
+              </button>
+              <button type="button" class="btn-notion" id="btn-open-smtp-modal" title="Configurer l'envoi SMTP direct ou Mailto">
+                <i class="fa-solid fa-envelope-circle-check"></i>
+                <span>Config Email</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Agency KPI Cards Grid -->
+          <div class="agency-kpi-grid">
+            <div class="agency-kpi-card">
+              <div class="kpi-icon-bubble emerald">
+                <i class="fa-solid fa-building"></i>
+              </div>
+              <div class="kpi-data">
+                <div class="kpi-num" id="agencies-stat-total">18</div>
+                <div class="kpi-lbl">Agences Référencées</div>
+              </div>
+            </div>
+
+            <div class="agency-kpi-card">
+              <div class="kpi-icon-bubble sky">
+                <i class="fa-solid fa-at"></i>
+              </div>
+              <div class="kpi-data">
+                <div class="kpi-num" id="agencies-stat-email">18</div>
+                <div class="kpi-lbl">Emails Directs Qualifiés</div>
+              </div>
+            </div>
+
+            <div class="agency-kpi-card highlight-card">
+              <div class="kpi-icon-bubble violet">
+                <i class="fa-solid fa-paper-plane"></i>
+              </div>
+              <div class="kpi-data">
+                <div class="kpi-num"><span id="agencies-stat-today">0</span> <span class="kpi-max">/ 20</span></div>
+                <div class="kpi-lbl">Envoyés Aujourd'hui</div>
+              </div>
+              <div class="kpi-progress-bar">
+                <div class="kpi-progress-fill" id="agency-today-progress" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <div class="agency-kpi-card">
+              <div class="kpi-icon-bubble amber">
+                <i class="fa-solid fa-comments"></i>
+              </div>
+              <div class="kpi-data">
+                <div class="kpi-num" id="agencies-stat-contacted">0</div>
+                <div class="kpi-lbl">Total Contactées</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Filters & Search Toolbar -->
+          <div class="agency-toolbar">
+            <div class="agency-search-box">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="input-search-agencies" placeholder="Filtrer par nom, ville (Paris, Lyon...), catégorie, email..." autocomplete="off">
+              <button id="btn-clear-agencies-search" class="clear-search-btn" style="display:none;" title="Effacer"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="agency-filter-chips">
+              <button class="notion-chip active" data-agency-filter="all">Toutes (<span id="agencies-cnt-all">18</span>)</button>
+              <button class="notion-chip" data-agency-filter="pending">À contacter (<span id="agencies-cnt-pending">18</span>)</button>
+              <button class="notion-chip" data-agency-filter="contacted">Contactées (<span id="agencies-cnt-contacted">0</span>)</button>
+              <button class="notion-chip" data-agency-filter="replied">Réponses (<span id="agencies-cnt-replied">0</span>)</button>
+            </div>
+          </div>
+
+          <!-- Live Progress Banner when batch sending or scanning -->
+          <div class="agency-live-status-bar" id="agency-live-status-bar" style="display: none;">
+            <div class="agency-status-indicator">
+              <span class="agency-pulse-dot"></span>
+              <span id="agency-status-text">Envoi des emails en cours avec temporisation anti-spam...</span>
+            </div>
+            <div class="agency-status-track">
+              <div class="agency-status-fill" id="agency-batch-progress-fill" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <!-- Main Agencies Table Container -->
+          <div class="agency-table-container">
+            <table class="agency-table">
+              <thead>
+                <tr>
+                  <th style="width: 28%;">Agence & Spécialité</th>
+                  <th style="width: 14%;">Ville</th>
+                  <th style="width: 22%;">Contact & Site</th>
+                  <th style="width: 16%;">Statut</th>
+                  <th style="width: 20%; text-align: right;">Action Rapide</th>
+                </tr>
+              </thead>
+              <tbody id="agencies-table-body">
+                <!-- Dynamically populated rows -->
+              </tbody>
+            </table>
+
+            <!-- Empty State -->
+            <div class="agency-empty-state" id="agencies-empty-state" style="display: none;">
+              <i class="fa-solid fa-bullseye agency-empty-icon"></i>
+              <h3>Aucune agence trouvée</h3>
+              <p>Aucun prospect ne correspond à vos filtres actuels. Modifiez votre recherche ou lancez une détection automatique.</p>
+              <button type="button" class="btn-notion primary" id="btn-empty-scan-agencies">
+                <i class="fa-solid fa-satellite-dish"></i> Scanner & trouver des agences
+              </button>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   </div>
@@ -1949,6 +2131,367 @@
             <span>Confirmer</span>
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================
+       AGENCY EMAIL PREVIEW & CUSTOMIZER MODAL
+  ========================================================== -->
+  <div class="profile-modal-overlay" id="agency-preview-modal" style="display:none;">
+    <div class="profile-modal-card" style="max-width: 680px;">
+      <div class="profile-modal-header">
+        <div class="profile-modal-title">
+          <i class="fa-solid fa-envelope-open-text" style="color:#10b981;"></i>
+          <span>Aperçu & Personnalisation du Message</span>
+        </div>
+        <button type="button" class="profile-modal-close" id="btn-close-agency-preview">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="profile-modal-body" style="padding: 20px 24px;">
+        <input type="hidden" id="preview-agency-id">
+        
+        <div style="display: flex; gap: 12px; margin-bottom: 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 12px 16px; align-items: center;">
+          <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(16,185,129,0.15); color: #10b981; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+            <i class="fa-solid fa-building"></i>
+          </div>
+          <div style="flex: 1;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <div style="font-weight: 700; font-size: 14px; color: var(--text-primary);" id="preview-agency-name">-</div>
+              <div id="preview-email-status-badge"></div>
+            </div>
+            <div style="font-size: 12px; color: var(--text-secondary); display: flex; gap: 12px; margin-top: 3px; flex-wrap: wrap;">
+              <span id="preview-agency-decision-maker" style="color: #cbd5e1; display: none;"><i class="fa-solid fa-user-tie" style="color:#a78bfa;"></i> <strong>-</strong></span>
+              <span><i class="fa-solid fa-globe"></i> <a href="#" target="_blank" id="preview-agency-website" style="color: #38bdf8; text-decoration: none;">-</a></span>
+              <span id="preview-agency-portal-wrap" style="display: none;"><i class="fa-solid fa-bolt" style="color:#c084fc;"></i> <a href="#" target="_blank" id="preview-agency-portal-url" style="color: #c084fc; text-decoration: none; font-weight: 600;">Portail Recrutement (ATS / WTTJ)</a></span>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 14px;">
+          <label style="display:block; font-size: 12px; font-weight: 600; margin-bottom: 6px; color: var(--text-primary);">
+            Adresse Email du destinataire (modifiable si nécessaire)
+          </label>
+          <div style="position: relative;">
+            <input type="email" id="preview-agency-email-input" placeholder="ex: remy@datashake.fr" style="width: 100%; padding: 10px 14px; padding-left: 36px; border-radius: 8px; border: 1px solid var(--border-medium); background: rgba(0,0,0,0.25); color: var(--text-primary); font-size: 13px;">
+            <i class="fa-solid fa-envelope" style="position: absolute; left: 12px; top: 12px; color: #94a3b8; font-size: 13px;"></i>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 14px;">
+          <label style="display:block; font-size: 12px; font-weight: 600; margin-bottom: 6px; color: var(--text-primary);">
+            Objet de l'email
+          </label>
+          <input type="text" id="preview-email-subject" style="width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-medium); background: rgba(0,0,0,0.25); color: var(--text-primary); font-size: 13px;">
+        </div>
+
+        <div style="margin-bottom: 14px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+            <label style="font-size: 12px; font-weight: 600; color: var(--text-primary);">
+              Pitch d'accroche personnalisé
+            </label>
+            <span style="font-size: 11px; color: #10b981;"><i class="fa-solid fa-check"></i> Adapté aux DA & agences</span>
+          </div>
+          <textarea id="preview-email-body" rows="9" style="width: 100%; padding: 12px 14px; border-radius: 8px; border: 1px solid var(--border-medium); background: rgba(0,0,0,0.25); color: var(--text-primary); font-size: 12.5px; line-height: 1.5; font-family: inherit; resize: vertical;"></textarea>
+        </div>
+
+        <div style="background: rgba(16,185,129,0.06); border: 1px dashed rgba(16,185,129,0.3); border-radius: 8px; padding: 10px 14px; font-size: 11.5px; color: #94a3b8; display: flex; gap: 8px; align-items: center;">
+          <i class="fa-solid fa-shield-check" style="color: #10b981; font-size: 14px;"></i>
+          <span>Vérification de délivrabilité active : les adresses inexistantes sont filtrées pour protéger votre domaine du risque de bounce.</span>
+        </div>
+      </div>
+
+      <div class="profile-modal-actions" style="border-top: 1px solid rgba(255,255,255,0.08); padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="btn-notion" id="btn-agency-preview-mailto" style="color: #38bdf8; border-color: rgba(56,189,248,0.3);">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> Mailto
+          </button>
+          <button type="button" class="btn-notion" id="btn-agency-preview-mark-contacted" style="color: #34d399; border-color: rgba(16,185,129,0.35); background: rgba(16,185,129,0.1);" title="Marquer cette agence comme contactée manuellement (email perso, LinkedIn, tél...)">
+            <i class="fa-solid fa-circle-check"></i> Marquer contactée
+          </button>
+          <button type="button" class="btn-notion ats" id="btn-agency-preview-ats" style="background: rgba(139,92,246,0.18); border-color: rgba(139,92,246,0.4); color: #c084fc; font-weight: 600; display: none;">
+            <i class="fa-solid fa-bolt"></i> Copier & Postuler (ATS)
+          </button>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <button type="button" class="btn-notion" id="btn-cancel-agency-preview">Fermer</button>
+          <button type="button" class="btn-notion primary" id="btn-send-agency-preview" style="background: linear-gradient(135deg, #10b981, #059669); border-color: #10b981;">
+            <i class="fa-solid fa-paper-plane"></i> Envoyer Maintenant
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================
+       AGENCY EMAIL TEMPLATE / PITCH CUSTOMIZATION MODAL
+  ========================================================== -->
+  <div class="profile-modal-overlay" id="agency-template-modal" style="display:none;">
+    <div class="profile-modal-card" style="max-width: 680px;">
+      <div class="profile-modal-header">
+        <div class="profile-modal-title">
+          <i class="fa-solid fa-wand-magic-sparkles" style="color:#a78bfa;"></i>
+          <span>Template du Pitch (Personnalisation Automatique)</span>
+        </div>
+        <button type="button" class="profile-modal-close" id="btn-close-agency-template">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="profile-modal-body" style="padding: 20px 24px; max-height: 80vh; overflow-y: auto;">
+        <p style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 14px; line-height: 1.5;">
+          Modifiez le texte modèle envoyé aux agences. Les balises dynamiques comme <code style="color: #a78bfa; background: rgba(167,139,250,0.12); padding: 2px 6px; border-radius: 4px;">{nom_agence}</code> ou <code style="color: #a78bfa; background: rgba(167,139,250,0.12); padding: 2px 6px; border-radius: 4px;">{destinataire}</code> sont automatiquement remplacées lors de l'envoi ou de la candidature en 1-Clic.
+        </p>
+
+        <!-- Variables Helper Chips Bar -->
+        <div style="margin-bottom: 14px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 10px 14px;">
+          <div style="font-size: 11px; font-weight: 700; color: #a78bfa; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
+            <i class="fa-solid fa-tags"></i> Cliquez pour insérer une variable dynamique :
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px;" id="template-vars-chips-container">
+            <button type="button" class="notion-chip tpl-var-btn" data-tag="{nom_agence}" title="Nom de l'agence (ex: datashake)">+ {nom_agence}</button>
+            <button type="button" class="notion-chip tpl-var-btn" data-tag="{destinataire}" title="Prénom du dirigeant ou nom de l'agence">+ {destinataire}</button>
+            <button type="button" class="notion-chip tpl-var-btn" data-tag="{ville}" title="Ville de l'agence (ex: Paris)">+ {ville}</button>
+            <button type="button" class="notion-chip tpl-var-btn" data-tag="{competences}" title="Vos compétences clés (ex: React, Three.js...)">+ {competences}</button>
+            <button type="button" class="notion-chip tpl-var-btn" data-tag="{portfolio}" title="Lien de votre portfolio">+ {portfolio}</button>
+            <button type="button" class="notion-chip tpl-var-btn" data-tag="{github}" title="Lien de votre GitHub">+ {github}</button>
+            <button type="button" class="notion-chip tpl-var-btn" data-tag="{nom_complet}" title="Votre prénom et nom">+ {nom_complet}</button>
+            <button type="button" class="notion-chip tpl-var-btn" data-tag="{telephone}" title="Votre numéro de téléphone">+ {telephone}</button>
+          </div>
+        </div>
+
+        <!-- Subject Input -->
+        <div style="margin-bottom: 14px;">
+          <label style="display:block; font-size: 12px; font-weight: 600; margin-bottom: 6px; color: var(--text-primary);">
+            Objet du mail (Template)
+          </label>
+          <input type="text" id="template-email-subject" placeholder="Renfort intégration front-end & Figma pour {nom_agence}" style="width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-medium); background: rgba(0,0,0,0.25); color: var(--text-primary); font-size: 13px;">
+        </div>
+
+        <!-- Body Textarea -->
+        <div style="margin-bottom: 16px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+            <label style="font-size: 12px; font-weight: 600; color: var(--text-primary);">
+              Corps du message (Template)
+            </label>
+            <span style="font-size: 11px; color: var(--text-secondary);">Style court & direct recommandé</span>
+          </div>
+          <textarea id="template-email-body" rows="9" placeholder="Hello {destinataire}, ..." style="width: 100%; padding: 12px 14px; border-radius: 8px; border: 1px solid var(--border-medium); background: rgba(0,0,0,0.25); color: var(--text-primary); font-size: 12.5px; line-height: 1.5; font-family: inherit; resize: vertical;"></textarea>
+        </div>
+
+        <!-- Live Preview Card -->
+        <div style="background: rgba(167, 139, 250, 0.05); border: 1px solid rgba(167, 139, 250, 0.2); border-radius: 10px; padding: 12px 16px; margin-bottom: 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <div style="font-size: 11.5px; font-weight: 700; color: #a78bfa; display: flex; align-items: center; gap: 6px;">
+              <i class="fa-solid fa-eye"></i> Aperçu dynamique en direct
+            </div>
+            <div style="font-size: 11px; color: var(--text-secondary);">
+              Exemple avec : <strong id="template-preview-agency-name" style="color: #fff;">datashake (Paris)</strong>
+            </div>
+          </div>
+          <div style="background: rgba(0,0,0,0.3); border-radius: 6px; padding: 10px 12px; font-size: 12px;">
+            <div style="font-weight: 600; color: #fff; margin-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 4px;" id="template-live-preview-subject">
+              Renfort intégration front-end & Figma pour datashake
+            </div>
+            <div style="color: #cbd5e1; white-space: pre-wrap; font-size: 11.5px; line-height: 1.45;" id="template-live-preview-body">
+              Hello Rémy Bendayan, ...
+            </div>
+          </div>
+        </div>
+
+        <!-- Apply to Pending Checkbox -->
+        <div style="display: flex; align-items: center; gap: 10px; padding: 8px 4px;">
+          <input type="checkbox" id="template-apply-to-pending" checked style="accent-color: #a78bfa; width: 17px; height: 17px; cursor: pointer;">
+          <label for="template-apply-to-pending" style="font-size: 12px; color: var(--text-primary); cursor: pointer; font-weight: 600;">
+            Appliquer immédiatement ce nouveau template à toutes les agences en attente
+          </label>
+        </div>
+      </div>
+
+      <div class="profile-modal-actions" style="border-top: 1px solid rgba(255,255,255,0.08); padding: 14px 24px; display: flex; justify-content: space-between; align-items: center;">
+        <button type="button" class="btn-notion" id="btn-reset-agency-template" style="color: #f87171; border-color: rgba(239,68,68,0.3);">
+          <i class="fa-solid fa-rotate-left"></i> Réinitialiser
+        </button>
+        <div style="display: flex; gap: 10px;">
+          <button type="button" class="btn-notion" id="btn-cancel-agency-template">Annuler</button>
+          <button type="button" class="btn-notion primary" id="btn-save-agency-template" style="background: linear-gradient(135deg, #a78bfa, #8b5cf6); border-color: #a78bfa; color: #fff;">
+            <i class="fa-solid fa-check"></i> Enregistrer le Template
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================
+       AGENCY SMTP / EMAIL CONFIGURATION MODAL
+  ========================================================== -->
+  <div class="profile-modal-overlay" id="agency-smtp-modal" style="display:none;">
+    <div class="profile-modal-card" style="max-width: 580px;">
+      <div class="profile-modal-header">
+        <div class="profile-modal-title">
+          <i class="fa-solid fa-envelope-circle-check" style="color:#38bdf8;"></i>
+          <span>Configuration Envoi Email & SMTP</span>
+        </div>
+        <button type="button" class="profile-modal-close" id="btn-close-agency-smtp">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="profile-modal-body" style="padding: 20px 24px;">
+        <div style="margin-bottom: 16px;">
+          <label class="checkbox-notion" style="font-weight: 700; font-size: 13px; color: var(--text-primary); cursor: pointer; display: flex; align-items: center; gap: 10px;">
+            <input type="checkbox" id="smtp-enabled" checked style="accent-color: #10b981; width: 18px; height: 18px;">
+            <span>Activer l'envoi direct via serveur SMTP (Gmail, Brevo, OVH...)</span>
+          </label>
+          <p style="font-size: 11.5px; color: var(--text-secondary); margin: 4px 0 0 28px;">
+            Si désactivé, le système utilise automatiquement le protocole natif <strong>Mailto</strong> (ouvre votre client mail favori en 1 clic sans aucun mot de passe requis).
+          </p>
+        </div>
+
+        <div id="smtp-fields-group">
+          <!-- Preset Providers -->
+          <div style="margin-bottom: 14px;">
+            <label style="display: block; font-size: 11.5px; font-weight: 600; margin-bottom: 6px; color: var(--text-secondary);">
+              Préréglages rapides :
+            </label>
+            <div style="display: flex; gap: 8px;">
+              <button type="button" class="notion-chip" id="smtp-preset-gmail">Gmail</button>
+              <button type="button" class="notion-chip" id="smtp-preset-brevo">Brevo (Sendinblue)</button>
+              <button type="button" class="notion-chip" id="smtp-preset-ovh">OVH</button>
+              <button type="button" class="notion-chip" id="smtp-preset-custom">Autre</button>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-bottom: 12px;">
+            <div>
+              <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: var(--text-primary);">
+                Serveur SMTP (Hôte)
+              </label>
+              <input type="text" id="smtp-host" placeholder="smtp.gmail.com" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-medium); background: rgba(0,0,0,0.25); color: var(--text-primary); font-size: 12.5px;">
+            </div>
+            <div>
+              <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: var(--text-primary);">
+                Port
+              </label>
+              <input type="number" id="smtp-port" placeholder="587" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-medium); background: rgba(0,0,0,0.25); color: var(--text-primary); font-size: 12.5px;">
+            </div>
+          </div>
+
+          <div style="margin-bottom: 12px;">
+            <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: var(--text-primary);">
+              Nom d'expéditeur affiché
+            </label>
+            <input type="text" id="smtp-sender-name" placeholder="Eliot Hantute" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-medium); background: rgba(0,0,0,0.25); color: var(--text-primary); font-size: 12.5px;">
+          </div>
+
+          <div style="margin-bottom: 12px;">
+            <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: var(--text-primary);">
+              Adresse Email (Utilisateur)
+            </label>
+            <input type="email" id="smtp-user" placeholder="mon-adresse@gmail.com" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-medium); background: rgba(0,0,0,0.25); color: var(--text-primary); font-size: 12.5px;">
+          </div>
+
+          <div style="margin-bottom: 14px;">
+            <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: var(--text-primary);">
+              Mot de passe ou Clé d'application
+            </label>
+            <input type="password" id="smtp-password" placeholder="Mot de passe d'application 16 caractères..." style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-medium); background: rgba(0,0,0,0.25); color: var(--text-primary); font-size: 12.5px;">
+            <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">
+              💡 Pour Gmail : activez la validation en 2 étapes puis créez un « Mot de passe d'application » dans votre compte Google.
+            </div>
+          </div>
+
+          <div style="margin-bottom: 8px;">
+            <label class="checkbox-notion" style="font-size: 12px; color: var(--text-primary); display: flex; align-items: center; gap: 8px;">
+              <input type="checkbox" id="smtp-use-tls" checked style="accent-color: #38bdf8;">
+              <span>Sécurité STARTTLS / Chiffrement TLS (Recommandé)</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-modal-actions" style="border-top: 1px solid rgba(255,255,255,0.08); padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <span id="smtp-status-feedback" style="font-size: 12px; font-weight: 600; flex: 1; min-width: 200px;"></span>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <button type="button" class="btn-notion" id="btn-test-agency-smtp" style="color: #38bdf8; border-color: rgba(56,189,248,0.35);">
+            <i class="fa-solid fa-plug"></i> Tester la Connexion
+          </button>
+          <button type="button" class="btn-notion" id="btn-cancel-agency-smtp">Fermer</button>
+          <button type="button" class="btn-notion primary" id="btn-save-agency-smtp">
+            <i class="fa-solid fa-floppy-disk"></i> Enregistrer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================
+       MANUAL ADD AGENCY MODAL
+  ========================================================== -->
+  <div class="profile-modal-overlay" id="agency-add-modal" style="display:none;">
+    <div class="profile-modal-card" style="max-width: 540px;">
+      <div class="profile-modal-header">
+        <div class="profile-modal-title">
+          <i class="fa-solid fa-plus-circle" style="color:#10b981;"></i>
+          <span>Ajouter une Agence ou un Studio Web</span>
+        </div>
+        <button type="button" class="profile-modal-close" id="btn-close-agency-add">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="profile-modal-body" style="padding: 20px 24px;">
+        <div style="margin-bottom: 12px;">
+          <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: var(--text-primary);">
+            Nom de l'agence *
+          </label>
+          <input type="text" id="add-agency-name" placeholder="Ex: Studio Mirage, Agence Pulse..." required style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-medium); background: rgba(0,0,0,0.25); color: var(--text-primary); font-size: 12.5px;">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+          <div>
+            <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: var(--text-primary);">
+              Ville
+            </label>
+            <input type="text" id="add-agency-city" placeholder="Paris, Lyon, Remote..." style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-medium); background: rgba(0,0,0,0.25); color: var(--text-primary); font-size: 12.5px;">
+          </div>
+          <div>
+            <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: var(--text-primary);">
+              Catégorie / Métier
+            </label>
+            <input type="text" id="add-agency-category" placeholder="Agence Web, Studio Créatif..." style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-medium); background: rgba(0,0,0,0.25); color: var(--text-primary); font-size: 12.5px;">
+          </div>
+        </div>
+
+        <div style="margin-bottom: 12px;">
+          <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: var(--text-primary);">
+            Email de contact *
+          </label>
+          <input type="email" id="add-agency-email" placeholder="contact@agence.com ou hello@..." required style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-medium); background: rgba(0,0,0,0.25); color: var(--text-primary); font-size: 12.5px;">
+        </div>
+
+        <div style="margin-bottom: 12px;">
+          <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: var(--text-primary);">
+            Site Web
+          </label>
+          <input type="url" id="add-agency-website" placeholder="https://..." style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-medium); background: rgba(0,0,0,0.25); color: var(--text-primary); font-size: 12.5px;">
+        </div>
+
+        <div style="margin-bottom: 6px;">
+          <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: var(--text-primary);">
+            Téléphone (optionnel)
+          </label>
+          <input type="tel" id="add-agency-phone" placeholder="01 23 45 67 89" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-medium); background: rgba(0,0,0,0.25); color: var(--text-primary); font-size: 12.5px;">
+        </div>
+      </div>
+
+      <div class="profile-modal-actions" style="border-top: 1px solid rgba(255,255,255,0.08); padding: 14px 24px; display: flex; justify-content: flex-end; gap: 10px;">
+        <button type="button" class="btn-notion" id="btn-cancel-agency-add">Annuler</button>
+        <button type="button" class="btn-notion primary" id="btn-submit-agency-add" style="background: linear-gradient(135deg, #10b981, #059669); border-color: #10b981;">
+          <i class="fa-solid fa-plus"></i> Ajouter l'Agence
+        </button>
       </div>
     </div>
   </div>

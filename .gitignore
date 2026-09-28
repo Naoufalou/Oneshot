@@ -8,6 +8,7 @@ data/generated/
 data/*.db
 data/*.db-*
 data/platform_sessions.json
+data/smtp_config.json
 __pycache__/
 *.pyc
 .vercel

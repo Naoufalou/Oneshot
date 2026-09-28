@@ -534,7 +534,7 @@ function switchViewTab(tabId) {
     }
     return;
   }
-  if (tabId === "tab-cv" || tabId === "tab-platforms" || tabId === "tab-settings") {
+  if (tabId === "tab-cv" || tabId === "tab-platforms" || tabId === "tab-settings" || tabId === "tab-agencies") {
     if (typeof window.openSecondarySheet === "function") {
       window.openSecondarySheet(tabId);
     }
@@ -1216,18 +1216,35 @@ function updateBatchCounts() {
   const ftTotal = allJobs.filter(j => (j.platform || "").toLowerCase() === "francetravail").length;
   const liTotal = allJobs.filter(j => (j.platform || "").toLowerCase() === "linkedin").length;
   const indTotal = allJobs.filter(j => (j.platform || "").toLowerCase() === "indeed").length;
+  const fwTotal = allJobs.filter(j => (j.platform || "").toLowerCase() === "freework").length;
+  const cwTotal = allJobs.filter(j => (j.platform || "").toLowerCase() === "collective_work").length;
 
   const pCountAll = document.getElementById("plat-count-all");
   const pCountFt = document.getElementById("plat-count-ft");
   const pCountLi = document.getElementById("plat-count-li");
   const pCountInd = document.getElementById("plat-count-ind");
+  const pCountFw = document.getElementById("plat-count-freework");
+  const pCountCw = document.getElementById("plat-count-collective_work");
   const pCountApplied = document.getElementById("plat-count-applied");
 
   if (pCountAll) pCountAll.innerText = allJobs.length;
   if (pCountFt) pCountFt.innerText = ftTotal;
   if (pCountLi) pCountLi.innerText = liTotal;
   if (pCountInd) pCountInd.innerText = indTotal;
+  if (pCountFw) pCountFw.innerText = fwTotal;
+  if (pCountCw) pCountCw.innerText = cwTotal;
   if (pCountApplied) pCountApplied.innerText = appliedTotal;
+
+  // Also update any dynamic platform badges present
+  document.querySelectorAll(".zen-plat-pill[data-platform]").forEach(pill => {
+    const platKey = pill.getAttribute("data-platform");
+    if (!platKey) return;
+    const badge = pill.querySelector(".zen-plat-badge");
+    if (badge) {
+      const c = allJobs.filter(j => (j.platform || "").toLowerCase() === platKey.toLowerCase()).length;
+      badge.innerText = c;
+    }
+  });
 
   // For the active platform in the card
   let activeUnapplied = unappliedTotal;
@@ -1358,7 +1375,22 @@ function setupFilters() {
     });
   });
 
-  // Zen Platform Hub Pills (Always Open & Switch Table on click)
+  // Zen Platform Hub Pills (Always Open & Switch Table on click with delegation)
+  const zenRowContainer = document.getElementById("zen-platform-pills-row");
+  if (zenRowContainer) {
+    zenRowContainer.addEventListener("click", async (e) => {
+      const pill = e.target.closest(".zen-plat-pill");
+      if (!pill) return;
+      e.stopPropagation();
+      const isApplied = pill.getAttribute("data-status-filter") === "applied" || pill.id === "btn-plat-applied";
+      const targetPlat = isApplied ? "" : (pill.getAttribute("data-platform") || "");
+      const targetStatus = isApplied ? "applied" : "";
+
+      await openZenTable(targetPlat, targetStatus, true);
+    });
+  }
+
+  // Also bind to any existing pills directly
   document.querySelectorAll(".zen-plat-pill").forEach(pill => {
     pill.addEventListener("click", async (e) => {
       e.stopPropagation();
@@ -1698,6 +1730,9 @@ async function loadJobs(showLoading = true) {
     const sortParam = (typeof arovaSortMode !== "undefined") ? arovaSortMode : "relevance";
     const res = await fetch(`/api/applications?limit=1000&sort_by=${sortParam}`);
     allJobs = await res.json();
+    if (typeof renderZenPlatformHub === "function") {
+      renderZenPlatformHub();
+    }
     renderJobsTable();
     updateBatchCounts();
     if (typeof renderArovaCardRows === "function") {
@@ -2023,11 +2058,21 @@ function renderTableRow(job) {
   `;
 
   const platKey = (job.platform || "francetravail").toLowerCase();
-  const platBadge = platKey === "francetravail"
-    ? `<span class="steady-table-plat-badge ft" title="Plateforme : France Travail"><span class="steady-dot ft"></span> FT</span>`
-    : platKey === "linkedin"
-    ? `<span class="steady-table-plat-badge li" title="Plateforme : LinkedIn"><span class="steady-dot li"></span> LI</span>`
-    : `<span class="steady-table-plat-badge ind" title="Plateforme : Indeed"><span class="steady-dot ind"></span> Indeed</span>`;
+  let platBadge = "";
+  if (platKey === "francetravail") {
+    platBadge = `<span class="steady-table-plat-badge ft" title="Plateforme : France Travail"><span class="steady-dot ft"></span> FT</span>`;
+  } else if (platKey === "linkedin") {
+    platBadge = `<span class="steady-table-plat-badge li" title="Plateforme : LinkedIn"><span class="steady-dot li"></span> LI</span>`;
+  } else if (platKey === "indeed") {
+    platBadge = `<span class="steady-table-plat-badge ind" title="Plateforme : Indeed"><span class="steady-dot ind"></span> Indeed</span>`;
+  } else if (platKey === "freework") {
+    platBadge = `<span class="steady-table-plat-badge fw" style="background:#faf5ff; border:1px solid #d8b4fe; color:#6b21a8;" title="Plateforme : Freework"><span class="steady-dot fw"></span> Freework</span>`;
+  } else if (platKey === "collective_work" || platKey === "collective") {
+    platBadge = `<span class="steady-table-plat-badge cw" style="background:#ecfeff; border:1px solid #67e8f9; color:#155e75;" title="Plateforme : Collective Work"><span class="steady-dot cw"></span> Collective</span>`;
+  } else {
+    const meta = getPlatformMeta(platKey);
+    platBadge = `<span class="steady-table-plat-badge" style="background:${meta.color}15; border:1px solid ${meta.color}40; color:${meta.color};" title="Plateforme : ${escapeHtml(meta.name)}"><span class="steady-dot" style="background:${meta.color};"></span> ${escapeHtml(meta.shortName)}</span>`;
+  }
 
   return `
     <tr id="job-row-${job.id}" data-id="${job.id}" style="cursor:pointer;" title="Cliquez pour ouvrir la fiche détaillée ou le bouton d'action">
@@ -2733,35 +2778,83 @@ async function loadPlatformsStatus() {
     const countConnectedEl = document.getElementById("count-platforms-connected");
     if (countConnectedEl) countConnectedEl.innerText = countConnected;
 
-    // Steady Invoicing Platform KPI Updates (Plateformes Actives: FT, LinkedIn, Indeed)
+    // Steady Invoicing Platform KPI Updates (All configured & connected platforms: FT, LinkedIn, Indeed, Freework, Collective Work...)
+    const allPlatformsList = [
+      { id: "francetravail", name: "France Travail", shortName: "FT", dotClass: "ft" },
+      { id: "linkedin", name: "LinkedIn", shortName: "LI", dotClass: "li" },
+      { id: "indeed", name: "Indeed", shortName: "Indeed", dotClass: "ind" },
+    ];
+    if (Array.isArray(customPlatformsList)) {
+      customPlatformsList.forEach(cp => {
+        if (!allPlatformsList.some(p => p.id.toLowerCase() === cp.id.toLowerCase())) {
+          allPlatformsList.push({
+            id: cp.id,
+            name: cp.name,
+            shortName: cp.name.length > 9 ? cp.name.substring(0, 7) + ".." : cp.name,
+            dotClass: cp.id.toLowerCase().replace(/[^a-z0-9]/g, "")
+          });
+        }
+      });
+    }
+    POPULAR_PLATFORMS_CATALOG.forEach(cat => {
+      if (Boolean(data[cat.id]?.logged_in) && !allPlatformsList.some(p => p.id.toLowerCase() === cat.id.toLowerCase())) {
+        allPlatformsList.push({
+          id: cat.id,
+          name: cat.name,
+          shortName: cat.shortName || cat.name,
+          dotClass: cat.id.toLowerCase()
+        });
+      }
+    });
+
+    const totalConfigured = allPlatformsList.length;
+    const activeCount = allPlatformsList.filter(p => Boolean(data[p.id]?.logged_in)).length;
+
     const steadyPlatCount = document.getElementById("steady-kpi-platforms-count");
-    const corePlatforms = ["francetravail", "linkedin", "indeed"];
-    const activeCore = corePlatforms.filter(id => Boolean(data[id]?.logged_in)).length;
-    if (steadyPlatCount) steadyPlatCount.innerText = `${activeCore} / 3`;
+    if (steadyPlatCount) steadyPlatCount.innerText = `${activeCount} / ${totalConfigured}`;
 
     // Update Persistent Profile card status badge in tab-platforms
     const sessBadge = document.getElementById("profile-session-status-badge");
     const sessText = document.getElementById("profile-session-status-text");
     if (sessBadge && sessText) {
-      if (activeCore > 0) {
+      if (activeCount > 0) {
         sessBadge.style.background = "rgba(16, 185, 129, 0.15)";
         sessBadge.style.color = "#34d399";
         sessBadge.style.borderColor = "rgba(16, 185, 129, 0.3)";
-        sessText.innerText = `${activeCore} / 3 Sessions Actives`;
+        sessText.innerText = `${activeCount} / ${totalConfigured} Sessions Actives`;
       } else {
         sessBadge.style.background = "rgba(239, 68, 68, 0.12)";
         sessBadge.style.color = "#f87171";
         sessBadge.style.borderColor = "rgba(239, 68, 68, 0.3)";
-        sessText.innerText = "Non Connecté (0/3)";
+        sessText.innerText = `Non Connecté (0/${totalConfigured})`;
       }
     }
 
-    const ftChip = document.querySelector(".steady-dot.ft")?.closest(".steady-plat-chip");
-    const liChip = document.querySelector(".steady-dot.li")?.closest(".steady-plat-chip");
-    const indChip = document.querySelector(".steady-dot.ind")?.closest(".steady-plat-chip");
-    if (ftChip) ftChip.className = `steady-plat-chip ${data.francetravail?.logged_in ? 'online' : 'offline'}`;
-    if (liChip) liChip.className = `steady-plat-chip ${data.linkedin?.logged_in ? 'online' : 'offline'}`;
-    if (indChip) indChip.className = `steady-plat-chip ${data.indeed?.logged_in ? 'online' : 'offline'}`;
+    // Dynamic rendering of chips in steady-kpi-platform-pills
+    const kpiPillsContainer = document.getElementById("steady-kpi-platform-pills");
+    if (kpiPillsContainer) {
+      kpiPillsContainer.innerHTML = allPlatformsList.map(p => {
+        const isOnline = Boolean(data[p.id]?.logged_in);
+        const meta = getPlatformMeta(p.id);
+        const color = meta.color || "#8b5cf6";
+        return `
+          <span class="steady-plat-chip ${isOnline ? 'online' : 'offline'}" data-plat="${escapeHtml(p.id)}" title="${escapeHtml(p.name)} : ${isOnline ? 'Connecté' : 'Déconnecté'}">
+            <span class="steady-dot" style="background:${color};"></span> ${escapeHtml(p.shortName)}
+          </span>
+        `;
+      }).join("");
+
+      kpiPillsContainer.querySelectorAll(".steady-plat-chip").forEach(chip => {
+        chip.style.cursor = "pointer";
+        chip.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const platId = chip.getAttribute("data-plat");
+          if (platId && typeof openZenTable === "function") {
+            openZenTable(platId, "", true);
+          }
+        });
+      });
+    }
 
     // Mini status dots in Drawer
     const dotFT = document.getElementById("drawer-dot-ft");
@@ -2771,8 +2864,11 @@ async function loadPlatformsStatus() {
     const dotInd = document.getElementById("drawer-dot-ind");
     if (dotInd) dotInd.className = `mini-status-dot ${data.indeed?.logged_in ? "" : "disconnected"}`;
 
-    // Sync dock platform buttons whenever status updates
+    // Sync dock platform buttons and Zen Platform Hub whenever status updates
     renderDynamicDockPlatforms();
+    if (typeof renderZenPlatformHub === "function") {
+      renderZenPlatformHub();
+    }
   } catch (e) {
     console.error("Error loading platforms status:", e);
   }
@@ -3294,6 +3390,93 @@ async function loadCustomPlatforms() {
 
   renderPlatformsCatalog();
   renderDynamicDockPlatforms();
+  renderZenPlatformHub();
+}
+
+function renderZenPlatformHub() {
+  const row = document.getElementById("zen-platform-pills-row");
+  if (!row) return;
+
+  const basePlatforms = [
+    { id: "francetravail", name: "France Travail", icon: "fa-solid fa-briefcase", pillClass: "zen-pill-ft" },
+    { id: "linkedin", name: "LinkedIn", icon: "fa-brands fa-linkedin", pillClass: "zen-pill-li" },
+    { id: "indeed", name: "Indeed", icon: "fa-solid fa-circle-nodes", pillClass: "zen-pill-ind" },
+  ];
+
+  // Custom platforms
+  if (Array.isArray(customPlatformsList)) {
+    customPlatformsList.forEach(cp => {
+      if (!basePlatforms.some(p => p.id.toLowerCase() === cp.id.toLowerCase())) {
+        const pid = cp.id.toLowerCase();
+        let pClass = `zen-pill-${pid}`;
+        let icon = cp.icon || "fa-solid fa-globe";
+        if (pid === "freework") {
+          pClass = "zen-pill-freework";
+          icon = "fa-solid fa-laptop-code";
+        } else if (pid === "collective_work" || pid === "collective") {
+          pClass = "zen-pill-collective_work";
+          icon = "fa-solid fa-users";
+        }
+        basePlatforms.push({
+          id: cp.id,
+          name: cp.name,
+          icon: icon,
+          pillClass: pClass,
+          isCustom: true
+        });
+      }
+    });
+  }
+
+  // Connected catalog platforms
+  if (window.lastPlatformsStatus) {
+    POPULAR_PLATFORMS_CATALOG.forEach(cat => {
+      const isConnected = Boolean(window.lastPlatformsStatus[cat.id]?.logged_in);
+      if (isConnected && !basePlatforms.some(p => p.id.toLowerCase() === cat.id.toLowerCase())) {
+        basePlatforms.push({
+          id: cat.id,
+          name: cat.name,
+          icon: cat.icon || "fa-solid fa-globe",
+          pillClass: `zen-pill-${cat.id}`,
+          isCatalog: true
+        });
+      }
+    });
+  }
+
+  const countApplied = (allJobs || []).filter(j => j.status === "applied").length;
+
+  let html = `
+    <!-- Toutes -->
+    <button type="button" class="zen-plat-pill zen-pill-all ${selectedPlatform === '' && selectedStatus !== 'applied' ? 'active' : ''}" data-platform="" id="btn-plat-all" title="Afficher toutes les candidatures">
+      <i class="fa-solid fa-layer-group"></i>
+      <span class="zen-plat-label">Toutes</span>
+      <span class="zen-plat-badge" id="plat-count-all">${(allJobs || []).length}</span>
+    </button>
+  `;
+
+  basePlatforms.forEach(plat => {
+    const count = (allJobs || []).filter(j => (j.platform || "").toLowerCase() === plat.id.toLowerCase()).length;
+    const isActive = selectedPlatform.toLowerCase() === plat.id.toLowerCase() && selectedStatus !== "applied";
+    html += `
+      <button type="button" class="zen-plat-pill ${plat.pillClass} ${isActive ? 'active' : ''}" data-platform="${escapeHtml(plat.id)}" id="btn-plat-${escapeHtml(plat.id)}" title="Afficher les opportunités ${escapeHtml(plat.name)}">
+        <i class="${plat.icon}"></i>
+        <span class="zen-plat-label">${escapeHtml(plat.name)}</span>
+        <span class="zen-plat-badge" id="plat-count-${escapeHtml(plat.id)}">${count}</span>
+      </button>
+    `;
+  });
+
+  html += `
+    <!-- Postulées -->
+    <button type="button" class="zen-plat-pill zen-pill-applied ${selectedStatus === 'applied' ? 'active' : ''}" data-status-filter="applied" id="btn-plat-applied" title="Afficher les candidatures déjà transmises">
+      <i class="fa-solid fa-circle-check"></i>
+      <span class="zen-plat-label">Postulées</span>
+      <span class="zen-plat-badge" id="plat-count-applied">${countApplied}</span>
+    </button>
+  `;
+
+  row.innerHTML = html;
 }
 
 function renderPlatformsCatalog() {
@@ -3864,7 +4047,7 @@ function setupArovaExperience() {
     // Show workbench with smooth appearance and platform-specific color theme
     if (workbench) {
       workbench.style.display = "flex";
-      workbench.classList.remove("zen-appear", "theme-ft", "theme-li", "theme-ind", "theme-applied", "theme-all");
+      workbench.classList.remove("zen-appear", "theme-ft", "theme-li", "theme-ind", "theme-freework", "theme-collective_work", "theme-applied", "theme-all");
       if (selectedStatus === "applied") {
         workbench.classList.add("theme-applied");
       } else if (selectedPlatform === "francetravail") {
@@ -3873,6 +4056,10 @@ function setupArovaExperience() {
         workbench.classList.add("theme-li");
       } else if (selectedPlatform === "indeed") {
         workbench.classList.add("theme-ind");
+      } else if (selectedPlatform === "freework") {
+        workbench.classList.add("theme-freework");
+      } else if (selectedPlatform === "collective_work" || selectedPlatform === "collective") {
+        workbench.classList.add("theme-collective_work");
       } else {
         workbench.classList.add("theme-all");
       }
@@ -3891,7 +4078,7 @@ function setupArovaExperience() {
       if (pillStatus === "applied" || pill.id === "btn-plat-applied") {
         pill.classList.toggle("active", selectedStatus === "applied");
       } else if (pillPlat !== null) {
-        pill.classList.toggle("active", pillPlat === selectedPlatform && selectedStatus === "");
+        pill.classList.toggle("active", pillPlat.toLowerCase() === selectedPlatform.toLowerCase() && selectedStatus === "");
       }
     });
 
@@ -3915,6 +4102,16 @@ function setupArovaExperience() {
       } else if (selectedPlatform === "indeed") {
         const indCount = allJobs.filter(j => (j.platform || "").toLowerCase() === "indeed").length;
         activeTitle.innerHTML = `<span class="steady-dot ind" style="display:inline-block;margin-right:8px;"></span> Indeed (${indCount})`;
+      } else if (selectedPlatform === "freework") {
+        const fwCount = allJobs.filter(j => (j.platform || "").toLowerCase() === "freework").length;
+        activeTitle.innerHTML = `<span class="steady-dot fw" style="display:inline-block;margin-right:8px;"></span> Freework (${fwCount})`;
+      } else if (selectedPlatform === "collective_work" || selectedPlatform === "collective") {
+        const cwCount = allJobs.filter(j => (j.platform || "").toLowerCase() === "collective_work").length;
+        activeTitle.innerHTML = `<span class="steady-dot cw" style="display:inline-block;margin-right:8px;"></span> Collective Work (${cwCount})`;
+      } else if (selectedPlatform) {
+        const meta = getPlatformMeta(selectedPlatform);
+        const pCount = allJobs.filter(j => (j.platform || "").toLowerCase() === selectedPlatform.toLowerCase()).length;
+        activeTitle.innerHTML = `<span class="steady-dot" style="background:${meta.color};display:inline-block;margin-right:8px;"></span> ${escapeHtml(meta.name)} (${pCount})`;
       } else {
         activeTitle.innerHTML = `<i class="fa-solid fa-layer-group" style="color:#0f172a;margin-right:8px;"></i> Toutes les opportunités (${allJobs.length})`;
       }
@@ -4079,13 +4276,15 @@ function setupArovaExperience() {
     // Dynamic distinct color theme on secondary sheet window
     const sheetCard = secondaryOverlay ? secondaryOverlay.querySelector(".secondary-sheet-card") : null;
     if (sheetCard) {
-      sheetCard.classList.remove("sheet-theme-cv", "sheet-theme-platforms", "sheet-theme-settings");
+      sheetCard.classList.remove("sheet-theme-cv", "sheet-theme-platforms", "sheet-theme-settings", "sheet-theme-agencies");
       if (tabId === "tab-cv") {
         sheetCard.classList.add("sheet-theme-cv");
       } else if (tabId === "tab-platforms") {
         sheetCard.classList.add("sheet-theme-platforms");
       } else if (tabId === "tab-settings") {
         sheetCard.classList.add("sheet-theme-settings");
+      } else if (tabId === "tab-agencies") {
+        sheetCard.classList.add("sheet-theme-agencies");
       }
     }
 
@@ -4105,11 +4304,17 @@ function setupArovaExperience() {
     const titles = {
       "tab-cv": '<i class="fa-solid fa-file-pdf" style="color:#ef4444;"></i> <span>Visualisateur & Bibliothèque de CV</span>',
       "tab-platforms": '<i class="fa-solid fa-key" style="color:#38bdf8;"></i> <span>Connexions & Sessions des Plateformes</span>',
-      "tab-settings": '<i class="fa-solid fa-sliders" style="color:#a855f7;"></i> <span>Paramètres de Recherche & Veille</span>'
+      "tab-settings": '<i class="fa-solid fa-sliders" style="color:#a855f7;"></i> <span>Paramètres de Recherche & Veille</span>',
+      "tab-agencies": '<i class="fa-solid fa-bullseye" style="color:#10b981;"></i> <span>Prospection Agences Web & Démarchage B2B</span>'
     };
 
     if (secondaryTitle && titles[tabId]) {
       secondaryTitle.innerHTML = titles[tabId];
+    }
+
+    if (tabId === "tab-agencies" && typeof window.loadAgencies === "function") {
+      window.loadAgencies();
+      if (typeof window.loadAgencyStats === "function") window.loadAgencyStats();
     }
 
     if (secondaryOverlay) secondaryOverlay.classList.add("open");
@@ -4168,6 +4373,15 @@ function setupArovaExperience() {
     closeStudioDrawer();
     openZenTable("", "applied");
   });
+
+  const tileAgencies = document.getElementById("menu-tile-agencies");
+  if (tileAgencies) tileAgencies.addEventListener("click", () => {
+    closeStudioDrawer();
+    openSecondarySheet("tab-agencies");
+  });
+
+  const btnHeaderAgencies = document.getElementById("btn-header-agencies");
+  if (btnHeaderAgencies) btnHeaderAgencies.addEventListener("click", () => openSecondarySheet("tab-agencies"));
 
   const btnKillDrawer = document.getElementById("btn-kill-all-browsers-drawer");
   const btnKillMain = document.getElementById("btn-kill-all-browsers");
@@ -4238,6 +4452,18 @@ function setupArovaExperience() {
       if (modalProfile && modalProfile.style.display !== "none") {
         modalProfile.style.display = "none";
       }
+      const modalAgPrev = document.getElementById("agency-preview-modal");
+      if (modalAgPrev && modalAgPrev.style.display !== "none") {
+        modalAgPrev.style.display = "none";
+      }
+      const modalAgSmtp = document.getElementById("agency-smtp-modal");
+      if (modalAgSmtp && modalAgSmtp.style.display !== "none") {
+        modalAgSmtp.style.display = "none";
+      }
+      const modalAgAdd = document.getElementById("agency-add-modal");
+      if (modalAgAdd && modalAgAdd.style.display !== "none") {
+        modalAgAdd.style.display = "none";
+      }
       closeArovaCard();
       closeCandidaturesSheet();
       closeStudioDrawer();
@@ -4269,6 +4495,10 @@ function setupArovaExperience() {
           modalProfile.style.display = "flex";
         }
       }
+    } else if (e.key === "g" || e.key === "G") {
+      e.preventDefault();
+      const btnHeaderAgencies = document.getElementById("btn-header-agencies");
+      if (btnHeaderAgencies) btnHeaderAgencies.click();
     }
   });
 
@@ -4294,6 +4524,7 @@ function setupArovaExperience() {
   // Setup Profile & IA Matching Engine
   setupProfileAndMatchingExperience();
   setupBatchApplyExperience();
+  setupAgenciesProspectionExperience();
 }
 
 /* ==========================================================
@@ -5638,6 +5869,1187 @@ function setupColorThemeEngine() {
 
 function setupBannerCustomizer() {
   // Legacy stub replaced by setupColorThemeEngine
+}
+
+/* ==========================================================
+   AGENCY PROSPECTION & B2B OUTREACH ENGINE
+========================================================== */
+function setupAgenciesProspectionExperience() {
+  let allAgencies = [];
+  let currentAgencyFilter = "all";
+  let agencySearchQuery = "";
+
+  const tableBody = document.getElementById("agencies-table-body");
+  const emptyState = document.getElementById("agencies-empty-state");
+  const searchInput = document.getElementById("input-search-agencies");
+  const clearSearchBtn = document.getElementById("btn-clear-agencies-search");
+  const filterChips = document.querySelectorAll("[data-agency-filter]");
+
+  // Modals
+  const previewModal = document.getElementById("agency-preview-modal");
+  const smtpModal = document.getElementById("agency-smtp-modal");
+  const addModal = document.getElementById("agency-add-modal");
+
+  // Load KPI Stats
+  async function loadAgencyStats() {
+    try {
+      const res = await fetch("/api/agencies/stats");
+      if (!res.ok) return;
+      const stats = await res.json();
+
+      const elTotal = document.getElementById("agencies-stat-total");
+      const elEmail = document.getElementById("agencies-stat-email");
+      const elToday = document.getElementById("agencies-stat-today");
+      const elContacted = document.getElementById("agencies-stat-contacted");
+      const elHeaderCount = document.getElementById("header-agencies-count");
+      const elDrawerBadge = document.getElementById("drawer-agencies-badge");
+      const elBatchCount = document.getElementById("btn-batch-quota-count");
+      const elTodayProgress = document.getElementById("agency-today-progress");
+
+      if (elTotal) elTotal.textContent = stats.total || 0;
+      if (elEmail) elEmail.textContent = stats.with_email || 0;
+      if (elToday) elToday.textContent = stats.today_contacted || 0;
+      if (elContacted) elContacted.textContent = stats.contacted || 0;
+      if (elHeaderCount) elHeaderCount.textContent = stats.total || 0;
+      if (elDrawerBadge) elDrawerBadge.textContent = stats.total || 0;
+
+      const remainingQuota = Math.max(0, 20 - (stats.today_contacted || 0));
+      const targetBatch = Math.min(15, remainingQuota);
+      if (elBatchCount) elBatchCount.textContent = targetBatch;
+
+      if (elTodayProgress) {
+        const pct = Math.min(100, Math.round(((stats.today_contacted || 0) / 20) * 100));
+        elTodayProgress.style.width = pct + "%";
+      }
+    } catch (e) {
+      console.warn("Failed to load agency stats:", e);
+    }
+  }
+
+  // Load Agencies List
+  async function loadAgencies() {
+    try {
+      const res = await fetch("/api/agencies");
+      if (!res.ok) return;
+      allAgencies = await res.json();
+
+      // Update counters on filter chips
+      const cntAll = document.getElementById("agencies-cnt-all");
+      const cntPending = document.getElementById("agencies-cnt-pending");
+      const cntContacted = document.getElementById("agencies-cnt-contacted");
+      const cntReplied = document.getElementById("agencies-cnt-replied");
+
+      if (cntAll) cntAll.textContent = allAgencies.length;
+      if (cntPending) cntPending.textContent = allAgencies.filter(a => a.status === "pending").length;
+      if (cntContacted) cntContacted.textContent = allAgencies.filter(a => a.status === "contacted").length;
+      if (cntReplied) cntReplied.textContent = allAgencies.filter(a => a.status === "replied").length;
+
+      filterAndRenderAgencies();
+    } catch (e) {
+      console.warn("Failed to load agencies:", e);
+    }
+  }
+
+  // Filter & Render Table
+  function filterAndRenderAgencies() {
+    if (!tableBody) return;
+
+    let filtered = allAgencies.slice();
+
+    // Status filter
+    if (currentAgencyFilter !== "all") {
+      filtered = filtered.filter(a => a.status === currentAgencyFilter);
+    }
+
+    // Search query filter
+    if (agencySearchQuery) {
+      const q = agencySearchQuery.toLowerCase();
+      filtered = filtered.filter(a => 
+        (a.name && a.name.toLowerCase().includes(q)) ||
+        (a.city && a.city.toLowerCase().includes(q)) ||
+        (a.category && a.category.toLowerCase().includes(q)) ||
+        (a.email && a.email.toLowerCase().includes(q)) ||
+        (a.website && a.website.toLowerCase().includes(q))
+      );
+    }
+
+    tableBody.innerHTML = "";
+
+    if (filtered.length === 0) {
+      if (emptyState) emptyState.style.display = "block";
+      const tableWrap = document.querySelector(".agency-table");
+      if (tableWrap) tableWrap.style.display = "none";
+      return;
+    }
+
+    if (emptyState) emptyState.style.display = "none";
+    const tableWrap = document.querySelector(".agency-table");
+    if (tableWrap) tableWrap.style.display = "table";
+
+    filtered.forEach(agency => {
+      const tr = document.createElement("tr");
+
+      // Format contacted date if available
+      let contactedDateStr = "";
+      if (agency.contacted_at) {
+        try {
+          const d = new Date(agency.contacted_at);
+          contactedDateStr = ` (${d.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" })})`;
+        } catch (_) {}
+      }
+
+      // Status pill styling
+      let statusHtml = "";
+      if (agency.status === "contacted") {
+        statusHtml = `<span class="agency-status-pill contacted btn-pill-cycle-status" data-id="${agency.id}" title="Statut : Envoyé / Contacté (Cliquer pour repasser en attente)" style="cursor: pointer;"><i class="fa-solid fa-circle-check"></i> Envoyé${contactedDateStr}</span>`;
+      } else if (agency.status === "replied") {
+        statusHtml = `<span class="agency-status-pill replied btn-pill-cycle-status" data-id="${agency.id}" title="Statut : Réponse reçue (Cliquer pour basculer)" style="cursor: pointer;"><i class="fa-solid fa-comments"></i> Réponse reçue</span>`;
+      } else if (agency.status === "skipped") {
+        statusHtml = `<span class="agency-status-pill skipped btn-pill-cycle-status" data-id="${agency.id}" title="Statut : Ignoré (Cliquer pour basculer)" style="cursor: pointer;"><i class="fa-solid fa-forward-step"></i> Ignoré</span>`;
+      } else {
+        statusHtml = `<span class="agency-status-pill pending btn-pill-cycle-status" data-id="${agency.id}" title="Statut : À contacter (Cliquer pour marquer contacté)" style="cursor: pointer;"><i class="fa-regular fa-clock"></i> À contacter</span>`;
+      }
+
+      // Website link
+      const webUrl = agency.website ? agency.website : "#";
+      const webDisplay = agency.website ? agency.website.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "") : "Non renseigné";
+
+      // Deliverability badge
+      let deliverableBadgeHtml = "";
+      if (agency.email_status === "verified") {
+        deliverableBadgeHtml = `<span class="deliverable-badge verified"><i class="fa-solid fa-shield-check"></i> Email Vérifié</span>`;
+      } else if (agency.email_status === "ats_only") {
+        deliverableBadgeHtml = `<span class="deliverable-badge ats"><i class="fa-solid fa-bolt"></i> Portail ATS (WTTJ)</span>`;
+      } else if (agency.email_status === "bounced") {
+        deliverableBadgeHtml = `<span class="deliverable-badge bounced"><i class="fa-solid fa-triangle-exclamation"></i> Adresse Introuvable</span>`;
+      } else {
+        deliverableBadgeHtml = `<span class="deliverable-badge unverified"><i class="fa-regular fa-circle-question"></i> Non vérifié</span>`;
+      }
+
+      // Decision maker
+      let decisionMakerHtml = "";
+      if (agency.decision_maker) {
+        decisionMakerHtml = `
+          <div class="agency-decision-maker" style="font-size: 11px; color: #cbd5e1; margin-bottom: 4px; display: flex; align-items: center; gap: 5px;">
+            <i class="fa-solid fa-user-tie" style="color: #a78bfa; font-size: 10px;"></i>
+            <span>${agency.decision_maker}</span>
+          </div>
+        `;
+      }
+
+      // Email tag
+      let emailLineHtml = "";
+      if (agency.email) {
+        emailLineHtml = `
+          <div class="agency-email-tag">
+            <i class="fa-solid fa-envelope" style="color: #38bdf8;"></i>
+            <span>${agency.email}</span>
+          </div>
+        `;
+      } else {
+        emailLineHtml = `
+          <div class="agency-email-tag" style="color: #94a3b8; font-size: 11.5px;">
+            <i class="fa-solid fa-arrow-up-right-from-square" style="color: #a78bfa;"></i>
+            <span>Postuler via portail ATS</span>
+          </div>
+        `;
+      }
+
+      // Direct portal link
+      let portalLinkHtml = "";
+      if (agency.direct_portal_url) {
+        portalLinkHtml = `
+          <div style="margin-top: 3px;">
+            <a href="${agency.direct_portal_url}" target="_blank" rel="noopener noreferrer" style="color: #c084fc; font-weight: 600; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; text-decoration: none;">
+              <i class="fa-solid fa-bolt" style="font-size: 10px;"></i>
+              <span>Portail Recrutement Direct</span>
+            </a>
+          </div>
+        `;
+      }
+
+      // Actions buttons
+      let actionButtonsHtml = `
+        <button type="button" class="agency-btn-action btn-agency-preview" data-id="${agency.id}" title="Aperçu & Personnaliser le message">
+          <i class="fa-solid fa-envelope-open-text"></i> Aperçu
+        </button>
+      `;
+
+      if (agency.direct_portal_url) {
+        actionButtonsHtml += `
+          <button type="button" class="agency-btn-action ats btn-agency-ats" data-id="${agency.id}" title="Copier le pitch personnalisé et ouvrir le portail de candidature (1-Clic)">
+            <i class="fa-solid fa-bolt"></i> 1-Clic Postuler
+          </button>
+        `;
+      }
+
+      if (agency.email && agency.email_status !== "ats_only") {
+        actionButtonsHtml += `
+          <button type="button" class="agency-btn-action primary btn-agency-quick-send" data-id="${agency.id}" title="Envoyer directement par email (1-Clic)">
+            <i class="fa-solid fa-paper-plane"></i> 1-Clic Email
+          </button>
+        `;
+      }
+
+      if (agency.status === "contacted") {
+        actionButtonsHtml += `
+          <button type="button" class="agency-btn-action muted btn-agency-toggle-status" data-id="${agency.id}" data-action="pending" title="Remettre ce prospect en attente (À contacter)">
+            <i class="fa-solid fa-rotate-left"></i> Annuler
+          </button>
+        `;
+      } else {
+        actionButtonsHtml += `
+          <button type="button" class="agency-btn-action success btn-agency-toggle-status" data-id="${agency.id}" data-action="contacted" title="Marquer comme contactée manuellement (email direct, LinkedIn, tél...)">
+            <i class="fa-solid fa-check"></i> Fait
+          </button>
+        `;
+      }
+
+      actionButtonsHtml += `
+        <button type="button" class="agency-btn-action icon-only btn-agency-delete" data-id="${agency.id}" title="Supprimer ce prospect">
+          <i class="fa-solid fa-trash-can"></i>
+        </button>
+      `;
+
+      tr.innerHTML = `
+        <td>
+          <div class="agency-name-cell">
+            <i class="fa-solid fa-building" style="color: #10b981; font-size: 13px;"></i>
+            <span>${agency.name}</span>
+          </div>
+          <div class="agency-category-tag">${agency.category || "Agence Web & Digitale"}</div>
+        </td>
+        <td>
+          <div class="agency-city-badge">
+            <i class="fa-solid fa-location-dot" style="color: #94a3b8; font-size: 11px;"></i>
+            <span>${agency.city || "Paris / Remote"}</span>
+          </div>
+        </td>
+        <td>
+          <div class="agency-contact-cell">
+            ${deliverableBadgeHtml}
+            ${decisionMakerHtml}
+            ${emailLineHtml}
+            ${portalLinkHtml}
+            ${agency.website ? `
+              <div style="margin-top: 3px;">
+                <a href="${webUrl}" target="_blank" rel="noopener noreferrer">
+                  <i class="fa-solid fa-globe" style="font-size: 11px;"></i>
+                  <span>${webDisplay}</span>
+                </a>
+              </div>
+            ` : ""}
+          </div>
+        </td>
+        <td>
+          ${statusHtml}
+        </td>
+        <td>
+          <div class="agency-actions-cell">
+            ${actionButtonsHtml}
+          </div>
+        </td>
+      `;
+
+      tableBody.appendChild(tr);
+    });
+
+    // Wire action buttons
+    tableBody.querySelectorAll(".btn-agency-preview").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const id = parseInt(btn.dataset.id, 10);
+        openAgencyPreview(id);
+      });
+    });
+
+    tableBody.querySelectorAll(".btn-agency-ats").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const id = parseInt(btn.dataset.id, 10);
+        const agency = allAgencies.find(a => a.id === id);
+        if (!agency || !agency.direct_portal_url) return;
+
+        // Copy custom pitch to clipboard
+        try {
+          await navigator.clipboard.writeText(agency.custom_message || "");
+          showToast(`📋 Pitch copié dans le presse-papier ! Redirection vers la candidature ${agency.name}...`, "success");
+        } catch (err) {
+          console.warn("Clipboard copy err:", err);
+        }
+
+        // Mark as contacted in DB
+        fetch(`/api/agencies/${id}/ats-apply`, { method: "POST" })
+          .then(res => res.json())
+          .then(() => {
+            agency.status = "contacted";
+            filterAndRenderAgencies();
+            loadAgencyStats();
+          })
+          .catch(e => console.warn(e));
+
+        // Open portal
+        window.open(agency.direct_portal_url, "_blank");
+      });
+    });
+
+    tableBody.querySelectorAll(".btn-agency-quick-send").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const id = parseInt(btn.dataset.id, 10);
+        sendSingleAgency(id, btn);
+      });
+    });
+
+    tableBody.querySelectorAll(".btn-agency-delete").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const id = parseInt(btn.dataset.id, 10);
+        deleteAgency(id);
+      });
+    });
+
+    tableBody.querySelectorAll(".btn-agency-toggle-status").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const id = parseInt(btn.dataset.id, 10);
+        const action = btn.dataset.action;
+        setAgencyStatus(id, action, "manual");
+      });
+    });
+
+    tableBody.querySelectorAll(".btn-pill-cycle-status").forEach(pill => {
+      pill.addEventListener("click", () => {
+        const id = parseInt(pill.dataset.id, 10);
+        const agency = allAgencies.find(a => a.id === id);
+        if (!agency) return;
+        const nextStatus = agency.status === "contacted" ? "pending" : "contacted";
+        setAgencyStatus(id, nextStatus, "manual");
+      });
+    });
+  }
+
+  async function setAgencyStatus(id, newStatus, channel = "manual") {
+    try {
+      const res = await fetch(`/api/agencies/${id}/status`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus, channel: channel })
+      });
+      const data = await res.json();
+      if (data.status === "success") {
+        const agency = allAgencies.find(a => a.id === id);
+        if (agency) {
+          agency.status = newStatus;
+          if (newStatus === "contacted") {
+            agency.contacted_at = data.contacted_at || new Date().toISOString();
+          } else if (newStatus === "pending") {
+            agency.contacted_at = null;
+          }
+        }
+        showToast(`✨ ${data.message}`, "success");
+        if (typeof window.playNintendoChirp === "function") window.playNintendoChirp("confirm");
+        filterAndRenderAgencies();
+        loadAgencyStats();
+      } else {
+        showToast(`Erreur : ${data.detail || "Mise à jour impossible"}`, "error");
+      }
+    } catch (e) {
+      showToast(`Erreur réseau : ${e.message}`, "error");
+    }
+  }
+
+  // Open Preview Modal
+  function openAgencyPreview(id) {
+    const agency = allAgencies.find(a => a.id === id);
+    if (!agency || !previewModal) return;
+
+    document.getElementById("preview-agency-id").value = agency.id;
+    document.getElementById("preview-agency-name").textContent = agency.name;
+    
+    // Editable email input
+    const emailInput = document.getElementById("preview-agency-email-input");
+    if (emailInput) {
+      emailInput.value = agency.email || "";
+    }
+    
+    // Status badge
+    const badgeWrap = document.getElementById("preview-email-status-badge");
+    if (badgeWrap) {
+      if (agency.email_status === "verified") {
+        badgeWrap.innerHTML = `<span class="deliverable-badge verified"><i class="fa-solid fa-shield-check"></i> Vérifié</span>`;
+      } else if (agency.email_status === "ats_only") {
+        badgeWrap.innerHTML = `<span class="deliverable-badge ats"><i class="fa-solid fa-bolt"></i> Portail ATS (WTTJ)</span>`;
+      } else if (agency.email_status === "bounced") {
+        badgeWrap.innerHTML = `<span class="deliverable-badge bounced"><i class="fa-solid fa-triangle-exclamation"></i> Adresse introuvable</span>`;
+      } else {
+        badgeWrap.innerHTML = `<span class="deliverable-badge unverified"><i class="fa-regular fa-circle-question"></i> Non vérifié</span>`;
+      }
+    }
+
+    // Decision maker
+    const decEl = document.getElementById("preview-agency-decision-maker");
+    if (decEl) {
+      if (agency.decision_maker) {
+        decEl.style.display = "inline";
+        decEl.querySelector("strong").textContent = agency.decision_maker;
+      } else {
+        decEl.style.display = "none";
+      }
+    }
+    
+    const webEl = document.getElementById("preview-agency-website");
+    if (webEl) {
+      webEl.textContent = agency.website ? agency.website.replace(/^https?:\/\//, "") : "-";
+      webEl.href = agency.website || "#";
+    }
+
+    // Portal link & ATS apply button
+    const portalWrap = document.getElementById("preview-agency-portal-wrap");
+    const portalUrl = document.getElementById("preview-agency-portal-url");
+    const btnAtsPrev = document.getElementById("btn-agency-preview-ats");
+    if (agency.direct_portal_url) {
+      if (portalWrap && portalUrl) {
+        portalWrap.style.display = "inline";
+        portalUrl.href = agency.direct_portal_url;
+      }
+      if (btnAtsPrev) {
+        btnAtsPrev.style.display = "inline-flex";
+        btnAtsPrev.onclick = async () => {
+          try {
+            const body = document.getElementById("preview-email-body").value;
+            await navigator.clipboard.writeText(body);
+            showToast(`📋 Pitch copié dans le presse-papier ! Redirection vers la candidature...`, "success");
+          } catch (_) {}
+          fetch(`/api/agencies/${agency.id}/ats-apply`, { method: "POST" })
+            .then(res => res.json())
+            .then(() => {
+              agency.status = "contacted";
+              filterAndRenderAgencies();
+              loadAgencyStats();
+            });
+          closeAgencyPreview();
+          window.open(agency.direct_portal_url, "_blank");
+        };
+      }
+    } else {
+      if (portalWrap) portalWrap.style.display = "none";
+      if (btnAtsPrev) btnAtsPrev.style.display = "none";
+    }
+
+    document.getElementById("preview-email-subject").value = agency.subject || "Renfort intégration front-end / React / Figma";
+    document.getElementById("preview-email-body").value = agency.custom_message || "";
+
+    // Wire modal Mark Contacted button
+    const btnMarkPrev = document.getElementById("btn-agency-preview-mark-contacted");
+    if (btnMarkPrev) {
+      if (agency.status === "contacted") {
+        btnMarkPrev.innerHTML = `<i class="fa-solid fa-rotate-left"></i> Remettre en attente`;
+        btnMarkPrev.title = "Annuler et repasser en À contacter";
+        btnMarkPrev.style.color = "#94a3b8";
+        btnMarkPrev.style.borderColor = "rgba(255,255,255,0.15)";
+        btnMarkPrev.style.background = "rgba(255,255,255,0.05)";
+        btnMarkPrev.onclick = async () => {
+          await setAgencyStatus(agency.id, "pending", "manual");
+          closeAgencyPreview();
+        };
+      } else {
+        btnMarkPrev.innerHTML = `<i class="fa-solid fa-circle-check"></i> Marquer contactée`;
+        btnMarkPrev.title = "Marquer comme contactée manuellement (email perso, LinkedIn, tél...)";
+        btnMarkPrev.style.color = "#34d399";
+        btnMarkPrev.style.borderColor = "rgba(16,185,129,0.35)";
+        btnMarkPrev.style.background = "rgba(16,185,129,0.1)";
+        btnMarkPrev.onclick = async () => {
+          await setAgencyStatus(agency.id, "contacted", "manual");
+          closeAgencyPreview();
+        };
+      }
+    }
+
+    previewModal.style.display = "flex";
+  }
+
+  // Reliable mailto launcher without popup blocker interception
+  function openMailtoLink(mailtoUrl) {
+    try {
+      const link = document.createElement("a");
+      link.href = mailtoUrl;
+      link.style.display = "none";
+      document.body.appendChild(link);
+      link.click();
+      setTimeout(() => {
+        if (link.parentNode) link.parentNode.removeChild(link);
+      }, 300);
+    } catch (_) {
+      window.location.href = mailtoUrl;
+    }
+  }
+
+  // Send Single Agency via API
+  async function sendSingleAgency(id, btnElement) {
+    const agency = allAgencies.find(a => a.id === id);
+    if (!agency) return;
+
+    let originalHtml = "";
+    if (btnElement) {
+      originalHtml = btnElement.innerHTML;
+      btnElement.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Envoi...`;
+      btnElement.disabled = true;
+    }
+
+    try {
+      const res = await fetch(`/api/agencies/${id}/send`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ simulate_if_no_smtp: true })
+      });
+      const data = await res.json();
+
+      if (data.status === "success") {
+        if (data.mode === "smtp") {
+          showToast(`✉️ Email envoyé avec succès à ${agency.name} via SMTP !`, "success");
+        } else {
+          // Native mailto dispatch
+          if (data.mailto_link) {
+            openMailtoLink(data.mailto_link);
+          }
+          showToast(`✉️ Ouverture de votre messagerie & ${agency.name} marqué comme contacté !`, "success");
+        }
+        if (typeof window.playNintendoChirp === "function") window.playNintendoChirp("confirm");
+        loadAgencies();
+        loadAgencyStats();
+      } else {
+        showToast(`Erreur d'envoi : ${data.error || "Impossible d'envoyer"}`, "error");
+      }
+    } catch (e) {
+      showToast(`Erreur réseau : ${e.message}`, "error");
+    } finally {
+      if (btnElement) {
+        btnElement.innerHTML = originalHtml;
+        btnElement.disabled = false;
+      }
+    }
+  }
+
+  // Delete Agency
+  async function deleteAgency(id) {
+    const agency = allAgencies.find(a => a.id === id);
+    const name = agency ? agency.name : "ce prospect";
+    if (!confirm(`Supprimer définitivement ${name} de votre liste de prospection ?`)) return;
+
+    try {
+      const res = await fetch(`/api/agencies/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        showToast(`🗑️ ${name} retiré de la liste.`, "info");
+        allAgencies = allAgencies.filter(a => a.id !== id);
+        filterAndRenderAgencies();
+        loadAgencyStats();
+      }
+    } catch (e) {
+      showToast(`Erreur de suppression : ${e.message}`, "error");
+    }
+  }
+
+  // Batch Send Daily Quota (15 emails)
+  const btnBatchSend = document.getElementById("btn-batch-send-agencies");
+  if (btnBatchSend) {
+    btnBatchSend.addEventListener("click", async () => {
+      const pendingAgencies = allAgencies.filter(a => a.status === "pending" && a.email && a.email_status !== "ats_only" && a.email_status !== "bounced");
+      if (pendingAgencies.length === 0) {
+        const atsAgencies = allAgencies.filter(a => a.status === "pending" && (a.email_status === "ats_only" || a.direct_portal_url));
+        if (atsAgencies.length > 0) {
+          showToast(`Toutes les agences avec email direct ont été contactées ! Il reste ${atsAgencies.length} agences sur portail ATS : utilisez le bouton '⚡ 1-Clic Postuler'.`, "info");
+        } else {
+          showToast("Toutes les agences de la liste ont déjà été contactées !", "info");
+        }
+        return;
+      }
+
+      const quotaCount = Math.min(15, pendingAgencies.length);
+      const ok = confirm(`🚀 Confirmer l'envoi du quota quotidien (${quotaCount} emails vérifiés avec temporisation anti-spam de 2 à 3s) ?`);
+      if (!ok) return;
+
+      const liveBar = document.getElementById("agency-live-status-bar");
+      const liveText = document.getElementById("agency-status-text");
+      const liveFill = document.getElementById("agency-batch-progress-fill");
+
+      if (liveBar) liveBar.style.display = "block";
+      if (liveText) liveText.textContent = `Envoi sécurisé en cours à ${quotaCount} agences partenaires...`;
+      if (liveFill) liveFill.style.width = "20%";
+
+      btnBatchSend.disabled = true;
+
+      try {
+        if (liveFill) liveFill.style.width = "40%";
+        const targetIds = pendingAgencies.slice(0, quotaCount).map(a => a.id);
+        const res = await fetch("/api/agencies/batch-send", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ agency_ids: targetIds, max_count: quotaCount })
+        });
+        const result = await res.json();
+
+        if (liveFill) liveFill.style.width = "100%";
+        setTimeout(() => {
+          if (liveBar) liveBar.style.display = "none";
+          if (liveFill) liveFill.style.width = "0%";
+        }, 1000);
+
+        if (result.status === "success") {
+          let successMsg = `🎉 Quota envoyé : ${result.sent_count} emails envoyés avec succès via ${result.mode === "smtp" ? "SMTP" : "Mailto"} !`;
+          if (result.skipped_count && result.skipped_count > 0) {
+            successMsg += ` (${result.skipped_count} portails ATS préservés)`;
+          }
+          showToast(successMsg, "success");
+          if (typeof window.playNintendoChirp === "function") window.playNintendoChirp("confirm");
+        } else {
+          showToast(`Erreur d'envoi : ${result.detail || result.error || "Échec du lot"}`, "error");
+        }
+
+        loadAgencies();
+        loadAgencyStats();
+      } catch (e) {
+        if (liveBar) liveBar.style.display = "none";
+        showToast(`Erreur durant l'envoi par lot : ${e.message}`, "error");
+      } finally {
+        btnBatchSend.disabled = false;
+      }
+    });
+  }
+
+  // Scan & Discover New Agencies
+  const btnScanAgencies = document.getElementById("btn-scan-agencies");
+  const btnEmptyScan = document.getElementById("btn-empty-scan-agencies");
+
+  async function triggerScan() {
+    const scanBtn = btnScanAgencies;
+    let oldText = "";
+    if (scanBtn) {
+      oldText = scanBtn.innerHTML;
+      scanBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Détection & extraction d'emails...`;
+      scanBtn.disabled = true;
+    }
+
+    showToast("📡 Crawler IA activé : exploration du web créatif et extraction des emails...", "info");
+
+    try {
+      const res = await fetch("/api/agencies/scan", { method: "POST" });
+      const data = await res.json();
+
+      if (data.status === "success") {
+        showToast(`✨ Radar terminé : ${data.new_found} nouvelles agences ajoutées (${data.total} au total) !`, "success");
+        if (typeof window.playNintendoChirp === "function") window.playNintendoChirp("confirm");
+        loadAgencies();
+        loadAgencyStats();
+      } else {
+        showToast("Scan terminé. Aucune nouvelle agence inédite.", "info");
+      }
+    } catch (e) {
+      showToast(`Erreur de détection : ${e.message}`, "error");
+    } finally {
+      if (scanBtn) {
+        scanBtn.innerHTML = oldText;
+        scanBtn.disabled = false;
+      }
+    }
+  }
+
+  if (btnScanAgencies) btnScanAgencies.addEventListener("click", triggerScan);
+  if (btnEmptyScan) btnEmptyScan.addEventListener("click", triggerScan);
+
+  // Search input handler
+  if (searchInput) {
+    searchInput.addEventListener("input", (e) => {
+      agencySearchQuery = e.target.value.trim();
+      if (clearSearchBtn) {
+        clearSearchBtn.style.display = agencySearchQuery ? "block" : "none";
+      }
+      filterAndRenderAgencies();
+    });
+  }
+
+  if (clearSearchBtn) {
+    clearSearchBtn.addEventListener("click", () => {
+      if (searchInput) searchInput.value = "";
+      agencySearchQuery = "";
+      clearSearchBtn.style.display = "none";
+      filterAndRenderAgencies();
+    });
+  }
+
+  // Filter chips handler
+  filterChips.forEach(chip => {
+    chip.addEventListener("click", () => {
+      filterChips.forEach(c => c.classList.remove("active"));
+      chip.classList.add("active");
+      currentAgencyFilter = chip.dataset.agencyFilter || "all";
+      filterAndRenderAgencies();
+    });
+  });
+
+  // Modal 1: Preview Actions
+  const btnClosePrev = document.getElementById("btn-close-agency-preview");
+  const btnCancelPrev = document.getElementById("btn-cancel-agency-preview");
+  const btnSendPrev = document.getElementById("btn-send-agency-preview");
+  const btnMailtoPrev = document.getElementById("btn-agency-preview-mailto");
+
+  function closeAgencyPreview() {
+    if (previewModal) previewModal.style.display = "none";
+  }
+
+  if (btnClosePrev) btnClosePrev.addEventListener("click", closeAgencyPreview);
+  if (btnCancelPrev) btnCancelPrev.addEventListener("click", closeAgencyPreview);
+
+  if (btnSendPrev) {
+    btnSendPrev.addEventListener("click", async () => {
+      const id = parseInt(document.getElementById("preview-agency-id").value, 10);
+      const subject = document.getElementById("preview-email-subject").value;
+      const body = document.getElementById("preview-email-body").value;
+      const emailInput = document.getElementById("preview-agency-email-input");
+      const editedEmail = emailInput ? emailInput.value.trim() : null;
+      
+      btnSendPrev.disabled = true;
+      btnSendPrev.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Envoi...`;
+
+      try {
+        // If email was edited in preview modal, persist it first
+        if (editedEmail) {
+          await fetch(`/api/agencies/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: editedEmail, email_status: "verified" })
+          });
+          const agency = allAgencies.find(a => a.id === id);
+          if (agency) {
+            agency.email = editedEmail;
+            agency.email_status = "verified";
+          }
+        }
+
+        const res = await fetch(`/api/agencies/${id}/send`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            subject: subject,
+            body: body,
+            simulate_if_no_smtp: true
+          })
+        });
+        const data = await res.json();
+
+        if (data.status === "success") {
+          closeAgencyPreview();
+          if (data.mode === "smtp") {
+            showToast(`✉️ Email envoyé avec succès via SMTP !`, "success");
+          } else {
+            if (data.mailto_link) openMailtoLink(data.mailto_link);
+            showToast(`✉️ Message ouvert dans votre messagerie & marqué comme contacté !`, "success");
+          }
+          if (typeof window.playNintendoChirp === "function") window.playNintendoChirp("confirm");
+          loadAgencies();
+          loadAgencyStats();
+        } else {
+          showToast(`Erreur : ${data.error || "Échec de l'envoi"}`, "error");
+        }
+      } catch (e) {
+        showToast(`Erreur réseau : ${e.message}`, "error");
+      } finally {
+        btnSendPrev.disabled = false;
+        btnSendPrev.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Envoyer Maintenant`;
+      }
+    });
+  }
+
+  if (btnMailtoPrev) {
+    btnMailtoPrev.addEventListener("click", async () => {
+      const id = parseInt(document.getElementById("preview-agency-id").value, 10);
+      const agency = allAgencies.find(a => a.id === id);
+      const emailInput = document.getElementById("preview-agency-email-input");
+      const email = emailInput && emailInput.value.trim() ? emailInput.value.trim() : (agency ? agency.email : "");
+      const subject = document.getElementById("preview-email-subject").value;
+      const body = document.getElementById("preview-email-body").value;
+      
+      if (!email) {
+        showToast("Aucune adresse email spécifiée pour le mailto", "warning");
+        return;
+      }
+      
+      const mailtoUrl = `mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      openMailtoLink(mailtoUrl);
+      
+      // Update status
+      fetch(`/api/agencies/${id}/ats-apply`, { method: "POST" })
+        .then(() => {
+          if (agency) agency.status = "contacted";
+          loadAgencies();
+          loadAgencyStats();
+        });
+      closeAgencyPreview();
+    });
+  }
+
+  // Modal 2: SMTP Config
+  const btnOpenSmtp = document.getElementById("btn-open-smtp-modal");
+  const btnCloseSmtp = document.getElementById("btn-close-agency-smtp");
+  const btnCancelSmtp = document.getElementById("btn-cancel-agency-smtp");
+  const btnSaveSmtp = document.getElementById("btn-save-agency-smtp");
+  const btnTestSmtp = document.getElementById("btn-test-agency-smtp");
+  const smtpFeedback = document.getElementById("smtp-status-feedback");
+
+  async function openSmtpConfigModal() {
+    if (!smtpModal) return;
+    if (smtpFeedback) smtpFeedback.innerHTML = "";
+    try {
+      const res = await fetch("/api/agencies/smtp");
+      if (res.ok) {
+        const cfg = await res.json();
+        document.getElementById("smtp-enabled").checked = cfg.enabled !== false;
+        document.getElementById("smtp-host").value = cfg.host || "smtp.gmail.com";
+        document.getElementById("smtp-port").value = cfg.port || 587;
+        document.getElementById("smtp-sender-name").value = cfg.sender_name || "Eliot Hantute";
+        document.getElementById("smtp-user").value = cfg.user || "";
+        document.getElementById("smtp-password").value = cfg.password || "";
+        document.getElementById("smtp-use-tls").checked = cfg.use_tls !== false;
+      }
+    } catch (_) {}
+    smtpModal.style.display = "flex";
+  }
+
+  function closeSmtpConfigModal() {
+    if (smtpModal) smtpModal.style.display = "none";
+  }
+
+  if (btnOpenSmtp) btnOpenSmtp.addEventListener("click", openSmtpConfigModal);
+  if (btnCloseSmtp) btnCloseSmtp.addEventListener("click", closeSmtpConfigModal);
+  if (btnCancelSmtp) btnCancelSmtp.addEventListener("click", closeSmtpConfigModal);
+
+  // Preset buttons
+  const presetGmail = document.getElementById("smtp-preset-gmail");
+  const presetBrevo = document.getElementById("smtp-preset-brevo");
+  const presetOvh = document.getElementById("smtp-preset-ovh");
+  const presetCustom = document.getElementById("smtp-preset-custom");
+
+  if (presetGmail) {
+    presetGmail.addEventListener("click", () => {
+      document.getElementById("smtp-host").value = "smtp.gmail.com";
+      document.getElementById("smtp-port").value = "587";
+      document.getElementById("smtp-use-tls").checked = true;
+    });
+  }
+  if (presetBrevo) {
+    presetBrevo.addEventListener("click", () => {
+      document.getElementById("smtp-host").value = "smtp-relay.brevo.com";
+      document.getElementById("smtp-port").value = "587";
+      document.getElementById("smtp-use-tls").checked = true;
+    });
+  }
+  if (presetOvh) {
+    presetOvh.addEventListener("click", () => {
+      document.getElementById("smtp-host").value = "ssl0.ovh.net";
+      document.getElementById("smtp-port").value = "587";
+      document.getElementById("smtp-use-tls").checked = true;
+    });
+  }
+  if (presetCustom) {
+    presetCustom.addEventListener("click", () => {
+      document.getElementById("smtp-host").value = "";
+      document.getElementById("smtp-port").value = "587";
+    });
+  }
+
+  // Live SMTP Test Button
+  if (btnTestSmtp) {
+    btnTestSmtp.addEventListener("click", async () => {
+      const cfg = {
+        enabled: document.getElementById("smtp-enabled").checked,
+        host: document.getElementById("smtp-host").value.trim(),
+        port: parseInt(document.getElementById("smtp-port").value.trim(), 10) || 587,
+        sender_name: document.getElementById("smtp-sender-name").value.trim(),
+        user: document.getElementById("smtp-user").value.trim(),
+        password: document.getElementById("smtp-password").value.trim(),
+        use_tls: document.getElementById("smtp-use-tls").checked
+      };
+
+      if (!cfg.user) {
+        if (smtpFeedback) {
+          smtpFeedback.innerHTML = '<span style="color:#f87171;"><i class="fa-solid fa-triangle-exclamation"></i> Renseignez votre adresse email.</span>';
+        }
+        return;
+      }
+
+      btnTestSmtp.disabled = true;
+      btnTestSmtp.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Test en cours...';
+      if (smtpFeedback) {
+        smtpFeedback.innerHTML = '<span style="color:#38bdf8;"><i class="fa-solid fa-satellite-dish"></i> Connexion au serveur...</span>';
+      }
+
+      try {
+        const res = await fetch("/api/agencies/smtp/test", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(cfg)
+        });
+        const data = await res.json();
+        if (data.status === "success") {
+          if (smtpFeedback) {
+            smtpFeedback.innerHTML = `<span style="color:#10b981;"><i class="fa-solid fa-circle-check"></i> ${data.message}</span>`;
+          }
+          showToast("✅ Connexion SMTP validée avec succès !", "success");
+        } else {
+          if (smtpFeedback) {
+            smtpFeedback.innerHTML = `<span style="color:#f87171; font-size:11.5px; line-height:1.3;"><i class="fa-solid fa-circle-xmark"></i> ${data.error}</span>`;
+          }
+          showToast(`Erreur SMTP : ${data.error}`, "error");
+        }
+      } catch (err) {
+        if (smtpFeedback) {
+          smtpFeedback.innerHTML = `<span style="color:#f87171;"><i class="fa-solid fa-circle-xmark"></i> Erreur réseau : ${err.message}</span>`;
+        }
+      } finally {
+        btnTestSmtp.disabled = false;
+        btnTestSmtp.innerHTML = '<i class="fa-solid fa-plug"></i> Tester la Connexion';
+      }
+    });
+  }
+
+  if (btnSaveSmtp) {
+    btnSaveSmtp.addEventListener("click", async () => {
+      const cfg = {
+        enabled: document.getElementById("smtp-enabled").checked,
+        host: document.getElementById("smtp-host").value.trim(),
+        port: parseInt(document.getElementById("smtp-port").value.trim(), 10) || 587,
+        sender_name: document.getElementById("smtp-sender-name").value.trim(),
+        user: document.getElementById("smtp-user").value.trim(),
+        password: document.getElementById("smtp-password").value.trim(),
+        use_tls: document.getElementById("smtp-use-tls").checked
+      };
+
+      btnSaveSmtp.disabled = true;
+      btnSaveSmtp.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Enregistrement...`;
+
+      try {
+        const res = await fetch("/api/agencies/smtp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(cfg)
+        });
+        const data = await res.json();
+        if (data.status === "success") {
+          showToast("⚙️ Configuration SMTP sauvegardée avec succès !", "success");
+          closeSmtpConfigModal();
+        } else {
+          showToast(`Erreur : ${data.error || "Impossible d'enregistrer"}`, "error");
+        }
+      } catch (e) {
+        showToast(`Erreur réseau : ${e.message}`, "error");
+      } finally {
+        btnSaveSmtp.disabled = false;
+        btnSaveSmtp.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Enregistrer`;
+      }
+    });
+  }
+
+  // Modal: Pitch Template Customization
+  const templateModal = document.getElementById("agency-template-modal");
+  const btnOpenTemplate = document.getElementById("btn-open-template-modal");
+  const btnCloseTemplate = document.getElementById("btn-close-agency-template");
+  const btnCancelTemplate = document.getElementById("btn-cancel-agency-template");
+  const btnSaveTemplate = document.getElementById("btn-save-agency-template");
+  const btnResetTemplate = document.getElementById("btn-reset-agency-template");
+  const tplSubjectInput = document.getElementById("template-email-subject");
+  const tplBodyInput = document.getElementById("template-email-body");
+  const tplLiveSubject = document.getElementById("template-live-preview-subject");
+  const tplLiveBody = document.getElementById("template-live-preview-body");
+
+  let activeTplInput = tplBodyInput;
+
+  if (tplSubjectInput) {
+    tplSubjectInput.addEventListener("focus", () => { activeTplInput = tplSubjectInput; });
+    tplSubjectInput.addEventListener("input", updateTemplateLivePreview);
+  }
+  if (tplBodyInput) {
+    tplBodyInput.addEventListener("focus", () => { activeTplInput = tplBodyInput; });
+    tplBodyInput.addEventListener("input", updateTemplateLivePreview);
+  }
+
+  // Insert variable tag at cursor
+  document.querySelectorAll(".tpl-var-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const tag = btn.dataset.tag;
+      if (!tag) return;
+      const target = activeTplInput || tplBodyInput;
+      if (!target) return;
+
+      const start = target.selectionStart || target.value.length;
+      const end = target.selectionEnd || target.value.length;
+      const text = target.value;
+      target.value = text.substring(0, start) + tag + text.substring(end);
+      target.focus();
+      target.selectionStart = target.selectionEnd = start + tag.length;
+      updateTemplateLivePreview();
+    });
+  });
+
+  async function updateTemplateLivePreview() {
+    if (!tplSubjectInput || !tplBodyInput) return;
+    const subject = tplSubjectInput.value;
+    const body = tplBodyInput.value;
+
+    try {
+      const res = await fetch("/api/agencies/template/preview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subject, body })
+      });
+      const data = await res.json();
+      if (data.status === "success") {
+        if (tplLiveSubject) tplLiveSubject.textContent = data.rendered_subject;
+        if (tplLiveBody) tplLiveBody.textContent = data.rendered_body;
+      }
+    } catch (_) {}
+  }
+
+  async function openTemplateModal() {
+    if (!templateModal) return;
+    try {
+      const res = await fetch("/api/agencies/template");
+      const data = await res.json();
+      if (data.status === "success") {
+        if (tplSubjectInput) tplSubjectInput.value = data.subject || "";
+        if (tplBodyInput) tplBodyInput.value = data.body || "";
+        updateTemplateLivePreview();
+      }
+    } catch (_) {}
+    templateModal.style.display = "flex";
+  }
+
+  function closeTemplateModal() {
+    if (templateModal) templateModal.style.display = "none";
+  }
+
+  if (btnOpenTemplate) btnOpenTemplate.addEventListener("click", openTemplateModal);
+  if (btnCloseTemplate) btnCloseTemplate.addEventListener("click", closeTemplateModal);
+  if (btnCancelTemplate) btnCancelTemplate.addEventListener("click", closeTemplateModal);
+
+  if (btnSaveTemplate) {
+    btnSaveTemplate.addEventListener("click", async () => {
+      const subject = tplSubjectInput ? tplSubjectInput.value.trim() : "";
+      const body = tplBodyInput ? tplBodyInput.value.trim() : "";
+      const applyToPending = document.getElementById("template-apply-to-pending") ? document.getElementById("template-apply-to-pending").checked : true;
+
+      if (!subject || !body) {
+        showToast("L'objet et le corps du template ne peuvent pas être vides.", "warning");
+        return;
+      }
+
+      btnSaveTemplate.disabled = true;
+      btnSaveTemplate.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Enregistrement...`;
+
+      try {
+        const res = await fetch("/api/agencies/template", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ subject, body, apply_to_pending: applyToPending })
+        });
+        const data = await res.json();
+        if (data.status === "success") {
+          showToast(`✨ ${data.message}`, "success");
+          if (typeof window.playNintendoChirp === "function") window.playNintendoChirp("confirm");
+          closeTemplateModal();
+          loadAgencies();
+          loadAgencyStats();
+        } else {
+          showToast(`Erreur : ${data.error || "Échec de sauvegarde"}`, "error");
+        }
+      } catch (e) {
+        showToast(`Erreur réseau : ${e.message}`, "error");
+      } finally {
+        btnSaveTemplate.disabled = false;
+        btnSaveTemplate.innerHTML = `<i class="fa-solid fa-check"></i> Enregistrer le Template`;
+      }
+    });
+  }
+
+  if (btnResetTemplate) {
+    btnResetTemplate.addEventListener("click", () => {
+      if (!confirm("Rétablir le texte modèle d'origine (recommandé pour agences et DA) ?")) return;
+      if (tplSubjectInput) tplSubjectInput.value = "Renfort intégration front-end & Figma pour {nom_agence}";
+      if (tplBodyInput) tplBodyInput.value = `Hello {destinataire},\n\nJe suis intégrateur & développeur front-end ({competences}).\nSi vous avez un trop-plein de maquettes Figma à intégrer ou des petits tickets front sur lesquels vous manquez de temps en ce moment, je suis disponible immédiatement en renfort (au forfait ou à la journée).\n\nVoici 2-3 projets propres et récents que j'ai codés :\n👉 Portfolio : {portfolio}\n👉 GitHub : {github}\n\nN'hésitez pas si vous avez une maquette urgente à découper cette semaine.\n\nBonne semaine,\n{nom_complet}\n{telephone}`;
+      updateTemplateLivePreview();
+    });
+  }
+
+  // Modal 3: Manual Add Agency
+  const btnOpenAdd = document.getElementById("btn-open-add-agency-modal");
+  const btnCloseAdd = document.getElementById("btn-close-agency-add");
+  const btnCancelAdd = document.getElementById("btn-cancel-agency-add");
+  const btnSubmitAdd = document.getElementById("btn-submit-agency-add");
+
+  function openAddModal() {
+    if (!addModal) return;
+    document.getElementById("add-agency-name").value = "";
+    document.getElementById("add-agency-city").value = "";
+    document.getElementById("add-agency-category").value = "Agence Web & Digitale";
+    document.getElementById("add-agency-email").value = "";
+    document.getElementById("add-agency-website").value = "";
+    document.getElementById("add-agency-phone").value = "";
+    addModal.style.display = "flex";
+  }
+
+  function closeAddModal() {
+    if (addModal) addModal.style.display = "none";
+  }
+
+  if (btnOpenAdd) btnOpenAdd.addEventListener("click", openAddModal);
+  if (btnCloseAdd) btnCloseAdd.addEventListener("click", closeAddModal);
+  if (btnCancelAdd) btnCancelAdd.addEventListener("click", closeAddModal);
+
+  if (btnSubmitAdd) {
+    btnSubmitAdd.addEventListener("click", async () => {
+      const name = document.getElementById("add-agency-name").value.trim();
+      const email = document.getElementById("add-agency-email").value.trim();
+
+      if (!name || !email) {
+        showToast("Veuillez renseigner au moins le nom et l'email de l'agence.", "warning");
+        return;
+      }
+
+      const payload = {
+        name: name,
+        city: document.getElementById("add-agency-city").value.trim() || "Paris",
+        category: document.getElementById("add-agency-category").value.trim() || "Agence Web",
+        email: email,
+        website: document.getElementById("add-agency-website").value.trim(),
+        phone: document.getElementById("add-agency-phone").value.trim()
+      };
+
+      btnSubmitAdd.disabled = true;
+
+      try {
+        const res = await fetch("/api/agencies/add", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        if (data.status === "success") {
+          showToast(`🏢 ${name} ajoutée avec succès !`, "success");
+          closeAddModal();
+          loadAgencies();
+          loadAgencyStats();
+        } else {
+          showToast(`Erreur : ${data.error || "Impossible d'ajouter"}`, "error");
+        }
+      } catch (e) {
+        showToast(`Erreur réseau : ${e.message}`, "error");
+      } finally {
+        btnSubmitAdd.disabled = false;
+      }
+    });
+  }
+
+  // Export functions to window for global access
+  window.loadAgencies = loadAgencies;
+  window.loadAgencyStats = loadAgencyStats;
+
+  // Initial stats fetch
+  loadAgencyStats();
 }
 
 /* ==========================================================

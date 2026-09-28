@@ -37,6 +37,30 @@ class ApplicationRecord(BaseModel):
         super().__init__(**data)
 
 
+class AgencyProspect(BaseModel):
+    id: Optional[int] = None
+    name: str
+    category: Optional[str] = "Agence Web"
+    website: str
+    email: Optional[str] = None
+    phone: Optional[str] = None
+    city: Optional[str] = "Paris"
+    subject: Optional[str] = None
+    custom_message: Optional[str] = None
+    status: str = "pending"  # pending, contacted, replied, skipped
+    contacted_at: Optional[str] = None
+    notes: Optional[str] = None
+    direct_portal_url: Optional[str] = None
+    decision_maker: Optional[str] = None
+    email_status: str = "pending"  # verified, unverified, ats_only, bounced
+    created_at: str = ""
+
+    def __init__(self, **data):
+        if not data.get("created_at"):
+            data["created_at"] = datetime.utcnow().isoformat()
+        super().__init__(**data)
+
+
 class Database:
     def __init__(self, db_path: Optional[Path] = None):
         self.db_path = db_path or settings.db_path
@@ -99,6 +123,48 @@ class Database:
             )
             cursor.execute(
                 "CREATE INDEX IF NOT EXISTS idx_status ON job_applications(status)"
+            )
+
+            # Table for B2B Agency & Studio Outreach Prospects
+            cursor.execute(
+                """
+                CREATE TABLE IF NOT EXISTS agency_prospects (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
+                    category TEXT,
+                    website TEXT NOT NULL,
+                    email TEXT,
+                    phone TEXT,
+                    city TEXT,
+                    subject TEXT,
+                    custom_message TEXT,
+                    status TEXT DEFAULT 'pending',
+                    contacted_at TEXT,
+                    notes TEXT,
+                    direct_portal_url TEXT,
+                    decision_maker TEXT,
+                    email_status TEXT DEFAULT 'pending',
+                    created_at TEXT NOT NULL,
+                    UNIQUE(website)
+                )
+                """
+            )
+            # Automatic schema migration for existing databases
+            for col, col_type in [
+                ("direct_portal_url", "TEXT"),
+                ("decision_maker", "TEXT"),
+                ("email_status", "TEXT DEFAULT 'pending'"),
+            ]:
+                try:
+                    cursor.execute(f"ALTER TABLE agency_prospects ADD COLUMN {col} {col_type}")
+                except sqlite3.OperationalError:
+                    pass
+
+            cursor.execute(
+                "CREATE INDEX IF NOT EXISTS idx_agency_status ON agency_prospects(status)"
+            )
+            cursor.execute(
+                "CREATE INDEX IF NOT EXISTS idx_agency_email ON agency_prospects(email)"
             )
             conn.commit()
 
@@ -373,6 +439,176 @@ class Database:
             cursor.execute(f"DELETE FROM job_applications WHERE id IN ({placeholders})", ids)
             conn.commit()
             return cursor.rowcount
+
+    # --- B2B Agency & Studio Outreach Methods ---
+
+    def save_or_update_agency(self, agency: AgencyProspect) -> int:
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                """
+                INSERT INTO agency_prospects (
+                    name, category, website, email, phone, city,
+                    subject, custom_message, status, contacted_at, notes,
+                    direct_portal_url, decision_maker, email_status, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(website) DO UPDATE SET
+                    name = excluded.name,
+                    category = COALESCE(excluded.category, agency_prospects.category),
+                    email = COALESCE(excluded.email, agency_prospects.email),
+                    phone = COALESCE(excluded.phone, agency_prospects.phone),
+                    city = COALESCE(excluded.city, agency_prospects.city),
+                    subject = COALESCE(excluded.subject, agency_prospects.subject),
+                    custom_message = COALESCE(excluded.custom_message, agency_prospects.custom_message),
+                    status = CASE WHEN excluded.status != 'pending' THEN excluded.status ELSE agency_prospects.status END,
+                    contacted_at = COALESCE(excluded.contacted_at, agency_prospects.contacted_at),
+                    notes = COALESCE(excluded.notes, agency_prospects.notes),
+                    direct_portal_url = COALESCE(excluded.direct_portal_url, agency_prospects.direct_portal_url),
+                    decision_maker = COALESCE(excluded.decision_maker, agency_prospects.decision_maker),
+                    email_status = COALESCE(excluded.email_status, agency_prospects.email_status)
+                """,
+                (
+                    agency.name,
+                    agency.category or "Agence Web",
+                    agency.website,
+                    agency.email,
+                    agency.phone,
+                    agency.city or "Paris",
+                    agency.subject,
+                    agency.custom_message,
+                    agency.status,
+                    agency.contacted_at,
+                    agency.notes,
+                    agency.direct_portal_url,
+                    agency.decision_maker,
+                    agency.email_status,
+                    agency.created_at,
+                ),
+            )
+            conn.commit()
+            return cursor.lastrowid or (agency.id or 0)
+
+    def update_agency_record(self, agency_id: int, updates: Dict[str, Any]) -> bool:
+        """Dynamically update any fields on an agency prospect."""
+        allowed_keys = {
+            "name", "category", "website", "email", "phone", "city",
+            "subject", "custom_message", "status", "contacted_at", "notes",
+            "direct_portal_url", "decision_maker", "email_status"
+        }
+        filtered = {k: v for k, v in updates.items() if k in allowed_keys}
+        if not filtered:
+            return False
+
+        set_clause = ", ".join([f"{k} = ?" for k in filtered.keys()])
+        values = list(filtered.values()) + [agency_id]
+
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                f"UPDATE agency_prospects SET {set_clause} WHERE id = ?",
+                values
+            )
+            conn.commit()
+            return cursor.rowcount > 0
+
+    def list_agencies(self, status: Optional[str] = None, limit: int = 150) -> List[Dict[str, Any]]:
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            if status and status != "all":
+                cursor.execute(
+                    "SELECT * FROM agency_prospects WHERE status = ? ORDER BY id DESC LIMIT ?",
+                    (status, limit),
+                )
+            else:
+                cursor.execute(
+                    "SELECT * FROM agency_prospects ORDER BY id DESC LIMIT ?",
+                    (limit,),
+                )
+            return [dict(row) for row in cursor.fetchall()]
+
+    def get_agency_by_id(self, agency_id: int) -> Optional[Dict[str, Any]]:
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM agency_prospects WHERE id = ?", (agency_id,))
+            row = cursor.fetchone()
+            return dict(row) if row else None
+
+    def update_agency_status(
+        self,
+        agency_id: int,
+        status: str,
+        contacted_at: Optional[str] = None,
+        notes: Optional[str] = None,
+        clear_contacted_at: bool = False,
+    ) -> bool:
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            if clear_contacted_at:
+                cursor.execute(
+                    """
+                    UPDATE agency_prospects
+                    SET status = ?,
+                        contacted_at = NULL,
+                        notes = COALESCE(?, notes)
+                    WHERE id = ?
+                    """,
+                    (status, notes, agency_id),
+                )
+            else:
+                cursor.execute(
+                    """
+                    UPDATE agency_prospects
+                    SET status = ?,
+                        contacted_at = COALESCE(?, contacted_at),
+                        notes = COALESCE(?, notes)
+                    WHERE id = ?
+                    """,
+                    (status, contacted_at, notes, agency_id),
+                )
+            conn.commit()
+            return cursor.rowcount > 0
+
+    def delete_agency(self, agency_id: int) -> bool:
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM agency_prospects WHERE id = ?", (agency_id,))
+            conn.commit()
+            return cursor.rowcount > 0
+
+    def get_agency_stats(self) -> Dict[str, Any]:
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT COUNT(*) as total FROM agency_prospects")
+            total = cursor.fetchone()["total"]
+
+            cursor.execute("SELECT COUNT(*) as with_email FROM agency_prospects WHERE email IS NOT NULL AND email != ''")
+            with_email = cursor.fetchone()["with_email"]
+
+            cursor.execute("SELECT COUNT(*) as contacted FROM agency_prospects WHERE status = 'contacted'")
+            contacted = cursor.fetchone()["contacted"]
+
+            cursor.execute("SELECT COUNT(*) as pending FROM agency_prospects WHERE status = 'pending'")
+            pending = cursor.fetchone()["pending"]
+
+            cursor.execute("SELECT COUNT(*) as replied FROM agency_prospects WHERE status = 'replied'")
+            replied = cursor.fetchone()["replied"]
+
+            # Today contacted count
+            today_prefix = datetime.utcnow().strftime("%Y-%m-%d")
+            cursor.execute(
+                "SELECT COUNT(*) as today_contacted FROM agency_prospects WHERE status = 'contacted' AND contacted_at LIKE ?",
+                (f"{today_prefix}%",),
+            )
+            today_contacted = cursor.fetchone()["today_contacted"]
+
+            return {
+                "total": total,
+                "with_email": with_email,
+                "contacted": contacted,
+                "pending": pending,
+                "replied": replied,
+                "today_contacted": today_contacted,
+            }
 
 
 

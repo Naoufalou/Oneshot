@@ -117,6 +117,10 @@ def generate_fallback_live_jobs(profile, criteria, location: str) -> List[Dict[s
         ("Ministère de la Transition Numérique", "francetravail", f"https://candidat.francetravail.fr/offres/recherche/detail/180A{random.randint(100, 999)}"),
         ("Qonto B2B", "indeed", f"https://fr.indeed.com/viewjob?jk=ind_{random.randint(10000, 99999)}"),
         ("Doctolib Engineering", "indeed", f"https://fr.indeed.com/viewjob?jk=ind_{random.randint(10000, 99999)}"),
+        ("Malt & Freework Collective", "freework", f"https://www.free-work.com/fr/tech-it/jobs/dev-{random.randint(100, 999)}"),
+        ("PayFit Studio", "freework", f"https://www.free-work.com/fr/tech-it/jobs/front-{random.randint(100, 999)}"),
+        ("Squad Design Engineers", "collective_work", f"https://app.collective.work/missions/{random.randint(1000, 9999)}"),
+        ("Studio Hyperion Collective", "collective_work", f"https://app.collective.work/missions/{random.randint(1000, 9999)}"),
     ]
 
     job_templates = [

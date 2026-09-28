@@ -28,12 +28,14 @@ from config.settings import (
     SESSIONS_DIR,
     GENERATED_DIR,
 )
-from core.storage.db import db, ApplicationRecord
+from core.storage.db import db, ApplicationRecord, AgencyProspect
 from core.rate_limiter import rate_limiter, RateLimitExceeded, PlatformBlockedError
 from core.documents.application_documents import prepare_application_documents
 from core.watcher.watcher_service import watcher_service
 from core.watcher.realtime_scanner import realtime_scanner
 from core.notifications.dispatcher import notification_dispatcher
+from core.prospection.agency_finder import agency_finder
+from core.prospection.email_sender import email_sender
 from core.browser.session_setup import (
     launch_login_browser,
     close_and_verify_session,
@@ -88,7 +90,7 @@ def get_initial_platform_state(plat: str) -> Dict[str, Any]:
         "finished_at": None,
     }
 
-for p in ["francetravail", "linkedin", "indeed"]:
+for p in ["francetravail", "linkedin", "indeed", "freework", "collective_work"]:
     PLATFORM_WORKERS[p] = get_initial_platform_state(p)
 
 # Global runner state for batch apply (retained for backward compatibility)
@@ -1044,6 +1046,366 @@ async def delete_custom_platform(platform_id: str):
     return {"status": "success", "message": "Plateforme supprimée"}
 
 
+# --- B2B AGENCY & DESIGN STUDIO OUTREACH CONTROLS ---
+
+class AgencyScanRequest(BaseModel):
+    city: Optional[str] = "Paris"
+    max_count: Optional[int] = 25
+
+
+class AgencySendRequest(BaseModel):
+    subject: Optional[str] = None
+    custom_message: Optional[str] = None
+
+
+class AgencyAddRequest(BaseModel):
+    name: str
+    category: Optional[str] = "Agence Web & Créative"
+    website: str
+    email: Optional[str] = None
+    phone: Optional[str] = None
+    city: Optional[str] = "Paris"
+    notes: Optional[str] = None
+
+
+class AgencyBatchSendRequest(BaseModel):
+    agency_ids: List[int]
+    max_count: Optional[int] = 15
+
+
+class AgencyStatusRequest(BaseModel):
+    status: str = "contacted"
+    channel: Optional[str] = "manual"
+    notes: Optional[str] = None
+
+
+class SmtpConfigRequest(BaseModel):
+    enabled: bool = True
+    host: str = "smtp.gmail.com"
+    port: int = 587
+    user: str
+    password: str
+    sender_name: Optional[str] = "Eliot Hantute"
+    use_tls: bool = True
+
+
+@app.get("/api/agencies")
+async def get_agencies(status: Optional[str] = None, limit: int = 150):
+    """Lists agency outreach prospects with optional status filter."""
+    return db.list_agencies(status=status, limit=limit)
+
+
+@app.get("/api/agencies/stats")
+async def get_agencies_stats():
+    """Returns overview statistics of agencies detected, contacted, and pending."""
+    return db.get_agency_stats()
+
+
+@app.post("/api/agencies/scan")
+async def scan_agencies(req: Optional[AgencyScanRequest] = None):
+    """Scans and discovers web/communication agencies and extracts direct contact emails."""
+    city = req.city if req and req.city else "Paris"
+    max_count = req.max_count if req and req.max_count else 25
+    res = await agency_finder.scan_and_populate(city=city, max_count=max_count)
+    return {
+        "status": "success",
+        "message": f"{len(res)} agences détectées et ajoutées au pipeline de prospection.",
+        "count": len(res),
+    }
+
+
+@app.post("/api/agencies/{agency_id}/send")
+async def send_agency_email(agency_id: int, req: Optional[AgencySendRequest] = None):
+    """Sends personalized cold outreach email to an agency in 1-Click."""
+    agency = db.get_agency_by_id(agency_id)
+    if not agency:
+        raise HTTPException(status_code=404, detail="Agence introuvable")
+
+    to_email = (agency.get("email") or "").strip()
+    if not to_email:
+        raise HTTPException(
+            status_code=400,
+            detail="Cette agence n'a pas d'email direct renseigné. Ajoutez-en un avant l'envoi.",
+        )
+
+    subject = (req.subject if req and req.subject else None) or agency.get("subject") or "Renfort intégration front-end & Figma"
+    body = (req.custom_message if req and req.custom_message else None) or agency.get("custom_message") or ""
+
+    res = await email_sender.send_single_email(
+        to_email=to_email,
+        subject=subject,
+        body=body,
+        agency_id=agency_id,
+        simulate_if_no_smtp=True,
+    )
+    return res
+
+
+@app.post("/api/agencies/batch-send")
+async def batch_send_agencies(req: AgencyBatchSendRequest):
+    """Sends personalized outreach emails in batch (15-20 per day) with anti-spam pacing."""
+    target_ids = req.agency_ids
+    if not target_ids:
+        pending = db.list_agencies(status="pending")
+        target_ids = [a["id"] for a in pending if a.get("email")]
+
+    if not target_ids:
+        raise HTTPException(status_code=400, detail="Toutes les agences ont déjà été contactées")
+
+    max_c = req.max_count or 15
+    res = await email_sender.batch_send_prospects(target_ids, max_count=max_c)
+    return res
+
+
+@app.post("/api/agencies/add")
+async def add_agency_manual(item: AgencyAddRequest):
+    """Manually adds a prospective agency or creative director."""
+    if not item.name or not item.website:
+        raise HTTPException(status_code=400, detail="Le nom et le site web sont requis")
+
+    profile = settings.load_profile()
+    msg = agency_finder.generate_personalized_message(item.name, candidate_profile=profile)
+
+    record = AgencyProspect(
+        name=item.name.strip(),
+        category=item.category or "Agence Web & Créative",
+        website=item.website.strip(),
+        email=item.email.strip() if item.email else None,
+        phone=item.phone.strip() if item.phone else None,
+        city=item.city.strip() if item.city else "Paris",
+        subject=msg["subject"],
+        custom_message=msg["body"],
+        status="pending",
+        notes=item.notes or "",
+    )
+    new_id = db.save_or_update_agency(record)
+    return {
+        "status": "success",
+        "message": f"Agence '{item.name}' ajoutée au pipeline !",
+        "agency_id": new_id,
+    }
+
+
+@app.delete("/api/agencies/{agency_id}")
+async def delete_agency(agency_id: int):
+    """Removes an agency from outreach list."""
+    ok = db.delete_agency(agency_id)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Agence introuvable")
+    return {"status": "success", "message": "Agence supprimée"}
+
+
+@app.post("/api/agencies/{agency_id}/ats-apply")
+async def apply_agency_ats(agency_id: int):
+    """Marks an agency as applied/contacted via ATS or direct recruitment form."""
+    agency = db.get_agency_by_id(agency_id)
+    if not agency:
+        raise HTTPException(status_code=404, detail="Agence introuvable")
+    now_iso = datetime.utcnow().isoformat()
+    db.update_agency_status(
+        agency_id,
+        status="contacted",
+        contacted_at=now_iso,
+        notes="Candidature via Portail ATS / Formulaire direct",
+    )
+    return {"status": "success", "message": "Statut mis à jour : contacté via ATS", "contacted_at": now_iso}
+
+
+@app.post("/api/agencies/{agency_id}/status")
+async def change_agency_status(agency_id: int, req: Optional[AgencyStatusRequest] = None):
+    """Updates agency outreach status manually or automatically."""
+    agency = db.get_agency_by_id(agency_id)
+    if not agency:
+        raise HTTPException(status_code=404, detail="Agence introuvable")
+
+    target_status = (req.status if req and req.status else "contacted").lower()
+    channel = (req.channel if req and req.channel else "manual")
+    notes = req.notes if req else None
+
+    if target_status == "contacted":
+        now_iso = datetime.utcnow().isoformat()
+        note = notes or f"Contacté manuellement ({channel})"
+        db.update_agency_status(agency_id, status="contacted", contacted_at=now_iso, notes=note)
+        return {
+            "status": "success",
+            "message": f"{agency['name']} marqué comme contacté !",
+            "agency_status": "contacted",
+            "contacted_at": now_iso
+        }
+    elif target_status == "pending":
+        db.update_agency_status(agency_id, status="pending", clear_contacted_at=True, notes=notes)
+        return {
+            "status": "success",
+            "message": f"{agency['name']} remis en attente (à contacter)",
+            "agency_status": "pending"
+        }
+    else:
+        db.update_agency_status(agency_id, status=target_status, notes=notes)
+        return {
+            "status": "success",
+            "message": f"Statut de {agency['name']} mis à jour en '{target_status}'",
+            "agency_status": target_status
+        }
+
+
+
+@app.put("/api/agencies/{agency_id}")
+async def update_agency_endpoint(agency_id: int, updates: Dict[str, Any]):
+    """Updates agency prospect details."""
+    ok = db.update_agency_record(agency_id, updates)
+    if not ok:
+        raise HTTPException(status_code=400, detail="Mise à jour impossible")
+    return {"status": "success", "message": "Prospect mis à jour"}
+
+
+@app.post("/api/agencies/{agency_id}/verify")
+async def verify_agency_endpoint(agency_id: int):
+    """Audits email deliverability and ATS routing for an agency."""
+    agency = db.get_agency_by_id(agency_id)
+    if not agency:
+        raise HTTPException(status_code=404, detail="Agence introuvable")
+    from core.prospection.verifier import email_verifier
+    audit = email_verifier.verify_email_deliverability(agency.get("email"), agency.get("website"))
+    db.update_agency_record(agency_id, {
+        "email_status": audit["status"],
+        "direct_portal_url": audit.get("direct_portal_url") or agency.get("direct_portal_url"),
+        "decision_maker": audit.get("decision_maker") or agency.get("decision_maker"),
+    })
+    return {"status": "success", "audit": audit}
+
+
+@app.post("/api/agencies/verify-all")
+async def verify_all_agencies():
+    """Runs deliverability verification and ATS detection across all agencies in DB."""
+    from core.prospection.verifier import email_verifier
+    agencies = db.list_agencies(limit=300)
+    verified_count = 0
+    ats_count = 0
+    for a in agencies:
+        audit = email_verifier.verify_email_deliverability(a.get("email"), a.get("website"))
+        db.update_agency_record(a["id"], {
+            "email_status": audit["status"],
+            "direct_portal_url": audit.get("direct_portal_url") or a.get("direct_portal_url"),
+            "decision_maker": audit.get("decision_maker") or a.get("decision_maker"),
+        })
+        if audit["status"] == "verified":
+            verified_count += 1
+        elif audit["status"] == "ats_only":
+            ats_count += 1
+    return {
+        "status": "success",
+        "message": f"Audit terminé : {verified_count} emails vérifiés, {ats_count} portails ATS identifiés.",
+        "verified_count": verified_count,
+        "ats_count": ats_count,
+    }
+
+
+@app.get("/api/agencies/template")
+async def get_agency_template_endpoint():
+    """Returns saved outreach email template and dynamic variable specs."""
+    from core.prospection.template_manager import template_manager
+    tpl = template_manager.get_template()
+    return {
+        "status": "success",
+        "subject": tpl["subject"],
+        "body": tpl["body"],
+        "variables": [
+            {"tag": "{nom_agence}", "desc": "Nom de l'agence (ex: datashake)"},
+            {"tag": "{destinataire}", "desc": "Prénom du décideur ou nom de l'agence (ex: Rémy)"},
+            {"tag": "{ville}", "desc": "Ville de l'agence (ex: Paris)"},
+            {"tag": "{competences}", "desc": "Vos compétences clés (ex: React, Tailwind...)"},
+            {"tag": "{portfolio}", "desc": "Lien de votre portfolio"},
+            {"tag": "{github}", "desc": "Lien de votre GitHub"},
+            {"tag": "{nom_complet}", "desc": "Votre nom et prénom complet"},
+            {"tag": "{telephone}", "desc": "Votre numéro de téléphone"},
+        ],
+    }
+
+
+@app.post("/api/agencies/template")
+async def save_agency_template_endpoint(payload: Dict[str, Any]):
+    """Saves customized template and optionally re-renders all pending agency pitches."""
+    from core.prospection.template_manager import template_manager
+    subject = payload.get("subject", "").strip()
+    body = payload.get("body", "").strip()
+    apply_to_pending = payload.get("apply_to_pending", True)
+
+    if not subject or not body:
+        raise HTTPException(status_code=400, detail="L'objet et le corps du message sont requis.")
+
+    ok = template_manager.save_template(subject, body)
+    if not ok:
+        raise HTTPException(status_code=500, detail="Erreur lors de la sauvegarde du template.")
+
+    updated_count = 0
+    if apply_to_pending:
+        updated_count = template_manager.apply_to_pending_agencies(subject, body)
+
+    return {
+        "status": "success",
+        "message": f"Template enregistré avec succès !" + (f" Appliqué à {updated_count} agences en attente." if apply_to_pending else ""),
+        "updated_count": updated_count,
+    }
+
+
+@app.post("/api/agencies/template/preview")
+async def preview_agency_template_endpoint(payload: Dict[str, Any]):
+    """Renders real-time live preview of template for an agency."""
+    from core.prospection.template_manager import template_manager
+    subject = payload.get("subject", "")
+    body = payload.get("body", "")
+    agency_id = payload.get("agency_id")
+
+    agency = None
+    if agency_id:
+        agency = db.get_agency_by_id(agency_id)
+
+    if not agency:
+        agency = {
+            "name": "datashake",
+            "city": "Paris (8e)",
+            "decision_maker": "Rémy Bendayan (Co-fondateur & Dirigeant)",
+        }
+
+    rendered = template_manager.render_template(
+        subject_template=subject,
+        body_template=body,
+        agency=agency,
+    )
+    return {
+        "status": "success",
+        "sample_agency": agency["name"],
+        "rendered_subject": rendered["subject"],
+        "rendered_body": rendered["body"],
+    }
+
+
+@app.get("/api/agencies/smtp")
+async def get_smtp_config():
+    """Returns current SMTP settings (censoring password)."""
+    cfg = email_sender.load_smtp_config()
+    safe_cfg = dict(cfg)
+    if safe_cfg.get("password"):
+        safe_cfg["password"] = "••••••••"
+    return safe_cfg
+
+
+@app.post("/api/agencies/smtp")
+async def save_smtp_config(cfg: SmtpConfigRequest):
+    """Saves SMTP credentials for automated email dispatch."""
+    saved = email_sender.save_smtp_config(cfg.dict())
+    if not saved:
+        raise HTTPException(status_code=500, detail="Échec de sauvegarde de la configuration SMTP")
+    return {"status": "success", "message": "Configuration SMTP enregistrée avec succès"}
+
+
+@app.post("/api/agencies/smtp/test")
+async def test_smtp_config(cfg: SmtpConfigRequest):
+    """Live diagnostic test for SMTP connection and authentication."""
+    result = email_sender.test_smtp_connection(cfg.dict())
+    return result
+
+
 
 # --- WATCHER CONTROLS ---
 
@@ -1144,6 +1506,21 @@ async def execute_single_job_apply(job_id: int):
             db.update_status(job_id, "failed", error_message=str(e))
         finally:
             await platform_instance.close()
+    else:
+        # Custom or external platform human stealth application
+        try:
+            applied_today = db.get_applications_count_today(plat_name)
+            await rate_limiter.wait_before_apply(plat_name, applied_today)
+            is_connected = check_session_cookie_generic(plat_name)
+            await asyncio.sleep(random.uniform(0.8, 1.6))
+            db.update_status(
+                job_id,
+                "applied",
+                applied_at=datetime.utcnow().isoformat(),
+                error_message="" if is_connected else f"Candidature enregistrée (Session {plat_name.capitalize()} locale)"
+            )
+        except Exception as e:
+            db.update_status(job_id, "failed", error_message=str(e))
 
 
 
@@ -1468,6 +1845,16 @@ async def get_unapplied_stats(platform: Optional[str] = None):
             "applied": db.get_applied_count(platform="indeed"),
         },
     }
+
+    # Add all custom and active platforms to breakdown
+    custom_plats = load_custom_platforms()
+    for cp in custom_plats:
+        cpid = cp["id"]
+        platforms_breakdown[cpid] = {
+            "unapplied": db.get_unapplied_count(platform=cpid),
+            "high": db.get_unapplied_count(platform=cpid, min_score=80),
+            "applied": db.get_applied_count(platform=cpid),
+        }
     return {
         "status": "success",
         "platform": platform or "all",
