@@ -6969,8 +6969,41 @@ function setupAgenciesProspectionExperience() {
     btnResetTemplate.addEventListener("click", () => {
       if (!confirm("Rétablir le texte modèle d'origine (recommandé pour agences et DA) ?")) return;
       if (tplSubjectInput) tplSubjectInput.value = "Renfort IA & automatisation pour {nom_agence}";
-      if (tplBodyInput) tplBodyInput.value = `Hello {destinataire},\n\nJe suis intégrateur & développeur front-end ({competences}).\nSi vous avez un trop-plein de maquettes Figma à intégrer ou des petits tickets front sur lesquels vous manquez de temps en ce moment, je suis disponible immédiatement en renfort (au forfait ou à la journée).\n\nVoici 2-3 projets propres et récents que j'ai codés :\n👉 Portfolio : {portfolio}\n👉 GitHub : {github}\n\nN'hésitez pas si vous avez une maquette urgente à découper cette semaine.\n\nBonne semaine,\n{nom_complet}\n{telephone}`;
+      if (tplBodyInput) tplBodyInput.value = `Hello {destinataire},\n\nIA Engineer & développeur full-stack ({competences}).\nSi vous avez un trop-plein de maquettes à intégrer ou de process à automatiser via l'IA, je suis disponible immédiatement en renfort (au forfait ou à la journée).\n\nVoici 2-3 projets propres et récents que j'ai codés :\n👉 Portfolio : {portfolio}\n👉 GitHub : {github}\n\nN'hésitez pas si vous avez une maquette urgente à découper cette semaine.\n\nBonne semaine,\n{nom_complet}\n{telephone}`;
       updateTemplateLivePreview();
+    });
+  }
+
+  // Auto-Cycle Button: Trigger /api/agencies/auto-cycle
+  const btnAutoCycle = document.getElementById("btn-auto-cycle-agencies");
+  if (btnAutoCycle) {
+    btnAutoCycle.addEventListener("click", async () => {
+      const city = prompt("Ville pour le cycle autonome ?", "Paris") || "Paris";
+      const maxCount = parseInt(prompt("Nombre max d'agences à scanner ?", "15") || "15", 10);
+      btnAutoCycle.disabled = true;
+      btnAutoCycle.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Cycle...';
+      try {
+        showToast("⚙️ Cycle autonome lancé : scan + sélection + envoi...", "info");
+        const res = await fetch("/api/agencies/auto-cycle", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ city: city, max_count: maxCount })
+        });
+        const data = await res.json();
+        if (data.status === "success") {
+          showToast(`🚀 Cycle terminé : ${data.scanned} scannées, ${data.sent} emails envoyés, ${data.errors} erreurs`, "success");
+          if (typeof window.playNintendoChirp === "function") window.playNintendoChirp("confirm");
+          loadAgencies();
+          loadAgencyStats();
+        } else {
+          showToast(`Erreur cycle : ${data.error || data.detail || "Échec"}`, "error");
+        }
+      } catch (e) {
+        showToast(`Erreur réseau : ${e.message}`, "error");
+      } finally {
+        btnAutoCycle.disabled = false;
+        btnAutoCycle.innerHTML = '<i class="fa-solid fa-cog-spin"></i> Cycle Auto (9h)';
+      }
     });
   }
 

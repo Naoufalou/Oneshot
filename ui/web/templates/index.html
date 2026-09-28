@@ -7,10 +7,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Press+Start+2P&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/style.css?v=5.2">
+  <link rel="stylesheet" href="/static/style.css?v=5.3">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
-<body class="notion-dark-clean theme-light" data-color-theme="switch">
+<body class="notion-dark-clean theme-dark" data-color-theme="switch">
 
   <!-- Fixed Wallpaper Layers (Fond d'écran plein écran personnalisé) -->
   <div class="oneshot-wallpaper-layer" id="oneshot-wallpaper-layer"></div>
@@ -1388,7 +1388,7 @@
                 </div>
                 <h2 class="cv-page-title">Prospection Agences Web & Studios Créatifs</h2>
                 <p class="cv-page-sub">
-                  Trouvez des agences et DA débordés ayant un trop-plein de maquettes Figma à intégrer. Envoyez en 1 clic des propositions de renfort directes, courtes et ciblées (React, Tailwind, TypeScript, corrections front).
+                  Trouvez des agences et DA débordés ayant un trop-plein de maquettes à intégrer ou de process à automatiser via l'IA. Envoyez en 1 clic des propositions de renfort directes, courtes et ciblées (React, Tailwind, TypeScript, corrections front).<br><small style="opacity:0.75;display:block;margin-top:4px;">⚙️ Auto-cycle autonome : scan + sélection + envoi à 9h chaque matin (cronjob activé).</small>
                 </p>
               </div>
             </div>
@@ -1406,6 +1406,10 @@
               <button type="button" class="btn-notion" id="btn-scan-agencies" title="Lancer le crawler pour détecter de nouvelles agences web et extraire leurs emails">
                 <i class="fa-solid fa-satellite-dish"></i>
                 <span id="btn-scan-text">Détecter de nouvelles agences</span>
+              </button>
+              <button type="button" class="btn-notion" id="btn-auto-cycle-agencies" title="Cycle autonome : scan + auto-select + envoi (9h quotidien via cronjob)">
+                <i class="fa-solid fa-cog-spin"></i>
+                <span>Cycle Auto (9h)</span>
               </button>
               <button type="button" class="btn-notion" id="btn-open-add-agency-modal" title="Ajouter une agence manuellement">
                 <i class="fa-solid fa-plus"></i>
@@ -2504,6 +2508,6 @@
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  <script src="/static/app.js?v=5.2"></script>
+  <script src="/static/app.js?v=5.3"></script>
 </body>
 </html>
