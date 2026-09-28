@@ -21,7 +21,7 @@
 
 ### 1. Cloner le dépôt
 ```bash
-git clone https://github.com/eliothantute/Oneshot.git
+git clone https://github.com/Naoufalou/Oneshot.git
 cd Oneshot
 ```
 

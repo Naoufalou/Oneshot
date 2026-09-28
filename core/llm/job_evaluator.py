@@ -65,22 +65,43 @@ class JobEvaluator:
         # 2. Skill dictionary mapping
         candidate_skills = profile.skills or []
         skill_patterns = {
-            "Three.js": [r"three\.js", r"threejs", r"three js"],
-            "WebGL": [r"webgl", r"shaders?", r"glsl"],
-            "React": [r"react\b", r"react\.js", r"reactjs", r"react 19", r"react native"],
-            "TypeScript": [r"typescript\b", r"\bts\b"],
-            "Tailwind CSS": [r"tailwind", r"tailwindcss"],
-            "Figma": [r"figma\b", r"ui/ux", r"ux/ui", r"product design"],
-            "UI/UX Design": [r"ui design", r"ux design", r"ergonomie", r"design system"],
-            "Next.js": [r"next\.js", r"nextjs", r"next 14", r"next 15"],
-            "Vite": [r"vite\b", r"vitejs"],
-            "GSAP": [r"gsap\b", r"green sock", r"framer motion", r"motion"],
+            "TypeScript": [r"typescript\b", r"\bts\b", r"type-script"],
             "JavaScript": [r"javascript", r"\bjs\b", r"es6"],
-            "Front-End": [r"front-end", r"frontend", r"front end", r"intégrateur web"],
-            "Creative Developer": [r"creative developer", r"creative dev", r"développeur créatif"],
-            "PWA": [r"pwa\b", r"progressive web app"],
-            "Python": [r"python\b"],
-            "Sound / Audio": [r"sound design", r"audio web api", r"audio\b"],
+            "Node.js": [r"node\.?js\b", r"nodejs", r"node\.js"],
+            "Python": [r"python\b", r"python 3\.?\d*"],
+            "React": [r"react\b", r"react\.js", r"reactjs"],
+            "React Native": [r"react native", r"react-native"],
+            "Next.js": [r"next\.js", r"nextjs"],
+            "Expo": [r"expo\b"],
+            "Electron": [r"electron\b"],
+            "PySide6": [r"pyside6\b", r"pyqt\b"],
+            "Tailwind CSS": [r"tailwind", r"tailwindcss"],
+            "HTML5": [r"html5", r"\bhtml\b"],
+            "CSS3": [r"css3", r"\bcss\b"],
+            "API REST": [r"api rest", r"rest api", r"restful"],
+            "WebSocket": [r"websocket", r"websockets?"],
+            "Server-Sent Events": [r"sse\b", r"server.sent.events"],
+            "Artificial Intelligence": [r"artificial intelligence", r"intelligence artificielle", r"\bai\b"],
+            "Generative AI": [r"generative ai", r"genai", r"llm", r"large language model"],
+            "AI Agents": [r"ai agent", r"agents?", r"multi.agent", r"agentic"],
+            "Agent Orchestration": [r"agent orchestration", r"orchestration multi.agent", r"swarm"],
+            "Model Context Protocol": [r"mcp\b", r"model.context.protocol"],
+            "DeepSeek": [r"deep.?seek"],
+            "Gemini API": [r"gemini\b", r"google ai"],
+            "OpenRouter": [r"openrouter"],
+            "Supabase": [r"supabase"],
+            "PostgreSQL": [r"postgresql\b", r"postgres\b"],
+            "SQLite": [r"sqlite"],
+            "Workflow Automation": [r"workflow automation", r"automatisation"],
+            "Web Scraping": [r"web scraping", r"scraping", r"crawl4ai"],
+            "Computer Vision": [r"computer.vision", r"opencv"],
+            "Speech-to-Text": [r"stt\b", r"speech.to.text", r"whisper"],
+            "Text-to-Speech": [r"tts\b", r"text.to.speech"],
+            "Lead Developer": [r"lead developer", r"tech lead", r"technical lead"],
+            "Software Architect": [r"software architect", r"architecte logiciel", r"system architect"],
+            "Product Builder": [r"product builder", r"product owner"],
+            "Engineering Manager": [r"engineering manager", r"responsable technique"],
+            "Full-Stack": [r"full.stack", r"fullstack", r"full stack"],
         }
 
         matched_skills = []
@@ -96,44 +117,35 @@ class JobEvaluator:
                 if sk.lower() in full_text:
                     matched_skills.append(sk)
 
-        # 3. Weighted scoring
-        # Direct dream roles for Eliot Hantute (Three.js, WebGL, Creative Dev, React UI)
-        is_creative_dev = any(re.search(p, title_lower) for p in [r"creative", r"three\.js", r"webgl", r"3d", r"immersif", r"créatif"])
-        is_frontend_react = any(re.search(p, title_lower) for p in [r"react", r"front-end", r"frontend", r"front end"])
-        is_ui_designer = any(re.search(p, title_lower) for p in [r"ui design", r"design engineer", r"ui/ux", r"product designer", r"intégrateur"])
-        is_web_general = any(re.search(p, title_lower) for p in [r"développeur web", r"software engineer", r"full stack", r"fullstack", r"web developer"])
-        is_tech_adjacent = any(re.search(p, title_lower) for p in [r"ingénieur", r"tech lead", r"chef de projet digital", r"consultant digital"])
+        # 3. Weighted scoring — patterns aligned with Naoufal Ou (Lead Developer & AI Systems Engineer)
+        is_ai_engineer = any(re.search(p, title_lower) for p in [r"ai engineer", r"ai systems", r"llm", r"large language", r"intelligence artificielle", r"ingenieur ia", r"generative ai", r"agentic", r"model context protocol", r"\bmcp\b", r"deepseek", r"automatisation", r"orchestration multi.agent"])
+        is_fullstack_lead = any(re.search(p, title_lower) for p in [r"full.stack", r"fullstack", r"lead developer", r"tech lead", r"software architect", r"ingenieur", r"développeur", r"software engineer"])
+        is_startup_founder = any(re.search(p, title_lower) for p in [r"founder", r"ceo", r"fondateur", r"startup", r"entrepreneur", r"freelance", r"indépendant"])
+        is_tech_adjacent = any(re.search(p, title_lower) for p in [r"chef de projet", r"consultant digital", r"product owner", r"engineering manager", r"responsable technique"])
 
         score = 50
         rationale_prefix = "Correspondance calculée"
 
-        if is_creative_dev:
-            # Huge match for Creative Developer / Three.js / WebGL
-            score = 92 + min(6, len(matched_skills) * 2)
-            rationale_prefix = "Match Exceptionnel • Cœur de profil Creative Developer & WebGL/3D"
-        elif is_frontend_react:
-            if "Three.js" in matched_skills or "WebGL" in matched_skills:
-                score = 95
-                rationale_prefix = "Match Idéal • Front-End avec technologies 3D/Three.js"
-            elif "React" in matched_skills or "TypeScript" in matched_skills:
-                score = 88 + min(8, len(matched_skills) * 2)
-                rationale_prefix = "Très forte adéquation • Spécialiste Front-End React & TypeScript"
+        if is_ai_engineer:
+            # Huge match for AI Engineer / LLM / Agentic systems / MCP
+            score = 90 + min(7, len(matched_skills) * 2)
+            rationale_prefix = "Match Exceptionnel • AI Engineer & Systèmes Multi-Agents (LLM/MCP)"
+        elif is_fullstack_lead:
+            if "TypeScript" in matched_skills or "Python" in matched_skills:
+                score = 85 + min(8, len(matched_skills) * 2)
+                rationale_prefix = "Très forte adéquation • Lead Dev Full-Stack & Automatisation"
+            elif "Node.js" in matched_skills or "React" in matched_skills:
+                score = 80 + min(6, len(matched_skills) * 2)
+                rationale_prefix = "Bonne adéquation • Développeur Full-Stack"
             else:
-                score = 84
-                rationale_prefix = "Forte adéquation • Poste Front-End ciblé"
-        elif is_ui_designer:
-            score = 86 + min(6, len(matched_skills) * 2)
-            rationale_prefix = "Excellente adéquation • Profil hybride UI Designer & Intégrateur"
-        elif is_web_general:
-            if "React" in matched_skills or "TypeScript" in matched_skills:
-                score = 78 + min(8, len(matched_skills) * 2)
-                rationale_prefix = "Bonne adéquation • Poste Web avec stack React/JS"
-            else:
-                score = 68
-                rationale_prefix = "Adéquation modérée • Poste Web généraliste"
+                score = 75
+                rationale_prefix = "Adéquation correcte • Poste Full-Stack"
+        elif is_startup_founder:
+            score = 70 + min(5, len(matched_skills) * 2)
+            rationale_prefix = "Bonne adéquation • Profil entrepreneur & tech"
         elif is_tech_adjacent:
             score = 60
-            rationale_prefix = "Adéquation partielle • Rôle digital connexe"
+            rationale_prefix = "Adéquation partielle • Rôle tech connexe"
         else:
             # Unrelated / General profession
             matched_len = len(matched_skills)
@@ -142,7 +154,7 @@ class JobEvaluator:
                 rationale_prefix = f"Quelques compétences communes détectées ({', '.join(matched_skills[:3])})"
             else:
                 score = 38
-                rationale_prefix = "Profil éloigné du cœur de compétences Creative Dev"
+                rationale_prefix = "Profil éloigné du cœur de compétences IA & Développement"
 
         # Cap score between 20 and 99
         score = min(99, max(20, score))

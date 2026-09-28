@@ -10,18 +10,18 @@ logger = logging.getLogger("TemplateManager")
 
 TEMPLATE_FILE = DATA_DIR / "agency_template.json"
 
-DEFAULT_SUBJECT = "Renfort intégration front-end & Figma pour {nom_agence}"
+DEFAULT_SUBJECT = "Renfort IA & automatisation pour {nom_agence}"
 
 DEFAULT_BODY = """Hello {destinataire},
 
-Je suis intégrateur & développeur front-end ({competences}).
-Si vous avez un trop-plein de maquettes Figma à intégrer ou des petits tickets front sur lesquels vous manquez de temps en ce moment, je suis disponible immédiatement en renfort (au forfait ou à la journée).
+Je suis ingénieur IA & automatisation ({competences}).
+Je développe des agents IA, des automatisations n8n/Make et des intégrations MCP pour libérer vos équipes des tâches répétitives.
 
-Voici 2-3 projets propres et récents que j'ai codés :
+Voici 3 projets récents :
 👉 Portfolio : {portfolio}
 👉 GitHub : {github}
 
-N'hésitez pas si vous avez une maquette urgente à découper cette semaine.
+Si vous avez des flux récurrents (facturation, leads, reporting, support client) à automatiser cette semaine, je suis disponible en renfort (forfait ou journée).
 
 Bonne semaine,
 {nom_complet}
@@ -77,14 +77,14 @@ class TemplateManager:
         Renders subject and body with agency-specific dynamic variables.
         """
         profile = candidate_profile or settings.load_profile()
-        first_name = (profile.first_name or "Eliot").strip()
+        first_name = (profile.first_name or "Naoufal").strip()
         last_name = (profile.last_name or "").strip()
         full_name = f"{first_name} {last_name}".strip()
 
-        portfolio = (profile.portfolio_url or "").strip() or "https://eliot-hantute.com"
+        portfolio = (profile.portfolio_url or "").strip() or "https://hermes-commander-site.vercel.app"
         github = (profile.github_url or "").strip()
 
-        skills = profile.skills or ["React", "Tailwind CSS", "Three.js", "Figma", "Webflow"]
+        skills = profile.skills or [s for s in (profile.skills or []) if s] or ["TypeScript", "JavaScript", "Python", "React", "Node.js", "Next.js", "Electron", "Tailwind CSS", "Artificial Intelligence", "LLM", "AI Agents", "MCP"]
         skills_str = ", ".join(skills[:4])
 
         phone_str = (

@@ -2168,7 +2168,7 @@ async function handleApply(jobId, buttonElem) {
       if (estPct >= 25 && estPct < 55) {
         stepMsg = "2. Navigation biométrique vers l'offre & bypass anti-bot...";
       } else if (estPct >= 55 && estPct < 75) {
-        stepMsg = `3. Injection du CV (${activeResumeFilename || 'CV Eliot'}) et des coordonnées...`;
+        stepMsg = `3. Injection du CV (${activeResumeFilename || 'CV Naoufal'}) et des coordonnées...`;
       } else if (estPct >= 75 && estPct < 88) {
         stepMsg = "4. Traitement intelligent des questions employeur...";
       } else if (estPct >= 88) {
@@ -4582,8 +4582,8 @@ function setupProfileAndMatchingExperience() {
       const elLinkGh = document.getElementById("drawer-link-github");
       const elTags = document.getElementById("drawer-profile-skills-tags");
 
-      if (elName) elName.innerText = `${p.first_name || ""} ${p.last_name || ""}`.trim() || "Eliot Hantute";
-      if (elTitle) elTitle.innerText = p.current_title || "Creative Front-End Developer & UI Designer";
+      if (elName) elName.innerText = `${p.first_name || ""} ${p.last_name || ""}`.trim() || "Naoufal Ou";
+      if (elTitle) elTitle.innerText = p.current_title || "Lead Developer & AI Systems Engineer";
       if (elInitials) {
         const i1 = (p.first_name || "E")[0];
         const i2 = (p.last_name || "H")[0];
@@ -4602,7 +4602,7 @@ function setupProfileAndMatchingExperience() {
       }
 
       if (elTags && Array.isArray(p.skills)) {
-        const highlights = ["Three.js", "WebGL", "React 19", "React", "TypeScript", "Tailwind CSS", "Figma", "UI/UX Design", "Next.js", "GSAP"];
+        const highlights = ["TypeScript", "Python", "AI Agents", "LLM", "MCP", "DeepSeek", "React", "Next.js", "Electron", "Node.js"];
         elTags.innerHTML = p.skills.slice(0, 12).map(sk => {
           const isHigh = highlights.some(h => sk.toLowerCase().includes(h.toLowerCase()));
           return `<span class="skill-tag ${isHigh ? 'highlight' : ''}">${escapeHtml(sk)}</span>`;
@@ -6332,7 +6332,7 @@ function setupAgenciesProspectionExperience() {
       if (btnAtsPrev) btnAtsPrev.style.display = "none";
     }
 
-    document.getElementById("preview-email-subject").value = agency.subject || "Renfort intégration front-end / React / Figma";
+    document.getElementById("preview-email-subject").value = agency.subject || "Renfort IA & automatisation";
     document.getElementById("preview-email-body").value = agency.custom_message || "";
 
     // Wire modal Mark Contacted button
@@ -6701,7 +6701,7 @@ function setupAgenciesProspectionExperience() {
         document.getElementById("smtp-enabled").checked = cfg.enabled !== false;
         document.getElementById("smtp-host").value = cfg.host || "smtp.gmail.com";
         document.getElementById("smtp-port").value = cfg.port || 587;
-        document.getElementById("smtp-sender-name").value = cfg.sender_name || "Eliot Hantute";
+        document.getElementById("smtp-sender-name").value = cfg.sender_name || "Naoufal Ou";
         document.getElementById("smtp-user").value = cfg.user || "";
         document.getElementById("smtp-password").value = cfg.password || "";
         document.getElementById("smtp-use-tls").checked = cfg.use_tls !== false;
@@ -6968,7 +6968,7 @@ function setupAgenciesProspectionExperience() {
   if (btnResetTemplate) {
     btnResetTemplate.addEventListener("click", () => {
       if (!confirm("Rétablir le texte modèle d'origine (recommandé pour agences et DA) ?")) return;
-      if (tplSubjectInput) tplSubjectInput.value = "Renfort intégration front-end & Figma pour {nom_agence}";
+      if (tplSubjectInput) tplSubjectInput.value = "Renfort IA & automatisation pour {nom_agence}";
       if (tplBodyInput) tplBodyInput.value = `Hello {destinataire},\n\nJe suis intégrateur & développeur front-end ({competences}).\nSi vous avez un trop-plein de maquettes Figma à intégrer ou des petits tickets front sur lesquels vous manquez de temps en ce moment, je suis disponible immédiatement en renfort (au forfait ou à la journée).\n\nVoici 2-3 projets propres et récents que j'ai codés :\n👉 Portfolio : {portfolio}\n👉 GitHub : {github}\n\nN'hésitez pas si vous avez une maquette urgente à découper cette semaine.\n\nBonne semaine,\n{nom_complet}\n{telephone}`;
       updateTemplateLivePreview();
     });

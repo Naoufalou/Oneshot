@@ -6,26 +6,31 @@ blacklisted_keywords:
 contract_types:
 - CDI
 - Freelance
+- CDD
+- Intérim
 easy_apply_only: true
 keywords:
-- Creative Developer
-- Développeur Front-End React
-- Three.js WebGL
-- UI Designer
-- Design Engineer
-- Développeur React TypeScript
-- Web Designer Intégrateur
-- Front-End UI Developer
-- Interactive Developer
-- Vibecoder
-- Design Engineer
-- UI Engineer
+- Lead Developer
+- AI Systems Engineer
+- AI Engineer
+- Ingénieur IA
+- Ingénieur automatisation
+- Full-Stack Developer
+- Software Engineer
+- Tech Lead
+- Technical Lead
+- Software Architect
+- Architecte logiciel
+- Développeur Full-Stack
+- Developer
+- Engineer
 locations:
-- Paris
-- France
+- Paris, France
 - Remote
 - Île-de-France
-max_applications_per_day: 40
-min_alert_score: 70
+- Les Clayes-sous-Bois
+- France
+max_applications_per_day: 25
+min_alert_score: 80
 min_match_score: 60
 remote_only: false

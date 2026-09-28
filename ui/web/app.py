@@ -1085,7 +1085,7 @@ class SmtpConfigRequest(BaseModel):
     port: int = 587
     user: str
     password: str
-    sender_name: Optional[str] = "Eliot Hantute"
+    sender_name: Optional[str] = "Naoufal Ou"
     use_tls: bool = True
 
 
@@ -1128,7 +1128,7 @@ async def send_agency_email(agency_id: int, req: Optional[AgencySendRequest] = N
             detail="Cette agence n'a pas d'email direct renseigné. Ajoutez-en un avant l'envoi.",
         )
 
-    subject = (req.subject if req and req.subject else None) or agency.get("subject") or "Renfort intégration front-end & Figma"
+    subject = (req.subject if req and req.subject else None) or agency.get("subject") or "Renfort IA & automatisation"
     body = (req.custom_message if req and req.custom_message else None) or agency.get("custom_message") or ""
 
     res = await email_sender.send_single_email(
@@ -1156,6 +1156,16 @@ async def batch_send_agencies(req: AgencyBatchSendRequest):
     res = await email_sender.batch_send_prospects(target_ids, max_count=max_c)
     return res
 
+
+
+
+@app.post("/api/agencies/auto-cycle")
+async def auto_cycle_prospects(req: Optional[AgencyScanRequest] = None):
+    """Triggers a fully autonomous prospecting cycle: scan + auto-send."""
+    city = req.city if req and req.city else "Paris"
+    max_scan = req.max_count if req and req.max_count else 10
+    result = await agency_finder.run_autonomous_cycle(city=city, max_scan=max_scan, max_send=15)
+    return result
 
 @app.post("/api/agencies/add")
 async def add_agency_manual(item: AgencyAddRequest):

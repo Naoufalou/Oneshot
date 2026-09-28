@@ -1,81 +1,211 @@
-address: Paris
-city: Paris
+# =============================================================================
+# NAOUFAL OU — DOCUMENT MAÎTRE ATS, PORTFOLIO & BANQUE DE COMPÉTENCES
+# =============================================================================
+# Document source pour personnaliser des candidatures et alimenter le système
+# d'auto-apply. Toutes les informations proviennent directement du profil de
+# =============================================================================
+
+# --- 1. COORDONNÉES ---
+first_name: Naoufal
+last_name: Ou
+email: naoufal.ou7@gmail.com
+phone_country_code: "+33"
+phone_number: "07 80 81 23 77"
+address: "Les Clayes-sous-Bois, France"
+city: Les Clayes-sous-Bois
 country: France
-current_title: Creative Front-End Developer & UI Designer
-custom_qa:
-  diplome: Product Designer / BUT Info-Com & Arts Appliqués
-  disponibilite: Immédiate
-  permis: Oui
-  stack_preferee: React, Three.js, TypeScript, Tailwind, Figma
-  statut: Cadre / Freelance
-education:
-- period: ''
-  title: Product Designer / BUT Info-Com & Arts Appliqués
-email: eliot.hantute@gmail.com
-experience: []
-first_name: Eliot
-github_url: https://github.com/eliothantute
-languages:
-  Anglais: Professionnel (C1)
-  Français: Natif
-last_name: Hantute
-linkedin_url: https://www.linkedin.com/in/eliot-hantute/
-notice_period_weeks: 0
-phone_country_code: '+33'
-phone_number: 07 75 03 68 75
-portfolio_url: https://eliotlab.fr/
-postal_code: '75000'
-projects:
-- description: Globe 3D & Carte Interactive Immersive — Three.js/WebGL
-  name: Atelier Berger
-  url: https://eliotlab.fr/
-- description: Site Vitrine 3D Immersif pour Artiste & Producteur — Three.js, GSAP
-  name: DISFOCUS
-  url: https://eliotlab.fr/
-- description: Boutique E-Commerce Cosmétique Bio — React, Tailwind, Cart Drawer
-  name: AUM Paris
-  url: https://eliotlab.fr/
-- description: Localisateur Urbain & Météo API — PWA, Leaflet Map, Geolocation
-  name: Ping Paris
-  url: https://eliotlab.fr/
-- description: Site Vitrine sur Maquette Figma — React, Motion
-  name: Elora
-  url: https://eliotlab.fr/
-- description: Landing Page Agent Vocal Autonome — React 19, TypeScript
-  name: NARI OS
-  url: https://eliotlab.fr/
-- description: Landing Page Logiciel Desktop 3D Edition — Three.js
-  name: Hazi Whatsapp
-  url: https://eliotlab.fr/
-- description: Composition Musicale & Ambiance Immersive — Audio Web API, Sound Design
-  name: Motion Study / Spatial Flow
-  url: https://eliotlab.fr/
-requires_sponsorship: false
-resume_path: data/resumes/CV_Eliot_Hantute-4.pdf
-salary_expectation_annual_eur: 55000
+postal_code: "93450"
+linkedin_url: https://www.linkedin.com/in/naoufal-ou-14a071150
+github_url: https://github.com/Naoufalou
+portfolio_url: https://hermes-commander-site.vercel.app
+
+# --- 2. TITRES CIBLÉS & POSITIONNEMENT ---
+current_title: "Lead Developer & AI Systems Engineer"
+total_years_experience: 8
+summary: "Entrepreneur-développeur orienté conception et livraison de produits numériques. Expérience transversale en développement web, desktop et mobile, systèmes IA à base de LLM, orchestration d'agents et automatisation de workflows. Compétences en TypeScript, JavaScript, Node.js, Python, React, Electron, Expo, Supabase, PostgreSQL, SQLite, APIs et déploiement cloud. Fondateur et CEO depuis 2023, avec une expérience antérieure en gestion de projets digitaux, growth et vente."
+
+# --- 3. COMPÉTENCES (liste — utilisée par le moteur de matching) ---
 skills:
-- React 19
-- Three.js
-- WebGL
-- TypeScript
-- Tailwind CSS
-- Figma
-- UI/UX Design
-- Next.js
-- Vite
-- GSAP
-- Motion
-- Shaders GLSL
-- Design Systems
-- PWA
-- Python
-- Playwright
-- Audio Web API
-- Sound Design
-- React Globe GL
-- Framer Motion
-summary: Développeur front-end créatif & UI Designer spécialisé en React 19, TypeScript,
-  Three.js et WebGL.
-total_years_experience: 3
-willing_to_relocate: false
+  # Développement et langages
+  - TypeScript
+  - JavaScript
+  - Node.js
+  - Python
+  - HTML5
+  - CSS3
+  - Tailwind CSS
+  - React
+  - React Native
+  - Next.js
+  - Vite
+  - Expo
+  # Applications desktop et mobile
+  - Electron
+  - Electron IPC
+  - PySide6
+  - Qt for Python
+  - Zustand
+  - AsyncStorage
+  - Android Debug Bridge (ADB)
+  - Extensions Chrome
+  # IA et systèmes agentiques
+  - Artificial Intelligence
+  - Generative AI
+  - Large Language Models (LLM)
+  - AI Systems Engineering
+  - AI Agents
+  - Multi-agent systems
+  - Agent Orchestration
+  - Model Context Protocol (MCP)
+  - Hermes Agent
+  - LangGraph
+  - StateGraph
+  - CrewAI
+  - OpenRouter
+  - Gemini API
+  - DeepSeek
+  - Claude
+  - Human-in-the-loop (HITL)
+  # IA locale, voix et audio
+  - LM Studio
+  - MLX Whisper
+  - Silero VAD
+  - Speech-to-Text (STT)
+  - Text-to-Speech (TTS)
+  - Chatterbox Multilingual
+  - Audio streaming
+  # Backend, BDD et sécurité
+  - Supabase
+  - Supabase Auth
+  - PostgreSQL
+  - Row Level Security (RLS)
+  - SQLite
+  - SQLite WAL
+  - better-sqlite3
+  - API REST
+  - WebSocket
+  - Server-Sent Events (SSE)
+  - Authentication
+  - Authorization (RBAC)
+  # Automatisation, scrapers et prospection
+  - Workflow Automation
+  - Web Scraping
+  - Apify
+  - crawl4ai
+  - Google Custom Search JSON API
+  # Computer vision
+  - OpenCV
+  - MediaPipe
+  - Hand tracking
+  - Gesture tracking
+  # Outils et plateformes
+  - Git
+  - GitHub
+  - Claude Code
+  - Cursor
+  - Vercel
+  - Cloudflare Pages
+  - Stripe
+  - JSON-LD
+  - SEO technique
+
+# --- 4. LANGUES ---
+languages:
+  Français: Natif
+  Anglais: "Professionnel (B2/C1)"
+
+# --- 5. INFORMATIONS PERSONNELLES ---
 work_authorization_eu: true
+requires_sponsorship: false
+salary_expectation_annual_eur: 50000
+notice_period_weeks: 0
+willing_to_relocate: false
+custom_qa:
+  disponibilite: "Immédiate"
+  permis: "Oui"
+  statut: "Cadre / Indépendant"
+resume_path: "data/resumes/cv-naoufal-ou.pdf"
+
+# --- 6. EXPÉRIENCES PROFESSIONNELLES ---
+# NOTE: keywords must be STRINGS (comma-separated) for Pydantic Dict[str, str]
+experience:
+  - company: Nari / IApas
+    title: "Fondateur & CEO"
+    start_date: "2023-01"
+    end_date: ""
+    duration_months: "41"
+    keywords: "Founder, CEO, Entrepreneurship, AI Solutions, Software Architecture, Product Development, Client Relations, Technical Leadership, Automation"
+    description: "Création et pilotage d'activités entrepreneuriales orientées produits et services numériques. Développement de solutions technologiques sur mesure. Conception d'architectures IA et automatisations. Cadrage des besoins, arbitrages techniques et accompagnement client. Articulation entre objectifs commerciaux, expérience utilisateur et livraison logicielle."
+  - company: "WOJO / 2H2A"
+    title: "Chef de projet digital & Growth"
+    start_date: "2021"
+    end_date: "2023"
+    duration_months: "24"
+    keywords: "Digital Project Manager, Growth, Digital Marketing, Project Coordination, Product Operations"
+    description: "Pilotage de projets digitaux et coordination des besoins métier. Contribution aux sujets de croissance, marketing et produit. Coordination d'interlocuteurs et suivi de livrables."
+  - company: "Maisons Pierre, Luxauto, Caliso"
+    title: "Expériences commerciales terrain"
+    start_date: "2015"
+    end_date: "2018"
+    duration_months: "36"
+    keywords: "Field Sales, Sales, Prospecting, Customer Relationship, Business Development"
+    description: "Expériences commerciales de terrain et relation client. Prospection et échanges avec des prospects ou clients."
+
+# --- 7. ÉDUCATION ---
+education:
+  - degree: "Master 2 Data Science & Data Analysis"
+    institution: "IA School"
+    start_date: "2020"
+    end_date: "2021"
+  - degree: "Master 2 / Titre Chargé de Marketing"
+    institution: "PPA"
+    start_date: "2017"
+    end_date: "2018"
+
+# --- 8. PROJETS ---
+# NOTE: stack must be STRINGS (comma-separated) for Pydantic Dict[str, str]
+projects:
+  - name: "Zina OS / Chaka Live OS"
+    role: "Lead Developer & Architecte"
+    description: "Produit B2B desktop/web pour l'écosystème musical. Application web multi-tenant artistes/métriques et application desktop mono-opérateur pour leads et campagnes. Intégration Supabase, serveur MCP Node.js avec outils routés, bridge WhatsApp, agents DataAgent et CreativeAgent, routage Gemini."
+    stack: "Electron, React, Node.js, Supabase, PostgreSQL, MCP, Hermes, Gemini API, WhatsApp"
+  - name: "Vision Mouse / AirMouse"
+    role: "Développeur"
+    description: "Application macOS de contrôle gestuel à partir d'une webcam."
+    stack: "Python, OpenCV, MediaPipe, PyObjC, NumPy"
+  - name: "Multi-WhatsApp (PixelCreate / CreateWhatsapp)"
+    role: "Fondateur & CEO"
+    description: "Application desktop d'automatisation WhatsApp multi-comptes avec reformulation de messages par LLM, gestion de proxies, warm-up et import CSV."
+    stack: "Electron, Gemini API, CSV, Proxies, WhatsApp"
+  - name: "Hermes Agent & MCP Orchestration"
+    role: "Architecte & Lead Developer"
+    description: "Conception de systèmes où un agent coordinateur délègue des tâches à des sous-agents et utilise des outils par MCP. SQLite WAL comme registre de tâches, coûts, approbations et artefacts. Architecture HITL pour les effets externes."
+    stack: "Hermes, MCP, Ollama, DeepSeek, OpenRouter, SQLite WAL, React, PixiJS, Phaser, React Three Fiber, Drei, WebSocket, SSE"
+  - name: "na.vire"
+    role: "Product Owner & Architecte"
+    description: "Interface en graphe reliant idées, projets, objectifs, agents, tâches, exécutions, outils, paiements et résultats. Visualisation via React Force Graph 3D."
+    stack: "React, PixiJS, Phaser, React Three Fiber, Drei, Vite, FastAPI, Node.js, SQLite WAL, PostgreSQL, WebSocket, SSE"
+  - name: "PixelCreate Sales OS"
+    role: "Lead Developer"
+    description: "Outils de pilotage commercial et automatisation de campagnes B2B. Campaign Manager, génération de séquences par Gemini, workflow runner avec pacing, recherche via Google Custom Search API, enrichissement Hunter/Apify, routage WhatsApp/email/LinkedIn, extension Chrome LinkedIn."
+    stack: "Electron, Node.js, JavaScript, SQLite, Gemini API, Google Custom Search API, Hunter API, Smartlead, Apify, Cloudflare Pages, Wrangler, Chrome Extension API"
+  - name: "Astra Live"
+    role: "Architecte & Lead Developer"
+    description: "Assistant vocal français en interaction continue. Pipeline: détection modèle LM Studio → requêtes OpenAI-compatible → streaming SSE → STT MLX Whisper → VAD Silero → TTS Chatterbox Multilingual. Interface locale avec boutons START LIVE, STOP, MUTE."
+    stack: "Python, LM Studio, Qwen, MLX Whisper, Silero VAD, Chatterbox TTS, S3Tokenizer, SSE"
+  - name: "Bouchon"
+    role: "Lead Developer"
+    description: "Application mobile/web de partage de véhicule avec rôles propriétaire et membre. Réservations, blocs de disponibilité, détection de chevauchements, capacité, adhésion, annulation, calendrier multi-jours. 7 suites et 76 tests exécutés."
+    stack: "Expo, React Native, TypeScript, expo-router, Zustand, AsyncStorage, date-fns, react-native-calendars, react-native-svg"
+  - name: "La Mise À Jour (LAMAJ)"
+    role: "Developer"
+    description: "Boutique web de mode avec catalogue limité, filtres et demande de réservation. Déployé sur Vercel."
+    stack: "HTML, CSS, JavaScript, Vercel, Airtable"
+  - name: "Prana"
+    role: "Architecte"
+    description: "SaaS de formation et streaming vidéo. React + Supabase + Stripe."
+    stack: "React, Supabase, Stripe"
+  - name: "Agent OS / Jarvis OS"
+    role: "Lead Developer"
+    description: "Cockpit d'agents et interface de supervision avec graphe de relations. Composants AgentOS.tsx et NeuralGraph3D.tsx. Visualisation react-force-graph-3d, liquid-glass-react."
+    stack: "React, TypeScript, Next.js, Tailwind CSS v4, Vite, Electron, react-force-graph-3d, liquid-glass-react"

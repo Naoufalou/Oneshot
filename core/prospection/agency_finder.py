@@ -124,7 +124,7 @@ FEATURED_AGENCIES_DATA = [
         "decision_maker": "Direction de Création Uzik",
         "direct_portal_url": "https://www.uzik.com/contact",
         "email_status": "verified",
-        "notes": "Expériences immersives, Three.js et intégration interactive",
+        "notes": "Expériences immersives, IA générative et intégration interactive",
     },
     {
         "name": "Be API",
@@ -196,7 +196,7 @@ FEATURED_AGENCIES_DATA = [
         "decision_maker": "Direction Artistique Bonjour Paris",
         "direct_portal_url": "https://www.bonjour.paris/contact",
         "email_status": "verified",
-        "notes": "Mode, Luxe, animations interactives & Three.js",
+        "notes": "Mode, Luxe, animations interactives & IA générative",
     },
     {
         "name": "Agence 148",
@@ -272,7 +272,7 @@ FEATURED_AGENCIES_DATA = [
     },
     {
         "name": "Studio Hyperion",
-        "category": "Collectif Tech & Creative Dev",
+        "category": "Collectif Tech & AI",
         "website": "https://hyperion.studio",
         "email": "contact@hyperion.studio",
         "city": "Paris",
@@ -280,7 +280,7 @@ FEATURED_AGENCIES_DATA = [
         "decision_maker": "Collectif Hyperion",
         "direct_portal_url": "https://hyperion.studio",
         "email_status": "verified",
-        "notes": "Three.js, WebGL & design d'interaction",
+        "notes": "IA générative, Agentic Systems & design d'interaction",
     },
     {
         "name": "Biggerband",
@@ -502,6 +502,36 @@ class AgencyFinder:
 
         logger.info(f"Populated {len(inserted_records)} agencies for outreach.")
         return inserted_records
+
+    async def run_autonomous_cycle(
+        self, city: str = "Paris", max_scan: int = 10, max_send: int = 15
+    ) -> Dict[str, Any]:
+        """
+        Fully autonomous prospecting cycle:
+        1. Scans and populates agencies (up to max_scan new)
+        2. Auto-selects pending agencies with verified emails
+        3. Sends outreach emails (max max_send/day, human-paced)
+        """
+        from core.prospection.email_sender import email_sender
+        from core.storage.db import db as _db
+
+        scan_results = await self.scan_and_populate(city=city, max_count=max_scan)
+
+        pending = _db.list_agencies(status="pending", limit=300)
+        target_ids = [a["id"] for a in pending if a.get("email") and a.get("email_status", "unverified") in ("verified", "unverified")]
+
+        if not target_ids:
+            return {"status": "success", "message": f"{len(scan_results)} agences scannées. Aucune agence en attente avec email.", "scanned": len(scan_results), "sent": 0, "skipped": 0, "errors": 0}
+
+        send_results = await email_sender.batch_send_prospects(target_ids, max_count=max_send)
+        return {
+            "status": "success",
+            "message": f"Cycle autonome termine: {len(scan_results)} scannees, {send_results['sent_count']} emails envoyes",
+            "scanned": len(scan_results),
+            "sent": send_results["sent_count"],
+            "skipped": send_results.get("skipped_count", 0),
+            "errors": send_results.get("error_count", 0),
+        }
 
 
 agency_finder = AgencyFinder()

@@ -38,7 +38,7 @@ class EmailSender:
                 "port": 587,
                 "user": "",
                 "password": "",
-                "sender_name": "Eliot Hantute",
+                "sender_name": "Naoufal Ou",
                 "use_tls": True,
             }
         try:
@@ -177,7 +177,7 @@ class EmailSender:
                 msg = MIMEMultipart("alternative")
                 sender_name = config.get("sender_name") or config.get("user")
                 msg["From"] = f"{sender_name} <{config.get('user')}>"
-                reply_to = config.get("reply_to") or "contact@eliotlab.fr"
+                reply_to = config.get("reply_to") or "naoufal.ou7@gmail.com"
                 msg["Reply-To"] = f"{sender_name} <{reply_to}>"
                 msg["To"] = to_email
                 msg["Subject"] = subject
@@ -265,7 +265,7 @@ class EmailSender:
                 continue
 
             to_email = agency["email"]
-            subject = agency.get("subject") or "Renfort intégration front-end & Figma"
+            subject = agency.get("subject") or "Renfort IA & automatisation"
             body = agency.get("custom_message") or ""
 
             res = await self.send_single_email(

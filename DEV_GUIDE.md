@@ -27,7 +27,7 @@ Ce document a été rédigé pour te permettre de comprendre l'architecture du p
 | **Intelligence Artificielle** | **Google GenAI (Gemini 1.5 Flash/Pro)**, OpenAI API, Ollama | Analyse de profil, extraction de compétences, scoring, complétion des formulaires |
 | **Traitement Documents** | `pypdf`, `reportlab` | Lecture des CVs PDF, extraction de texte, génération de lettres et CVs adaptés |
 | **Frontend** | **Vanilla HTML5 / CSS3 / ES6+**, Jinja2 | Interface fluide, réactive, sans lourdeur de bundler externe |
-| **UI Dynamique & 3D** | **Three.js**, **React 18** & Babel (composants isolés) | Animations visuelles, scènes 3D de particules pendant les batchs |
+| **UI Dynamique (TypeScript)** | **TypeScript**, **React 18** & Babel (composants isolés) | Animations visuelles, scènes 3D de particules pendant les batchs |
 | **Notifications** | Telegram Bot API, Discord Webhooks | Alertes push instantanées pour les offres à haut score |
 
 ---
@@ -88,7 +88,7 @@ Oneshot/
 │   └── static/
 │       ├── app.js               # Logique frontend (appels API, filtres, modales, polling batch)
 │       ├── style.css            # Styles CSS3 (design system épuré, thèmes Nintendo/Gaming)
-│       ├── three.min.js         # Bibliothèque Three.js pour effets visuels
+│       ├── three.min.js         # Bibliothèque 3D tierce pour effets visuels
 │       └── components/          # Micro-composants React optionnels
 │
 ├── data/                        # Données locales (ignorées par git)
@@ -190,7 +190,7 @@ Pour éviter de stocker les identifiants ou mots de passe en clair, l'applicatio
 ### 2. Clonage et environnement virtuel
 ```bash
 # Cloner le projet
-git clone https://github.com/eliothantute/Oneshot.git
+git clone https://github.com/Naoufalou/Oneshot.git
 cd Oneshot
 
 # Créer l'environnement virtuel Python

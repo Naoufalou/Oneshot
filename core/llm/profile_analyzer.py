@@ -44,7 +44,7 @@ class ProfileAnalyzer:
 
     def scrape_portfolio(self, url: str) -> Dict[str, Any]:
         """
-        Scrapes a candidate's portfolio website (e.g. eliotlab.fr).
+        Scrapes a candidate's portfolio website (e.g. hermes-commander-site.vercel.app).
         Extracts meta tags, headings, projects, stacks, and text content.
         """
         if not url:
@@ -68,7 +68,7 @@ class ProfileAnalyzer:
             keywords_m = re.search(r'<meta[^>]*name=[\"\']keywords[\"\'][^>]*content=[\"\']([^\"\']+)[\"\']', html, re.IGNORECASE)
             keywords = [k.strip() for k in keywords_m.group(1).split(",")] if keywords_m else []
 
-            # If it's a SPA with assets bundle (like eliotlab.fr with main-xxx.js)
+            # If it's a SPA with assets bundle (like hermes-commander-site.vercel.app with main-xxx.js)
             js_bundles = re.findall(r'src=[\"\'](/assets/[^\"\']+\.js)[\"\']', html)
             projects_data = []
             extracted_techs = set()
@@ -366,7 +366,7 @@ class ProfileAnalyzer:
             '  "phone_number": "0600000000",\n'
             '  "city": "Ville (ex: Paris, Lyon...)",\n'
             '  "country": "France",\n'
-            '  "current_title": "Intitulé précis du poste (ex: Développeur Full Stack Python / React, Lead DevOps, UI Designer...)",\n'
+            '  "current_title": "Intitulé précis du poste (ex: Développeur Full Stack Python / React, Lead DevOps, AI Engineer...)",\n'
             '  "total_years_experience": 3,\n'
             '  "summary": "Résumé professionnel percutant et valorisant (2-3 phrases)",\n'
             '  "skills": ["Compétence 1", "Compétence 2", "Compétence 3", ...],\n'
@@ -489,7 +489,7 @@ class ProfileAnalyzer:
             tech_keywords = [
                 "Python", "JavaScript", "TypeScript", "React", "Next.js", "Vue", "Angular",
                 "Node.js", "FastAPI", "Django", "Flask", "Docker", "Kubernetes", "SQL",
-                "PostgreSQL", "MongoDB", "Three.js", "WebGL", "Tailwind CSS", "GSAP",
+                "PostgreSQL", "MongoDB", "Artificial Intelligence", "LLM", "AI Agents", "MCP", "DeepSeek", "OpenRouter",
                 "Figma", "UI/UX", "AWS", "GCP", "Azure", "Git", "CI/CD", "Playwright",
                 "C++", "Java", "Go", "Rust", "PHP", "Symfony", "Laravel", "Linux"
             ]
@@ -503,15 +503,15 @@ class ProfileAnalyzer:
                 found_skills = ["Python", "JavaScript", "React", "Docker", "Git"]
 
             # Title extraction
-            title = "Développeur Full Stack"
-            if "three.js" in full_text.lower() or "creative" in full_text.lower():
-                title = "Creative Front-End Developer & UI Designer"
+            title = "Lead Developer & AI Systems Engineer"
+            if "ai engineer" in full_text.lower() or "agent" in full_text.lower() or "mcp" in full_text.lower():
+                title = "Lead Developer & AI Systems Engineer"
             elif "devops" in full_text.lower() or "cloud" in full_text.lower():
-                title = "Ingénieur DevOps / Cloud"
+                title = "Ingénieur DevOps / Cloud & AI"
             elif "data" in full_text.lower():
-                title = "Data Engineer / Python"
+                title = "AI Data Engineer / Python"
             elif "front" in full_text.lower():
-                title = "Développeur Front-End React"
+                title = "Développeur Full-Stack Web"
 
             profile = UserProfile(
                 first_name=f_name,
