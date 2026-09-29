@@ -52,24 +52,24 @@ for folder in [DATA_DIR, SESSIONS_DIR, SCREENSHOTS_DIR, RESUMES_DIR, GENERATED_D
 
 
 class UserProfile(BaseModel):
-    first_name: str = "Jean"
-    last_name: str = "Dupont"
-    email: str = "jean.dupont@example.com"
+    first_name: str = "Naoufal"
+    last_name: str = "Ou"
+    email: str = "pixelcreate.news@gmail.com"
     phone_country_code: str = "+33"
     phone_number: str = "612345678"
     city: str = "Paris"
     country: str = "France"
     postal_code: str = "75001"
     address: str = "10 Rue de la Paix"
-    
-    current_title: str = "Développeur Full Stack"
+
+    current_title: str = "IA Engineer & Lead Développeur Full-Stack"
     total_years_experience: int = 4
-    linkedin_url: Optional[str] = "https://www.linkedin.com/in/jeandupont"
-    github_url: Optional[str] = "https://github.com/jeandupont"
-    portfolio_url: Optional[str] = "https://jeandupont.dev"
-    
-    summary: str = "Développeur passionné par Python, JavaScript, React et l'architecture Cloud."
-    skills: List[str] = ["Python", "JavaScript", "TypeScript", "React", "Node.js", "Docker", "SQL", "Git"]
+    linkedin_url: Optional[str] = "https://www.linkedin.com/in/naoufalou"
+    github_url: Optional[str] = "https://github.com/Naoufalou"
+    portfolio_url: Optional[str] = "https://hermes-commander-site.vercel.app"
+
+    summary: str = "Ingénieur IA & Développeur Full-Stack spécialisé dans la création d'agents autonomes, l'automatisation de processus complexes (n8n/Make/Python) et le développement web moderne haute performance."
+    skills: List[str] = ["Intelligence Artificielle", "Agents IA Multi-Agents", "Automatisations n8n & Make", "Python", "TypeScript", "React", "Next.js", "MCP (Model Context Protocol)", "LLMs & RAG", "FastAPI", "Docker", "Workflows Autonomes", "Web Scraping & Browser Automation", "Full-Stack Web"]
     languages: Dict[str, str] = {"Français": "Natif", "Anglais": "Professionnel (C1)"}
     
     # Common questions answers

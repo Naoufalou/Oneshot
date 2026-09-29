@@ -233,75 +233,75 @@ class EmailSender:
             }
 
     async def batch_send_prospects(
-        self, agency_ids: list[int], max_count: int = 15
-    ) -> Dict[str, Any]:
-        """
-        Sends emails in sequence with respectful human-like pacing
-        (1.5 to 3.5s interval), filtering out ATS-only or bounced addresses.
-        """
-        results = []
-        sent_count = 0
-        error_count = 0
-        skipped_count = 0
+            self, agency_ids: list[int], max_count: int = 50
+        ) -> Dict[str, Any]:
+            """
+            Sends emails in sequence with respectful human-like pacing
+            (1.5 to 3.0s interval), filtering out ATS-only or bounced addresses.
+            """
+            results = []
+            sent_count = 0
+            error_count = 0
+            skipped_count = 0
 
-        target_ids = agency_ids[:max_count]
+            target_ids = agency_ids[:max_count]
 
-        for aid in target_ids:
-            agency = self.db.get_agency_by_id(aid)
-            if not agency:
-                continue
+            for aid in target_ids:
+                agency = self.db.get_agency_by_id(aid)
+                if not agency:
+                    continue
 
-            # Safety check: if ATS-only or bounced, skip email send
-            if agency.get("email_status") in ("ats_only", "bounced") or not agency.get("email"):
-                skipped_count += 1
-                results.append({
-                    "agency_id": aid,
-                    "name": agency.get("name"),
-                    "res": {
-                        "status": "skipped",
-                        "reason": "Recrutement via portail ATS ou adresse à confirmer",
-                    },
-                })
-                continue
+                # Safety check: if ATS-only or bounced, skip email send
+                if agency.get("email_status") in ("ats_only", "bounced") or not agency.get("email"):
+                    skipped_count += 1
+                    results.append({
+                        "agency_id": aid,
+                        "name": agency.get("name"),
+                        "res": {
+                            "status": "skipped",
+                            "reason": "Recrutement via portail ATS ou adresse à confirmer",
+                        },
+                    })
+                    continue
 
-            to_email = agency["email"]
-            subject = agency.get("subject") or "Renfort IA & automatisation"
-            body = agency.get("custom_message") or ""
+                to_email = agency["email"]
+                subject = agency.get("subject") or "Renfort IA & automatisation"
+                body = agency.get("custom_message") or ""
 
-            res = await self.send_single_email(
-                to_email=to_email,
-                subject=subject,
-                body=body,
-                agency_id=aid,
-                simulate_if_no_smtp=True,
+                res = await self.send_single_email(
+                    to_email=to_email,
+                    subject=subject,
+                    body=body,
+                    agency_id=aid,
+                    simulate_if_no_smtp=True,
+                )
+
+                if res.get("status") == "success":
+                    sent_count += 1
+                else:
+                    error_count += 1
+
+                results.append({"agency_id": aid, "name": agency.get("name"), "res": res})
+
+                # Human delay between consecutive emails
+                await asyncio.sleep(random.uniform(1.5, 3.0))
+
+            config = self.load_smtp_config()
+            is_smtp_ready = (
+                config.get("enabled")
+                and bool(config.get("user"))
+                and bool(config.get("password"))
             )
 
-            if res.get("status") == "success":
-                sent_count += 1
-            else:
-                error_count += 1
-
-            results.append({"agency_id": aid, "name": agency.get("name"), "res": res})
-
-            # Human delay between consecutive emails
-            await asyncio.sleep(random.uniform(1.2, 2.8))
-
-        config = self.load_smtp_config()
-        is_smtp_ready = (
-            config.get("enabled")
-            and bool(config.get("user"))
-            and bool(config.get("password"))
-        )
-
-        return {
-            "status": "success",
-            "mode": "smtp" if is_smtp_ready else "recorded",
-            "total_processed": len(target_ids),
-            "sent_count": sent_count,
-            "error_count": error_count,
-            "skipped_count": skipped_count,
-            "details": results,
-        }
+            return {
+                "status": "success",
+                "mode": "smtp" if is_smtp_ready else "recorded",
+                "total_processed": len(target_ids),
+                "sent_count": sent_count,
+                "error_count": error_count,
+                "skipped_count": skipped_count,
+                "details": results,
+            }
 
 
 email_sender = EmailSender()

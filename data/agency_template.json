@@ -1,0 +1,4 @@
+{
+  "subject": "Renfort IA, Développement Full-Stack & Agents pour {nom_agence}",
+  "body": "Bonjour {destinataire},\n\nVous optimisez les process de vos clients ou accélérez vos livrables techniques ? Nous avons peut-être une piste utile.\n\nJe suis Ingénieur IA & Développeur Full-Stack ({competences}).\nJ'aide les agences web et digitales à automatiser leurs opérations et à développer des solutions d'IA concrètes :\n• 🤖 Agents IA autonomes & pipelines RAG sur-mesure (Hermes, Claude, DeepSeek)\n• ⚡ Automatisations de workflows complexes (n8n, Make, scripts Python & API)\n• 💻 Développement Web moderne Full-Stack (React, Next.js, TypeScript, FastAPI)\n\n👉 Portfolio & Démos : {portfolio}\n👉 GitHub : {github}\n\nSi vous avez des sprints chargés ou des besoins en renfort IA & dev cette semaine, je suis disponible immédiatement (forfait ou régie).\n\nBelle journée,\n{nom_complet}\n{telephone}"
+}

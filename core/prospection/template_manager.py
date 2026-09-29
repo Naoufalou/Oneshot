@@ -10,20 +10,29 @@ logger = logging.getLogger("TemplateManager")
 
 TEMPLATE_FILE = DATA_DIR / "agency_template.json"
 
-DEFAULT_SUBJECT = "Renfort IA & automatisation pour {nom_agence}"
+DEFAULT_SUBJECT = "Renfort IA, Développement Full-Stack & Agents pour {nom_agence}"
 
-DEFAULT_BODY = """Hello {destinataire},
+DEFAULT_BODY = """Bonjour {destinataire},
 
-Je suis ingénieur IA & automatisation ({competences}).
-Je développe des agents IA, des automatisations n8n/Make et des intégrations MCP pour libérer vos équipes des tâches répétitives.
+Vous optimisez les process de vos clients ? Nous avons peut-être une piste utile.
 
-Voici 3 projets récents :
-👉 Portfolio : {portfolio}
-👉 GitHub : {github}
+Je suis Ingénieur IA & Lead Dev Full-Stack ({competences}). Depuis 4 ans, je construis des agents intelligents, des workflows n8n/Make automatisés et des intégrations MCP — ce qui réduit de 40-60% les tâches manuelles de mes clients (lead enrichment, reporting, extraction web, on-boarding).
 
-Si vous avez des flux récurrents (facturation, leads, reporting, support client) à automatiser cette semaine, je suis disponible en renfort (forfait ou journée).
+Un exemple concret cette semaine :
+👉 Agent IA autonome qui scrappe, qualifie et enrichit 200 leads/jour
+👉 Pipeline n8n intégré à leur CRM existant (en 48h)
+👉 Interface React/Next.js temps réel pour piloter le tout
 
-Bonne semaine,
+📎 Portfolio : {portfolio}
+📎 GitHub : {github}
+
+Résultat : +120 prospects qualifiés en 1 semaine, zéro développement interne.
+
+Si vous avez un projet IA, automatisation ou intégration web cette année, je suis disponible en forfait ou TJM.
+
+Des références ? Bien sûr — je vous les partage par retour.
+
+Bien à vous,
 {nom_complet}
 {telephone}"""
 

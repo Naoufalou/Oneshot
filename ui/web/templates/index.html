@@ -55,6 +55,37 @@
     </div>
 
     <!-- Header Actions (One-Click Apply sur le Dash Principal, Thèmes & Réglages) -->
+    
+    <!-- LUXURY UNIFIED PRIMARY NAVIGATION TABS -->
+    <nav class="luxury-navbar" id="luxury-top-nav" role="tablist">
+      <button type="button" class="luxury-nav-btn active" data-tab-panel="panel-dashboard" id="btn-tab-dashboard">
+        <i class="fa-solid fa-chart-line"></i>
+        <span>Dashboard & Suivi Live</span>
+      </button>
+      <button type="button" class="luxury-nav-btn" data-tab-panel="panel-agencies" id="btn-tab-agencies">
+        <i class="fa-solid fa-bullseye"></i>
+        <span>Prospection B2B Agences</span>
+        <span class="luxury-badge" id="top-nav-agency-badge">50/j</span>
+      </button>
+      <button type="button" class="luxury-nav-btn" data-tab-panel="panel-jobs" id="btn-tab-jobs">
+        <i class="fa-solid fa-briefcase"></i>
+        <span>Candidatures & Émulateur</span>
+        <span class="luxury-badge" id="top-nav-jobs-badge">0</span>
+      </button>
+      <button type="button" class="luxury-nav-btn" data-tab-panel="panel-profile" id="btn-tab-profile">
+        <i class="fa-solid fa-user-astronaut"></i>
+        <span>Profil & Compétences IA</span>
+      </button>
+      <button type="button" class="luxury-nav-btn" data-tab-panel="panel-platforms" id="btn-tab-platforms">
+        <i class="fa-solid fa-network-wired"></i>
+        <span>Plateformes & Sessions</span>
+      </button>
+      <button type="button" class="luxury-nav-btn" data-tab-panel="panel-system" id="btn-tab-system">
+        <i class="fa-solid fa-terminal"></i>
+        <span>Système & Logs</span>
+      </button>
+    </nav>
+
     <div class="steady-header-actions">
       <!-- One-Click Autonomous Apply Action Button (Dash Principal) -->
       <button type="button" class="steady-action-btn steady-btn-primary arova-btn-apply-all-master" id="btn-header-batch-apply" title="Lancer toutes les candidatures automatiques en 1 Clic (Touche A)">
@@ -96,6 +127,146 @@
        STEADY INVOICING MAIN SAAS WORKSPACE
   ========================================================== -->
   <main class="steady-workspace">
+
+    <!-- ==========================================================
+         LUXURY UNIFIED DASHBOARD & REAL-TIME TRACKING CENTER
+    ========================================================== -->
+    <div class="luxury-view-panel active" id="panel-dashboard">
+      <!-- 4 Executive KPI Cards -->
+      <div class="luxury-kpi-grid">
+        <!-- Card 1: Agency Outreach 50/day -->
+        <div class="luxury-kpi-card" id="card-kpi-agencies">
+          <div class="luxury-kpi-top">
+            <span class="luxury-kpi-label">Prospection B2B Agences</span>
+            <div class="luxury-kpi-icon emerald"><i class="fa-solid fa-paper-plane"></i></div>
+          </div>
+          <div class="luxury-kpi-value"><span id="lux-kpi-agency-sent">0</span> <span style="font-size:1.1rem; color:var(--lux-text-muted); font-weight:600;">/ 50</span></div>
+          <div class="luxury-kpi-subtext">
+            <i class="fa-solid fa-circle-check" style="color:var(--lux-accent-emerald);"></i>
+            <span><strong id="lux-kpi-agency-pending">0</strong> agences ciblées prêtes</span>
+          </div>
+        </div>
+
+        <!-- Card 2: Job Applications -->
+        <div class="luxury-kpi-card" id="card-kpi-jobs">
+          <div class="luxury-kpi-top">
+            <span class="luxury-kpi-label">Candidatures Emploi</span>
+            <div class="luxury-kpi-icon cyan"><i class="fa-solid fa-briefcase"></i></div>
+          </div>
+          <div class="luxury-kpi-value" id="lux-kpi-jobs-applied">0</div>
+          <div class="luxury-kpi-subtext">
+            <i class="fa-solid fa-shield-halved" style="color:var(--lux-accent-cyan);"></i>
+            <span>Émulateur Patchright furtif</span>
+          </div>
+        </div>
+
+        <!-- Card 3: AI Match & Competencies -->
+        <div class="luxury-kpi-card" id="card-kpi-matching">
+          <div class="luxury-kpi-top">
+            <span class="luxury-kpi-label">Matching IA & Profil</span>
+            <div class="luxury-kpi-icon gold"><i class="fa-solid fa-brain"></i></div>
+          </div>
+          <div class="luxury-kpi-value">94%</div>
+          <div class="luxury-kpi-subtext">
+            <i class="fa-solid fa-sparkles" style="color:var(--lux-accent-gold);"></i>
+            <span>Lead Dev Full-Stack & IA Engineer</span>
+          </div>
+        </div>
+
+        <!-- Card 4: Autonomous Engine & SMTP -->
+        <div class="luxury-kpi-card" id="card-kpi-system">
+          <div class="luxury-kpi-top">
+            <span class="luxury-kpi-label">Moteur & Expéditeur</span>
+            <div class="luxury-kpi-icon purple"><i class="fa-solid fa-bolt"></i></div>
+          </div>
+          <div class="luxury-kpi-value" style="font-size:1.3rem; padding-top:6px; color:var(--lux-accent-emerald);">pixelcreate.news</div>
+          <div class="luxury-kpi-subtext">
+            <i class="fa-solid fa-envelope-circle-check" style="color:var(--lux-accent-emerald);"></i>
+            <span>SMTP Connecté • 50 emails/jour</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 50 Email Daily Quota Banner -->
+      <div class="luxury-progress-banner">
+        <div class="luxury-progress-info">
+          <div class="luxury-progress-title">
+            <i class="fa-solid fa-bullseye" style="color:var(--lux-accent-emerald);"></i>
+            <span>Objectif Quotidien : 50 Emails B2B Ultra-Ciblés & Personnalisés</span>
+            <span class="luxury-live-pulse"><span class="luxury-live-pulse-dot"></span> Autonome</span>
+          </div>
+          <div class="luxury-progress-desc">
+            Prospection directe depuis <strong>pixelcreate.news@gmail.com</strong> avec vos compétences en Développement Full-Stack, Agents IA autonomes et Automatisations n8n.
+          </div>
+          <div class="luxury-progress-bar-wrap">
+            <div class="luxury-progress-bar-fill" id="lux-progress-fill" style="width: 0%;"></div>
+          </div>
+        </div>
+        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
+          <span style="font-size:0.85rem; font-weight:700; color:#fff;" id="lux-progress-text">0 / 50 envoyés aujourd'hui (0%)</span>
+          <button type="button" class="luxury-btn-primary" id="btn-dash-auto-cycle-50">
+            <i class="fa-solid fa-bolt"></i>
+            <span>Lancer le Cycle Autonome (50 Cibles)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- UNIFIED REAL-TIME TRACKING CENTER -->
+      <div class="luxury-tracking-box">
+        <div class="luxury-tracking-header">
+          <div class="luxury-tracking-title-wrap">
+            <div class="luxury-tracking-title">
+              <i class="fa-solid fa-tower-broadcast" style="color:var(--lux-accent-emerald);"></i>
+              <span>Suivi Intégral en Temps Réel</span>
+            </div>
+            <span class="luxury-live-pulse"><span class="luxury-live-pulse-dot"></span> Direct</span>
+            <span style="font-size:0.8rem; color:var(--lux-text-muted);">(<span id="lux-kpi-total-records">0</span> événements enregistrés)</span>
+          </div>
+
+          <div class="luxury-tracking-controls">
+            <!-- Filters -->
+            <button type="button" class="luxury-filter-pill active" data-filter="all">Tous les flux</button>
+            <button type="button" class="luxury-filter-pill" data-filter="agencies">📮 Emails Agences B2B</button>
+            <button type="button" class="luxury-filter-pill" data-filter="jobs">💼 Candidatures Emploi</button>
+            <button type="button" class="luxury-filter-pill" data-filter="sent">🟢 Envoyés</button>
+            <button type="button" class="luxury-filter-pill" data-filter="pending">🟡 En Attente</button>
+            <button type="button" class="luxury-filter-pill" data-filter="highmatch">⭐ Top Match (≥80%)</button>
+
+            <!-- Search -->
+            <div class="luxury-search-wrap">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" class="luxury-search-input" id="lux-tracking-search" placeholder="Rechercher entreprise, ville, email...">
+            </div>
+          </div>
+        </div>
+
+        <!-- Tracking Table -->
+        <div class="luxury-table-container">
+          <table class="luxury-table">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Cible & Ville</th>
+                <th>Destinataire / Contact</th>
+                <th>Sujet & Pitch</th>
+                <th>Pertinence / Délivrabilité</th>
+                <th>Statut</th>
+                <th>Date & Heure</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="luxury-tracking-tbody">
+              <tr>
+                <td colspan="8" style="text-align:center; padding:32px; color:var(--lux-text-muted);">
+                  <i class="fa-solid fa-spinner fa-spin" style="margin-right:8px;"></i> Chargement du flux en direct...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
     <!-- ==========================================================
          LUDIQUE 1-CLICK PROGRESS HERO (GAMIFIED MISSION CENTER)
     ========================================================== -->
@@ -2509,5 +2680,25 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
   <script src="/static/app.js?v=5.3"></script>
+
+  <!-- LUXURY PITCH PREVIEW MODAL -->
+  <div class="luxury-drawer-overlay" id="luxury-pitch-modal" style="display:none;">
+    <div class="luxury-drawer-card">
+      <div class="luxury-drawer-header">
+        <div class="luxury-drawer-title" id="luxury-pitch-modal-title">
+          <i class="fa-solid fa-envelope-open-text" style="color:#10b981; margin-right:8px;"></i>
+          <span>Aperçu du Message / Pitch</span>
+        </div>
+        <button type="button" class="luxury-drawer-close" id="btn-close-pitch-modal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="luxury-pitch-box" id="luxury-pitch-modal-body"></div>
+      <div style="margin-top:16px; display:flex; justify-content:flex-end;">
+        <button type="button" class="luxury-btn-primary" id="btn-pitch-modal-ok">Fermer</button>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>

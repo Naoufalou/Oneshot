@@ -14,3 +14,6 @@ __pycache__/
 .vercel
 scratch/
 .DS_Store
+graphify-out/
+*smtp_config.json
+*.db*

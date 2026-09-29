@@ -7157,3 +7157,352 @@ function initGameAudio() {
 
 
 
+
+
+
+// =============================================================================
+// ONESHOT LUXURY OBSIDIAN & UNIFIED REAL-TIME TRACKING ENGINE
+// =============================================================================
+
+(function() {
+  let currentTrackingFilter = "all";
+  let trackingSearchQuery = "";
+  let trackingCache = [];
+
+  function escapeHtml(str) {
+    if (!str) return "";
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  // --- TOP LUXURY NAV TAB SWITCHER ---
+  function initLuxuryNav() {
+    const navBtns = document.querySelectorAll(".luxury-nav-btn");
+    navBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        navBtns.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        const targetPanel = btn.getAttribute("data-tab-panel");
+        if (targetPanel === "panel-dashboard") {
+          const dash = document.getElementById("panel-dashboard");
+          if (dash) dash.style.display = "block";
+          if (typeof window.closeSecondarySheet === "function") window.closeSecondarySheet();
+          refreshUnifiedTracking();
+        } else if (targetPanel === "panel-agencies") {
+          if (typeof window.openSecondarySheet === "function") {
+            window.openSecondarySheet("tab-agencies");
+          }
+        } else if (targetPanel === "panel-jobs") {
+          if (typeof window.openZenTable === "function") {
+            window.openZenTable("", "");
+          } else if (typeof window.openSecondarySheet === "function") {
+            window.openSecondarySheet("tab-table");
+          }
+        } else if (targetPanel === "panel-profile") {
+          if (typeof window.openSecondarySheet === "function") {
+            window.openSecondarySheet("tab-cv");
+          }
+        } else if (targetPanel === "panel-platforms") {
+          if (typeof window.openSecondarySheet === "function") {
+            window.openSecondarySheet("tab-platforms");
+          }
+        } else if (targetPanel === "panel-system") {
+          if (typeof window.openSecondarySheet === "function") {
+            window.openSecondarySheet("tab-settings");
+          }
+        }
+      });
+    });
+
+    // Auto-Cycle 50 Emails Button on Dashboard & Header
+    const btnAuto50 = document.getElementById("btn-dash-auto-cycle-50");
+    if (btnAuto50) {
+      btnAuto50.addEventListener("click", async () => {
+        btnAuto50.disabled = true;
+        btnAuto50.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Cycle 50 Cibles en cours...</span>';
+        try {
+          const res = await fetch("/api/agencies/auto-cycle", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ city: "Paris", max_count: 50 })
+          });
+          const data = await res.json();
+          alert(data.message || "Cycle autonome lancé avec succès (50 cibles B2B) !");
+          refreshUnifiedTracking();
+          if (typeof window.loadAgencies === "function") window.loadAgencies();
+        } catch (e) {
+          alert("Erreur lors du lancement du cycle : " + e);
+        } finally {
+          btnAuto50.disabled = false;
+          btnAuto50.innerHTML = '<i class="fa-solid fa-bolt"></i> <span>Lancer le Cycle Autonome (50 Cibles)</span>';
+        }
+      });
+    }
+
+    // Filter Pills
+    const filterPills = document.querySelectorAll(".luxury-filter-pill");
+    filterPills.forEach(pill => {
+      pill.addEventListener("click", () => {
+        filterPills.forEach(p => p.classList.remove("active"));
+        pill.classList.add("active");
+        currentTrackingFilter = pill.getAttribute("data-filter") || "all";
+        renderTrackingTable();
+      });
+    });
+
+    // Search Input
+    const searchInput = document.getElementById("lux-tracking-search");
+    if (searchInput) {
+      searchInput.addEventListener("input", (e) => {
+        trackingSearchQuery = (e.target.value || "").trim();
+        renderTrackingTable();
+      });
+    }
+
+    // Pitch Modal
+    const pitchModal = document.getElementById("luxury-pitch-modal");
+    const btnClosePitch = document.getElementById("btn-close-pitch-modal");
+    const btnOkPitch = document.getElementById("btn-pitch-modal-ok");
+
+    function closePitchModal() {
+      if (pitchModal) pitchModal.style.display = "none";
+    }
+
+    if (btnClosePitch) btnClosePitch.addEventListener("click", closePitchModal);
+    if (btnOkPitch) btnOkPitch.addEventListener("click", closePitchModal);
+    if (pitchModal) {
+      pitchModal.addEventListener("click", (e) => {
+        if (e.target === pitchModal) closePitchModal();
+      });
+    }
+
+    // Delegate Pitch View and Resend clicks
+    document.addEventListener("click", (e) => {
+      const btnView = e.target.closest(".btn-view-pitch");
+      if (btnView) {
+        const title = btnView.getAttribute("data-title") || "Message";
+        const pitch = btnView.getAttribute("data-pitch") || "Aucun contenu";
+        const modalTitle = document.getElementById("luxury-pitch-modal-title");
+        const modalBody = document.getElementById("luxury-pitch-modal-body");
+        if (modalTitle) modalTitle.innerHTML = `<i class="fa-solid fa-envelope-open-text" style="color:#10b981; margin-right:8px;"></i> Pitch pour <strong>${escapeHtml(title)}</strong>`;
+        if (modalBody) modalBody.textContent = pitch;
+        if (pitchModal) pitchModal.style.display = "flex";
+      }
+
+      const btnResend = e.target.closest(".btn-quick-resend-agency");
+      if (btnResend) {
+        const aid = btnResend.getAttribute("data-id");
+        if (aid) {
+          btnResend.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+          fetch(`/api/agencies/${aid}/send`, { method: "POST" })
+            .then(r => r.json())
+            .then(data => {
+              alert(data.message || (data.status === "success" ? "Email envoyé avec succès !" : "Erreur: " + data.error));
+              refreshUnifiedTracking();
+              if (typeof window.loadAgencies === "function") window.loadAgencies();
+            })
+            .catch(err => alert("Erreur d'envoi : " + err))
+            .finally(() => {
+              btnResend.innerHTML = '<i class="fa-solid fa-paper-plane"></i>';
+            });
+        }
+      }
+    });
+  }
+
+  // --- REFRESH UNIFIED TRACKING DATA ---
+  async function refreshUnifiedTracking() {
+    try {
+      const [agenciesRes, appsRes] = await Promise.all([
+        fetch("/api/agencies"),
+        fetch("/api/applications?limit=250")
+      ]);
+
+      const agencies = agenciesRes.ok ? await agenciesRes.json() : [];
+      const applications = appsRes.ok ? await appsRes.json() : [];
+
+      let items = [];
+
+      // Map Agencies
+      agencies.forEach(a => {
+        items.push({
+          id: "agency_" + a.id,
+          raw_id: a.id,
+          type: "agency",
+          type_label: "📮 B2B Agence",
+          target: a.name || "Agence Web",
+          city: a.city || "France",
+          contact: a.email || (a.decision_maker ? a.decision_maker : "Portail RH Direct"),
+          decision_maker: a.decision_maker || a.name,
+          email: a.email,
+          subject: a.subject || "Renfort IA & automatisation",
+          pitch: a.custom_message || "",
+          score: a.email_status === "verified" ? "Email Vérifié" : (a.email ? "À confirmer" : "Portail ATS"),
+          score_val: a.email_status === "verified" ? 95 : (a.email ? 70 : 60),
+          status: a.status,
+          status_label: a.status === "contacted" ? "Envoyé via SMTP" : (a.status === "replied" ? "Réponse reçue" : (a.status === "skipped" ? "Ignoré" : "En attente")),
+          status_class: a.status === "contacted" ? "sent" : (a.status === "replied" ? "sent" : "pending"),
+          date_iso: a.contacted_at || a.created_at || "",
+          url: a.website || a.direct_portal_url,
+          direct_portal_url: a.direct_portal_url,
+        });
+      });
+
+      // Map Job Applications
+      applications.forEach(app => {
+        items.push({
+          id: "job_" + app.id,
+          raw_id: app.id,
+          type: "job",
+          type_label: "💼 " + (app.platform || "Offre"),
+          target: app.company || "Entreprise",
+          city: app.location || "France",
+          contact: app.job_title || "Développeur Full-Stack",
+          decision_maker: app.company,
+          email: "",
+          subject: app.job_title,
+          pitch: app.match_reason || ("Candidature pour le poste de " + app.job_title),
+          score: app.match_score ? app.match_score + "% Match" : "85% Match",
+          score_val: app.match_score || 85,
+          status: app.status,
+          status_label: app.status === "applied" ? "Candidature Envoyée" : (app.status === "skipped" ? "Passé" : (app.status === "failed" ? "À vérifier" : "Détecté")),
+          status_class: app.status === "applied" ? "sent" : (app.status === "failed" ? "error" : "match-high"),
+          date_iso: app.applied_at || app.created_at || "",
+          url: app.job_url,
+          direct_portal_url: app.job_url,
+        });
+      });
+
+      // Sort by newest first
+      items.sort((a, b) => new Date(b.date_iso || 0) - new Date(a.date_iso || 0));
+      trackingCache = items;
+
+      // Update KPI counters
+      const contactedAgencies = agencies.filter(a => a.status === "contacted").length;
+      const pendingAgencies = agencies.filter(a => a.status === "pending").length;
+      const appliedJobs = applications.filter(a => a.status === "applied").length;
+
+      const kpiAgencySent = document.getElementById("lux-kpi-agency-sent");
+      const kpiAgencyPending = document.getElementById("lux-kpi-agency-pending");
+      const kpiJobsApplied = document.getElementById("lux-kpi-jobs-applied");
+      const kpiTotalRecords = document.getElementById("lux-kpi-total-records");
+      const progressFill = document.getElementById("lux-progress-fill");
+      const progressText = document.getElementById("lux-progress-text");
+      const badgeAgencyTop = document.getElementById("top-nav-agency-badge");
+      const badgeJobsTop = document.getElementById("top-nav-jobs-badge");
+
+      if (kpiAgencySent) kpiAgencySent.textContent = contactedAgencies;
+      if (kpiAgencyPending) kpiAgencyPending.textContent = pendingAgencies;
+      if (kpiJobsApplied) kpiJobsApplied.textContent = appliedJobs;
+      if (kpiTotalRecords) kpiTotalRecords.textContent = items.length;
+      if (badgeAgencyTop) badgeAgencyTop.textContent = `${contactedAgencies}/50`;
+      if (badgeJobsTop) badgeJobsTop.textContent = appliedJobs;
+
+      // 50/day progress bar
+      const progressPct = Math.min(100, Math.round((contactedAgencies / 50) * 100));
+      if (progressFill) progressFill.style.width = progressPct + "%";
+      if (progressText) progressText.textContent = `${contactedAgencies} / 50 envoyés aujourd'hui (${progressPct}%)`;
+
+      renderTrackingTable();
+    } catch (e) {
+      console.warn("Error refreshing unified tracking:", e);
+    }
+  }
+
+  // --- RENDER TABLE ROWS ---
+  function renderTrackingTable() {
+    const tbody = document.getElementById("luxury-tracking-tbody");
+    if (!tbody) return;
+
+    let filtered = trackingCache.slice();
+
+    if (currentTrackingFilter === "agencies") {
+      filtered = filtered.filter(it => it.type === "agency");
+    } else if (currentTrackingFilter === "jobs") {
+      filtered = filtered.filter(it => it.type === "job");
+    } else if (currentTrackingFilter === "sent") {
+      filtered = filtered.filter(it => it.status === "contacted" || it.status === "applied" || it.status === "replied");
+    } else if (currentTrackingFilter === "pending") {
+      filtered = filtered.filter(it => it.status === "pending" || it.status === "detected" || it.status === "found");
+    } else if (currentTrackingFilter === "highmatch") {
+      filtered = filtered.filter(it => it.score_val >= 80);
+    }
+
+    if (trackingSearchQuery) {
+      const q = trackingSearchQuery.toLowerCase();
+      filtered = filtered.filter(it =>
+        it.target.toLowerCase().includes(q) ||
+        it.city.toLowerCase().includes(q) ||
+        it.contact.toLowerCase().includes(q) ||
+        it.subject.toLowerCase().includes(q)
+      );
+    }
+
+    tbody.innerHTML = "";
+    if (filtered.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:36px; color:var(--lux-text-muted);"><i class="fa-solid fa-inbox" style="font-size:28px; margin-bottom:10px; display:block; opacity:0.6;"></i>Aucun élément ne correspond à vos filtres actuels.</td></tr>`;
+      return;
+    }
+
+    filtered.forEach(item => {
+      const tr = document.createElement("tr");
+
+      let dateFormatted = "Récemment";
+      if (item.date_iso) {
+        try {
+          const d = new Date(item.date_iso);
+          dateFormatted = d.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+        } catch (_) {}
+      }
+
+      tr.innerHTML = `
+        <td><span class="luxury-type-tag ${item.type === "agency" ? "b2b" : "job"}">${item.type_label}</span></td>
+        <td>
+          <div style="font-weight:700; color:#fff; font-size:0.9rem;">${escapeHtml(item.target)}</div>
+          <div style="font-size:0.75rem; color:var(--lux-text-muted); margin-top:2px;"><i class="fa-solid fa-location-dot" style="font-size:0.7rem; color:#64748b;"></i> ${escapeHtml(item.city)}</div>
+        </td>
+        <td>
+          <div style="color:var(--lux-text-primary); font-weight:600;">${escapeHtml(item.contact)}</div>
+          ${item.email ? `<div style="font-size:0.75rem; color:var(--lux-accent-cyan); font-family:monospace; margin-top:2px;">${escapeHtml(item.email)}</div>` : ''}
+        </td>
+        <td>
+          <div style="max-width:260px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--lux-text-secondary); font-size:0.82rem;" title="${escapeHtml(item.subject)}">
+            ${escapeHtml(item.subject)}
+          </div>
+        </td>
+        <td>
+          <span class="luxury-status-badge match-high"><i class="fa-solid fa-shield-check"></i> ${escapeHtml(item.score)}</span>
+        </td>
+        <td>
+          <span class="luxury-status-badge ${item.status_class}">${escapeHtml(item.status_label)}</span>
+        </td>
+        <td style="font-size:0.78rem; color:var(--lux-text-muted); white-space:nowrap;">
+          ${dateFormatted}
+        </td>
+        <td>
+          <div class="luxury-table-actions">
+            ${item.pitch ? `<button type="button" class="luxury-action-icon-btn btn-view-pitch" data-title="${escapeHtml(item.target)}" data-pitch="${escapeHtml(item.pitch)}" title="Voir le pitch"><i class="fa-solid fa-eye"></i></button>` : ''}
+            ${item.url ? `<a href="${item.url}" target="_blank" rel="noopener" class="luxury-action-icon-btn" title="Ouvrir le lien direct"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>` : ''}
+            ${item.type === "agency" && item.email ? `<button type="button" class="luxury-action-icon-btn primary btn-quick-resend-agency" data-id="${item.raw_id}" title="Envoyer / Relancer"><i class="fa-solid fa-paper-plane"></i></button>` : ''}
+          </div>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // --- INITIALIZATION ---
+  document.addEventListener("DOMContentLoaded", () => {
+    initLuxuryNav();
+    refreshUnifiedTracking();
+    // Auto-refresh every 12 seconds
+    setInterval(refreshUnifiedTracking, 12000);
+  });
+
+  window.refreshUnifiedTracking = refreshUnifiedTracking;
+})();
